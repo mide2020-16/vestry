@@ -113,7 +113,7 @@ export function PushNotificationManager() {
           <BellIcon className={`w-4 h-4 ${subscription ? 'text-green-600' : 'text-gray-400'}`} />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-bold text-gray-900">Push notifications</p>
+          <p className="text-sm font-bold text-gray-50">Push notifications</p>
           <p className={`text-xs ${subscription ? 'text-green-600' : 'text-gray-400'}`}>
             {subscription ? 'Active' : 'Off'}
           </p>

@@ -80,7 +80,6 @@ export default function AdminProductsPage() {
       if (!res.ok) throw new Error(data.error);
       showMessage(editingProduct ? 'Product updated!' : 'Product created!', 'success');
       closeModal();
-      // Refresh list
       const updated = await fetch('/api/products').then(r => r.json());
       if (updated.success) setProducts(updated.data);
     } catch (err: unknown) {
@@ -121,18 +120,19 @@ export default function AdminProductsPage() {
     }
   };
 
-  if (isLoading) return <div className="text-white">Loading products…</div>;
+  if (isLoading) return <div className="text-white p-4">Loading products…</div>;
 
   return (
-    <div className="max-w-4xl">
-      <h2 className="text-3xl font-bold text-white mb-2">Product Management</h2>
-      <p className="text-neutral-400 mb-8 border-b border-neutral-800 pb-4">
+    <div className="max-w-4xl px-4 sm:px-0">
+      {/* Header */}
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1.5">Product Management</h2>
+      <p className="text-neutral-400 mb-6 border-b border-neutral-800 pb-4 text-sm sm:text-base">
         Manage mesh outfits, food, and drink options available during registration.
       </p>
 
-      {/* Toast */}
+      {/* Toast — fixed on mobile so it's always visible */}
       {message && (
-        <div className={`p-4 mb-6 rounded-lg font-medium text-sm ${
+        <div className={`fixed bottom-4 left-4 right-4 sm:static sm:mb-6 z-50 p-4 rounded-lg font-medium text-sm shadow-lg sm:shadow-none ${
           message.type === 'success'
             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
             : 'bg-red-500/10 text-red-400 border border-red-500/20'
@@ -141,29 +141,31 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Category Tabs */}
-      <div className="flex gap-2 mb-6">
-        {Object.entries(CATEGORY_CONFIG).map(([cat, cfg]) => {
-          const isActive = activeCategory === cat;
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setActiveCategory(cat as ProductCategory)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all
-                ${isActive
-                  ? `${COLOR_MAP[cfg.color]} border-current`
-                  : 'text-neutral-400 bg-neutral-900 border-neutral-800 hover:border-neutral-600'
-                }`}
-            >
-              <cfg.icon size={15} />
-              {cfg.label}
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/10' : 'bg-neutral-800'}`}>
-                {products.filter(p => p.category === cat).length}
-              </span>
-            </button>
-          );
-        })}
+      {/* Category Tabs — scrollable row on mobile */}
+      <div className="-mx-4 sm:mx-0 px-4 sm:px-0 mb-6">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory">
+          {Object.entries(CATEGORY_CONFIG).map(([cat, cfg]) => {
+            const isActive = activeCategory === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat as ProductCategory)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all whitespace-nowrap shrink-0 snap-start
+                  ${isActive
+                    ? `${COLOR_MAP[cfg.color]} border-current`
+                    : 'text-neutral-400 bg-neutral-900 border-neutral-800 hover:border-neutral-600'
+                  }`}
+              >
+                <cfg.icon size={15} />
+                {cfg.label}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/10' : 'bg-neutral-800'}`}>
+                  {products.filter(p => p.category === cat).length}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <ProductList

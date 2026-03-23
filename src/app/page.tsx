@@ -120,7 +120,7 @@ export default function Home() {
         </div>
 
         {/* Footer note */}
-        <p className="text-neutral-600 text-xs pt-6 tracking-wide">
+        <p className="text-neutral-600 text-xs pt-6 tracking-wide mb-4">
           Need help? Reach out to your cell leader or parish coordinator.
         </p>
       </div>

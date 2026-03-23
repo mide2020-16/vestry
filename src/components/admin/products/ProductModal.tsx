@@ -28,15 +28,22 @@ export function ProductModal({
 }: ProductModalProps) {
   const config = CATEGORY_CONFIG[activeCategory];
   const accentClass = ACCENT_MAP[config.color];
-  const inputCls = `w-full bg-black/40 border border-neutral-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 ${accentClass} transition-colors`;
+  const inputCls = `w-full bg-black/40 border border-neutral-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:ring-2 ${accentClass} transition-colors`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Sheet slides up from bottom on mobile, centered on sm+ */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-md shadow-2xl max-h-[92dvh] overflow-y-auto">
+
+        {/* Drag handle — mobile only */}
+        <div className="w-10 h-1 bg-neutral-700 rounded-full mx-auto mb-5 sm:hidden" />
 
         {/* Title */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white">
+          <h3 className="text-lg sm:text-xl font-bold text-white">
             {isEditing ? 'Edit' : 'Add'} {config.label}
           </h3>
           <button
@@ -59,7 +66,7 @@ export function ProductModal({
               value={form.name}
               onChange={(e) => onChange({ name: e.target.value })}
               placeholder={activeCategory === ProductCategory.mesh ? 'e.g. Classic White Tee' : 'e.g. Jollof Rice'}
-              className={inputCls}
+              className={`${inputCls} text-lg`}
             />
           </div>
 
@@ -105,7 +112,7 @@ export function ProductModal({
               />
             </div>
           )}
-          
+
           {/* Price */}
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-neutral-300">
@@ -113,11 +120,12 @@ export function ProductModal({
             </label>
             <input
               type="number"
+              inputMode="numeric"
               value={form.price === 0 ? '' : form.price}
               min={0}
               placeholder="0"
               onChange={(e) => onChange({ price: e.target.value === '' ? 0 : Number(e.target.value) })}
-              className={`${inputCls} font-mono`}
+              className={`${inputCls} font-mono text-lg`}
             />
           </div>
 
@@ -127,7 +135,7 @@ export function ProductModal({
               type="button"
               aria-label={form.available ? 'Hide from attendees' : 'Show to attendees'}
               onClick={() => onChange({ available: !form.available })}
-              className={`w-10 h-6 rounded-full transition-all relative ${form.available ? 'bg-emerald-500' : 'bg-neutral-700'}`}
+              className={`w-10 h-6 rounded-full transition-all relative shrink-0 ${form.available ? 'bg-emerald-500' : 'bg-neutral-700'}`}
             >
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${form.available ? 'left-5' : 'left-1'}`} />
             </button>
@@ -137,12 +145,12 @@ export function ProductModal({
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions — full-width stacked tap targets on mobile */}
         <div className="flex gap-3 mt-8">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-colors"
+            className="flex-1 py-3.5 sm:py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-colors"
           >
             Cancel
           </button>
@@ -150,7 +158,7 @@ export function ProductModal({
             type="submit"
             onClick={onSave}
             disabled={isSaving}
-            className="flex-1 py-3 bg-white hover:bg-neutral-200 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-1 py-3.5 sm:py-3 bg-white hover:bg-neutral-200 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSaving ? 'Saving…' : <><Check size={16} /> Save</>}
           </button>
