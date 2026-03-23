@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata, Viewport } from 'next';
 import { PushNotificationManager } from '@/components/PushNotificationManager';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { Toggle } from '@/components/toggleButton';
 
 export const metadata: Metadata = {
   title: 'Vestry Event',
@@ -124,8 +125,10 @@ export default function Home() {
           Need help? Reach out to your cell leader or parish coordinator.
         </p>
       </div>
-
-      <PushNotificationManager />
+      
+      <Toggle label='Send Message'>
+        <PushNotificationManager />
+      </Toggle>
       <InstallPrompt />
     </div>
   );
