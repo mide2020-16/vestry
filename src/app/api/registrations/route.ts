@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       drinkSelection,
       totalAmount,
       paystackReference,
-      payment_status: false,
+      paymentStatus: false,
     });
 
     console.log('Registration created:', registration._id, 'ref:', paystackReference);

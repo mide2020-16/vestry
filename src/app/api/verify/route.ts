@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     await Registration.findOneAndUpdate(
       { paystackReference: reference },
-      { payment_status: true },
+      { paymentStatus: true },
     );
 
     return NextResponse.json({ verified: true });

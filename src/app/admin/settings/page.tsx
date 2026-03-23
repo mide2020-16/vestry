@@ -156,10 +156,10 @@ export default function AdminSettingsPage() {
             <p className="text-sm font-semibold text-neutral-300 mb-3">Ticket Pricing</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Single Ticket (₦)">
-                <input type="number" name="singlePrice" value={form.singlePrice} onChange={handleChange} required min="0" className={inputCls()} />
+                <input title='singleprice' type="number" name="singlePrice" value={form.singlePrice} onChange={handleChange} required min="0" className={inputCls()} />
               </Field>
               <Field label="Couple Ticket (₦)">
-                <input type="number" name="couplePrice" value={form.couplePrice} onChange={handleChange} required min="0" className={inputCls()} />
+                <input title='coupleprice' type="number" name="couplePrice" value={form.couplePrice} onChange={handleChange} required min="0" className={inputCls()} />
               </Field>
             </div>
           </div>
@@ -171,10 +171,10 @@ export default function AdminSettingsPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="mesh — Single (₦)">
-                <input type="number" name="meshSinglePrice" value={form.meshSinglePrice} onChange={handleChange} min="0" className={inputCls()} />
+                <input title='meshprice' type="number" name="meshSinglePrice" value={form.meshSinglePrice} onChange={handleChange} min="0" className={inputCls()} />
               </Field>
               <Field label="mesh — Couple (₦ per person)">
-                <input type="number" name="meshCouplePrice" value={form.meshCouplePrice} onChange={handleChange} min="0" className={inputCls()} />
+                <input title='meshcouple' type="number" name="meshCouplePrice" value={form.meshCouplePrice} onChange={handleChange} min="0" className={inputCls()} />
               </Field>
             </div>
           </div>

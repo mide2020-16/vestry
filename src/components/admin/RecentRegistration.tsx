@@ -3,7 +3,7 @@ interface Registration {
   name: string;
   ticketType: string;
   totalAmount: number;
-  payment_status: boolean;
+  paymentStatus: boolean;
 }
 
 interface RecentRegistrationsProps {
@@ -54,7 +54,7 @@ export function RecentRegistrations({ registrations }: RecentRegistrationsProps)
                   <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
                   <td className="px-6 py-4 font-mono">₦{reg.totalAmount.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <PaymentBadge paid={reg.payment_status} />
+                    <PaymentBadge paid={reg.paymentStatus} />
                   </td>
                 </tr>
               ))}

@@ -10,7 +10,7 @@ export default async function AdminDashboardPage() {
 
   const registrations = await Registration.find().lean();
 
-  const paid = registrations.filter((r) => r.payment_status);
+  const paid = registrations.filter((r) => r.paymentStatus);
 
   const totalRevenue = paid.reduce((sum, r) => sum + r.totalAmount, 0);
   const totalAttendees = registrations.reduce(

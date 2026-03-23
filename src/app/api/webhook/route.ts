@@ -34,7 +34,7 @@ async function handleChargeSuccess(data: {
 
   const registration = await Registration.findByIdAndUpdate(
     registrationId,
-    { payment_status: true, paystackReference: reference },
+    { paymentStatus: true, paystackReference: reference },
     { new: true },
   );
 

@@ -92,7 +92,7 @@ export default async function AdminInventoryPage() {
 
   const [products, registrations] = await Promise.all([
     Product.find().lean(),
-    Registration.find({ payment_status: true }).lean(),
+    Registration.find({ paymentStatus: true }).lean(),
   ]);
 
   // Seed stat map from products

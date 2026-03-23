@@ -46,7 +46,7 @@ function CheckoutContent() {
   }, [searchParams, session]);
 
   const handleConfirmPayment = async () => {
-  if (!order) return;
+  if (!order || isPaying) return;
   setIsPaying(true);
   setError(null);
 
@@ -63,7 +63,7 @@ function CheckoutContent() {
         foodSelections: order.foods.map((f) => f._id),
         drinkSelection: order.drink?._id,
         totalAmount:    order.grandTotal,
-        payment_status: false,
+        paymentStatus: false,
       }),
     });
 
@@ -85,7 +85,8 @@ function CheckoutContent() {
       onSuccess: (transaction: { reference: string }) => {
         router.push(`/success?ref=${transaction.reference}`);
       },
-      onCancel: () => {
+      onCancel: async () => {
+          await fetch(`/api/registrations/${data.registrationId}`, { method: 'DELETE' });
         setIsPaying(false);
         setIsModalOpen(false);
       },
