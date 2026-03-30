@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Registration from '@/models/Registration';
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/lib/dbConnect";
+import Registration from "@/models/Registration";
 
 // ── types ──────────────────────────────────────────────────────────────────
 
@@ -18,12 +18,14 @@ interface PaystackVerifyResponse {
 
 /** Rejects anything that isn't a plain alphanumeric/dash/underscore reference. */
 function isSafeReference(ref: unknown): ref is string {
-  return typeof ref === 'string' && /^[\w-]+$/.test(ref);
+  return typeof ref === "string" && /^[\w-]+$/.test(ref);
 }
 
-async function verifyWithPaystack(reference: string): Promise<PaystackVerifyResponse> {
+async function verifyWithPaystack(
+  reference: string,
+): Promise<PaystackVerifyResponse> {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
-  if (!secretKey) throw new Error('Paystack secret key is not configured');
+  if (!secretKey) throw new Error("Paystack secret key is not configured");
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
@@ -34,16 +36,16 @@ async function verifyWithPaystack(reference: string): Promise<PaystackVerifyResp
       {
         headers: {
           Authorization: `Bearer ${secretKey}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        cache: 'no-store',
+        cache: "no-store",
         signal: controller.signal,
       },
     );
 
     const text = await res.text();
 
-    if (!text) throw new Error('Empty response from Paystack');
+    if (!text) throw new Error("Empty response from Paystack");
 
     let body: PaystackVerifyResponse;
     try {
@@ -71,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     if (!isSafeReference(reference)) {
       return NextResponse.json(
-        { verified: false, error: 'A valid reference is required' },
+        { verified: false, error: "A valid reference is required" },
         { status: 400 },
       );
     }
@@ -80,20 +82,27 @@ export async function POST(req: NextRequest) {
     try {
       paystackData = await verifyWithPaystack(reference);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Verification failed';
-      const isTimeout = err instanceof Error && err.name === 'AbortError';
-      const isConfig = message.includes('not configured');
+      const message =
+        err instanceof Error ? err.message : "Verification failed";
+      const isTimeout = err instanceof Error && err.name === "AbortError";
+      const isConfig = message.includes("not configured");
 
-      console.error('Paystack verification error:', message);
+      console.error("Paystack verification error:", message);
       return NextResponse.json(
-        { verified: false, error: isTimeout ? 'Request to Paystack timed out' : message },
+        {
+          verified: false,
+          error: isTimeout ? "Request to Paystack timed out" : message,
+        },
         { status: isTimeout ? 504 : isConfig ? 500 : 502 },
       );
     }
 
-    if (paystackData.data?.status !== 'success') {
+    if (paystackData.data?.status !== "success") {
       return NextResponse.json(
-        { verified: false, error: `Payment status: ${paystackData.data?.status ?? 'unknown'}` },
+        {
+          verified: false,
+          error: `Payment status: ${paystackData.data?.status ?? "unknown"}`,
+        },
         { status: 400 },
       );
     }
@@ -106,8 +115,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ verified: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Verify route error:', error);
-    return NextResponse.json({ verified: false, error: message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Verify route error:", error);
+    return NextResponse.json(
+      { verified: false, error: message },
+      { status: 500 },
+    );
   }
 }

@@ -18,9 +18,6 @@ export interface OrderData {
   mesh: CheckoutProduct | null;
   meshSize: string | null;
   meshColor: string | null;
-  /** * Changed to plural 'meshInscriptions' to match Schema.
-   * If a couple ticket is selected, this can hold both names.
-   */
   meshInscriptions: string[];
 
   // F&B Selections

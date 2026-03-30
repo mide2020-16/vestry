@@ -1,6 +1,6 @@
 // components/receipt/TearLine.tsx
-import { View } from '@react-pdf/renderer';
-import { styles } from '@/constants/receipt.styles';
+import { View } from "@react-pdf/renderer";
+import { styles } from "@/constants/receipt.styles";
 
 export function TearLine() {
   return (

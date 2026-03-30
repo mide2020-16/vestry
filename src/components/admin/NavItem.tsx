@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { type LucideIcon } from 'lucide-react';
+import Link from "next/link";
+import { type LucideIcon } from "lucide-react";
 
 interface NavItemProps {
   href: string;
@@ -11,19 +11,25 @@ interface NavItemProps {
   collapsed: boolean;
 }
 
-export function NavItem({ href, label, icon: Icon, isActive, collapsed }: NavItemProps) {
+export function NavItem({
+  href,
+  label,
+  icon: Icon,
+  isActive,
+  collapsed,
+}: NavItemProps) {
   return (
     <Link
       href={href}
       title={collapsed ? label : undefined}
       className={`relative flex items-center gap-4 p-4 rounded-xl font-medium transition-all duration-500 ease-in-out group
-        ${collapsed ? 'justify-center w-11 h-11 mx-auto' : 'px-4 py-3.5 w-full'}
-        ${isActive ? 'bg-white/10 text-white' : 'text-neutral-400 hover:bg-white/5 hover:text-white'}`}
+        ${collapsed ? "justify-center w-11 h-11 mx-auto" : "px-4 py-3.5 w-full"}
+        ${isActive ? "bg-white/10 text-white" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
     >
       <Icon
         size={20}
         className={`shrink-0 transition-all duration-500
-          ${isActive ? 'text-amber-400' : 'text-neutral-500 group-hover:text-white'}`}
+          ${isActive ? "text-amber-400" : "text-neutral-500 group-hover:text-white"}`}
       />
 
       {!collapsed && (

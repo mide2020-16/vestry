@@ -6,10 +6,14 @@ import { TicketType } from "../useRegister";
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
 interface Props {
-  name: string;           setName: (v: string) => void;
-  email: string;          setEmail: (v: string) => void;
-  ticketType: TicketType; setTicketType: (v: TicketType) => void;
-  partnerName: string;    setPartnerName: (v: string) => void;
+  name: string;
+  setName: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
+  ticketType: TicketType;
+  setTicketType: (v: TicketType) => void;
+  partnerName: string;
+  setPartnerName: (v: string) => void;
   ticketPrice: number;
   singlePrice?: number;
   couplePrice?: number;
@@ -27,7 +31,12 @@ interface FloatingInputProps {
 }
 
 function FloatingInput({
-  label, type = "text", name, autoComplete, value, onChange,
+  label,
+  type = "text",
+  name,
+  autoComplete,
+  value,
+  onChange,
 }: FloatingInputProps) {
   const [focused, setFocused] = useState(false);
   const lifted = focused || !!value;
@@ -49,16 +58,17 @@ function FloatingInput({
         id={name}
         type={type}
         name={name}
-        autoComplete={autoComplete}
+        autoComplete={autoComplete || "off"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className={`w-full bg-white/5 border rounded-xl px-4 pt-6 pb-2 text-white text-sm
           focus:outline-none transition-all duration-200
-          ${focused
-            ? "border-amber-400/60 bg-amber-400/5 shadow-[0_0_0_3px_rgba(251,191,36,0.06)]"
-            : "border-white/10 hover:border-white/20"
+          ${
+            focused
+              ? "border-amber-400/60 bg-amber-400/5 shadow-[0_0_0_3px_rgba(251,191,36,0.06)]"
+              : "border-white/10 hover:border-white/20"
           }`}
       />
     </div>
@@ -75,24 +85,35 @@ interface TicketCardProps {
   onSelect: () => void;
 }
 
-function TicketCard({ type, price, savings, isSelected, onSelect }: TicketCardProps) {
+function TicketCard({
+  type,
+  price,
+  savings,
+  isSelected,
+  onSelect,
+}: TicketCardProps) {
   return (
     <button
       type="button"
       onClick={onSelect}
       className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-200 overflow-hidden
-        ${isSelected
-          ? "border-amber-400 bg-amber-400/10 shadow-[0_0_20px_rgba(251,191,36,0.12)]"
-          : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8"
+        ${
+          isSelected
+            ? "border-amber-400 bg-amber-400/10 shadow-[0_0_20px_rgba(251,191,36,0.12)]"
+            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8"
         }`}
     >
       {isSelected && (
         <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
       )}
-      <p className={`font-bold capitalize text-base ${isSelected ? "text-amber-400" : "text-white/80"}`}>
+      <p
+        className={`font-bold capitalize text-base ${isSelected ? "text-amber-400" : "text-white/80"}`}
+      >
         {type}
       </p>
-      <p className={`text-sm mt-0.5 ${isSelected ? "text-amber-400/60" : "text-white/35"}`}>
+      <p
+        className={`text-sm mt-0.5 ${isSelected ? "text-amber-400/60" : "text-white/35"}`}
+      >
         ₦{price?.toLocaleString() ?? "—"}
       </p>
       {type === "couple" && savings && savings > 0 && (
@@ -107,11 +128,17 @@ function TicketCard({ type, price, savings, isSelected, onSelect }: TicketCardPr
 /* ── Step 1 ─────────────────────────────────────────────────────────────── */
 
 export default function Step1Details({
-  name, setName,
-  email, setEmail,
-  ticketType, setTicketType,
-  partnerName, setPartnerName,
-  ticketPrice, singlePrice, couplePrice,
+  name,
+  setName,
+  email,
+  setEmail,
+  ticketType,
+  setTicketType,
+  partnerName,
+  setPartnerName,
+  ticketPrice,
+  singlePrice,
+  couplePrice,
 }: Props) {
   const savings =
     ticketType === "couple" && singlePrice && couplePrice
@@ -120,7 +147,6 @@ export default function Step1Details({
 
   return (
     <div className="flex flex-col gap-5">
-
       {/* Section label */}
       <div className="flex items-center gap-6">
         <span className="text-amber-400/80 text-[15px] font-semibold uppercase tracking-[0.3em]">
@@ -179,14 +205,17 @@ export default function Step1Details({
       {/* Subtotal */}
       <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3.5 border border-white/10">
         <div>
-          <span className="text-white/40 text-xs uppercase tracking-wide">Subtotal</span>
-          <p className="text-white/25 text-[10px] mt-0.5 capitalize">{ticketType} ticket</p>
+          <span className="text-white/40 text-xs uppercase tracking-wide">
+            Subtotal
+          </span>
+          <p className="text-white/25 text-[10px] mt-0.5 capitalize">
+            {ticketType} ticket
+          </p>
         </div>
         <span className="text-amber-400 font-bold text-lg">
           ₦{ticketPrice.toLocaleString()}
         </span>
       </div>
-
     </div>
   );
 }

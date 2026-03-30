@@ -1,6 +1,6 @@
-import FoodCarousel from '@/components/FoodCarousel';
-import { Product } from '../useRegister';
-import { ProductCategory } from '@/constants/ProductCategory';
+import FoodCarousel from "@/components/FoodCarousel";
+import { Product } from "../useRegister";
+import { ProductCategory } from "@/constants/ProductCategory";
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -15,21 +15,23 @@ interface Props {
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
-const MAX_FOOD_SELECTIONS  = 2;
+const MAX_FOOD_SELECTIONS = 2;
 const MAX_DRINK_SELECTIONS = 1;
 
 /* ── Step 3 ─────────────────────────────────────────────────────────────── */
 
 export default function Step3Food({
-  foods, drinks,
-  selectedFoodIds, onFoodToggle,
-  selectedDrinkId, onDrinkToggle,
+  foods,
+  drinks,
+  selectedFoodIds,
+  onFoodToggle,
+  selectedDrinkId,
+  onDrinkToggle,
 }: Props) {
   const selectedDrinkIds = selectedDrinkId ? [selectedDrinkId] : [];
 
   return (
     <div className="flex flex-col gap-8">
-
       {/* Section label */}
       <div className="flex items-center gap-4">
         <span className="text-amber-400/80 text-[13px] font-semibold uppercase tracking-[0.25em]">
@@ -57,7 +59,6 @@ export default function Step3Food({
         onToggle={onDrinkToggle}
         maxSelections={MAX_DRINK_SELECTIONS}
       />
-
     </div>
   );
 }

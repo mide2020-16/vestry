@@ -4,7 +4,11 @@ interface InscriptionPickerProps {
   onSelect: (text: string) => void;
 }
 
-export default function InscriptionPicker({ inscriptions, selected, onSelect }: InscriptionPickerProps) {
+export default function InscriptionPicker({
+  inscriptions,
+  selected,
+  onSelect,
+}: InscriptionPickerProps) {
   if (!inscriptions || inscriptions.length === 0) return null;
 
   return (
@@ -15,7 +19,7 @@ export default function InscriptionPicker({ inscriptions, selected, onSelect }: 
         </span>
         <div className="flex-1 h-px bg-white/5" />
       </div>
-      
+
       <div className="grid grid-cols-1 gap-2">
         {inscriptions.map((text) => (
           <button
@@ -24,8 +28,8 @@ export default function InscriptionPicker({ inscriptions, selected, onSelect }: 
             type="button"
             className={`group relative flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 ${
               selected === text
-                ? 'border-amber-500 bg-amber-500/10 text-white shadow-[0_0_15px_rgba(245,158,11,0.1)]'
-                : 'border-white/5 bg-white/2 text-neutral-400 hover:border-white/20 hover:bg-white/5'
+                ? "border-amber-500 bg-amber-500/10 text-white shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                : "border-white/5 bg-white/2 text-neutral-400 hover:border-white/20 hover:bg-white/5"
             }`}
           >
             <span className="text-sm font-medium tracking-wide">{text}</span>

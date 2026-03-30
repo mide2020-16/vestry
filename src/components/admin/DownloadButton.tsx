@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { RegistrationPDF } from './RegistrationPDF';
-import { FileText, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { RegistrationPDF } from "./RegistrationPDF";
+import { FileText, Loader2 } from "lucide-react";
 
 export interface RegistrationForPDF {
   _id: string;
@@ -45,8 +45,8 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
   return (
     <PDFDownloadLink
       document={<RegistrationPDF registrations={registrations} />}
-      fileName={`Vestry_Master_Registry_${new Date().toISOString().split('T')[0]}.pdf`}
-      style={{ textDecoration: 'none' }}
+      fileName={`Vestry_Master_Registry_${new Date().toISOString().split("T")[0]}.pdf`}
+      style={{ textDecoration: "none" }}
       className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 transition-all text-black px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20"
     >
       {({ loading, error }) => (
@@ -57,7 +57,11 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
             <FileText className="h-4 w-4" />
           )}
           <span>
-            {error ? 'Error Generating' : loading ? 'Compiling PDF...' : 'Download Master Registry'}
+            {error
+              ? "Error Generating"
+              : loading
+                ? "Compiling PDF..."
+                : "Download Master Registry"}
           </span>
         </>
       )}

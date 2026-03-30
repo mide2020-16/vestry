@@ -29,10 +29,10 @@ function TearLine() {
 
 export function ReceiptCard({
   registration,
-  meshColors = []
- }: { 
-  registration: Registration,
-  meshColors: { label: string; value: string }[]
+  meshColors = [],
+}: {
+  registration: Registration;
+  meshColors: { label: string; value: string }[];
 }) {
   const eventDate = new Date(registration.createdAt).toLocaleDateString(
     "en-NG",
@@ -43,7 +43,9 @@ export function ReceiptCard({
       day: "numeric",
     },
   );
-  const colorLabel = meshColors.find(c => c.value === registration.meshColor)?.label;
+  const colorLabel = meshColors.find(
+    (c) => c.value === registration.meshColor,
+  )?.label;
 
   return (
     <div className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl mt-8">
@@ -103,14 +105,15 @@ export function ReceiptCard({
 
               {(registration.meshColor || registration.meshSize) && (
                 <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
-
                   {registration.meshColor && (
                     <div className="flex items-center gap-1.5">
                       <span
                         className="w-2.5 h-2.5 rounded-full border border-white/10"
                         style={{ backgroundColor: registration.meshColor }}
                       />
-                      <span className="uppercase tracking-wide text-[10px]">{colorLabel}</span>
+                      <span className="uppercase tracking-wide text-[10px]">
+                        {colorLabel}
+                      </span>
                     </div>
                   )}
 

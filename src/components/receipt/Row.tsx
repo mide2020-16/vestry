@@ -1,6 +1,6 @@
 // components/receipt/Row.tsx
-import { View, Text } from '@react-pdf/renderer';
-import { styles } from '@/constants/receipt.styles';
+import { View, Text } from "@react-pdf/renderer";
+import { styles } from "@/constants/receipt.styles";
 
 interface RowProps {
   label: string;

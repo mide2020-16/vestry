@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import { ProductCategory } from '@/constants/ProductCategory';
-import { Product } from '@/app/register/useRegister';
-import { CheckIcon } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { ProductCategory } from "@/constants/ProductCategory";
+import { Product } from "@/app/register/useRegister";
+import { CheckIcon } from "lucide-react";
 
 interface FoodCarouselProps {
   items: Product[];
@@ -16,12 +16,12 @@ interface FoodCarouselProps {
   maxSelections: number;
 }
 
-const CARD_W   = 148;
-const IMAGE_H  = 140;
-const INFO_H   = 70;
-const CARD_H   = IMAGE_H + INFO_H;
+const CARD_W = 148;
+const IMAGE_H = 140;
+const INFO_H = 70;
+const CARD_H = IMAGE_H + INFO_H;
 const CARD_GAP = 168;
-const TRACK_H  = CARD_H + 28;
+const TRACK_H = CARD_H + 28;
 
 export default function FoodCarousel({
   items,
@@ -32,7 +32,7 @@ export default function FoodCarousel({
 }: FoodCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const label     = category === ProductCategory.FOOD ? 'Food' : 'Drink';
+  const label = category === ProductCategory.FOOD ? "Food" : "Drink";
   const available = items.filter((i) => i.available);
 
   // Clamp activeIndex if available list shrinks
@@ -49,7 +49,6 @@ export default function FoodCarousel({
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
-
       {/* Header */}
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
@@ -58,28 +57,32 @@ export default function FoodCarousel({
           </span>
           <div className="h-px bg-white/10 w-10" />
         </div>
-        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-          selectedIds.length >= maxSelections
-            ? 'text-amber-400 bg-amber-400/10 border border-amber-400/20'
-            : 'text-white/40 bg-white/5 border border-white/10'
-        }`}>
+        <span
+          className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+            selectedIds.length >= maxSelections
+              ? "text-amber-400 bg-amber-400/10 border border-amber-400/20"
+              : "text-white/40 bg-white/5 border border-white/10"
+          }`}
+        >
           {selectedIds.length}/{maxSelections}
-          {selectedIds.length >= maxSelections && ' · Max'}
+          {selectedIds.length >= maxSelections && " · Max"}
         </span>
       </div>
 
       {/* Carousel track */}
-      <div className="relative w-full overflow-hidden" style={{ height: TRACK_H }}>
-
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: TRACK_H }}
+      >
         {/* Edge fades */}
         <div className="absolute inset-y-0 left-0 w-10 z-20 pointer-events-none bg-linear-to-r from-neutral-950 to-transparent" />
         <div className="absolute inset-y-0 right-0 w-10 z-20 pointer-events-none bg-linear-to-l from-neutral-950 to-transparent" />
 
         {available.map((item, index) => {
-          const offset     = index - activeIndex;
-          const isCenter   = offset === 0;
+          const offset = index - activeIndex;
+          const isCenter = offset === 0;
           const isSelected = selectedIds.includes(item._id.toString());
-          const isVisible  = Math.abs(offset) <= 2;
+          const isVisible = Math.abs(offset) <= 2;
 
           const handleClick = () => {
             if (isCenter) {
@@ -95,21 +98,23 @@ export default function FoodCarousel({
               animate={{
                 x: `calc(50% - ${CARD_W / 2}px + ${offset * CARD_GAP}px)`,
                 y: 0,
-                scale:   isCenter ? 1 : 0.78,
+                scale: isCenter ? 1 : 0.78,
                 opacity: isVisible ? (isCenter ? 1 : 0.45) : 0,
-                zIndex:  isCenter ? 10 : 10 - Math.abs(offset),
+                zIndex: isCenter ? 10 : 10 - Math.abs(offset),
               }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
               className="absolute top-0 cursor-pointer"
               style={{ width: CARD_W }}
               onClick={handleClick}
             >
-              <div className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-white/5
-                ${isSelected && isCenter
-                  ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.25)]'
-                  : isCenter
-                  ? 'border-white/20'
-                  : 'border-white/10'
+              <div
+                className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-white/5
+                ${
+                  isSelected && isCenter
+                    ? "border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
+                    : isCenter
+                      ? "border-white/20"
+                      : "border-white/10"
                 }`}
               >
                 {/* Image */}
@@ -132,11 +137,18 @@ export default function FoodCarousel({
                 </div>
 
                 {/* Info */}
-                <div className="px-3 py-2.5 text-center" style={{ height: INFO_H }}>
-                  <p className={`text-sm font-semibold truncate ${isCenter ? 'text-white' : 'text-white/60'}`}>
+                <div
+                  className="px-3 py-2.5 text-center"
+                  style={{ height: INFO_H }}
+                >
+                  <p
+                    className={`text-sm font-semibold truncate ${isCenter ? "text-white" : "text-white/60"}`}
+                  >
                     {item.name}
                   </p>
-                  <p className={`text-xs mt-0.5 ${isCenter ? 'text-amber-400' : 'text-amber-400/40'}`}>
+                  <p
+                    className={`text-xs mt-0.5 ${isCenter ? "text-amber-400" : "text-amber-400/40"}`}
+                  >
                     ₦{item.price.toLocaleString()}
                   </p>
                 </div>
@@ -144,14 +156,16 @@ export default function FoodCarousel({
 
               {/* Tap hint */}
               {isCenter && (
-                <p className={`text-center text-[10px] mt-1.5 transition-colors ${
-                  isSelected ? 'text-amber-400/60' : 'text-white/30'
-                }`}>
+                <p
+                  className={`text-center text-[10px] mt-1.5 transition-colors ${
+                    isSelected ? "text-amber-400/60" : "text-white/30"
+                  }`}
+                >
                   {isSelected
-                    ? 'Tap to remove'
+                    ? "Tap to remove"
                     : canSelect
-                    ? 'Tap to select'
-                    : 'Max reached'}
+                      ? "Tap to select"
+                      : "Max reached"}
                 </p>
               )}
             </motion.div>
@@ -178,7 +192,7 @@ export default function FoodCarousel({
               key={item._id.toString()}
               onClick={() => goTo(i)}
               className={`h-1.5 rounded-full transition-all duration-200
-                ${i === activeIndex ? 'bg-amber-400 w-4' : 'bg-white/25 w-1.5'}`}
+                ${i === activeIndex ? "bg-amber-400 w-4" : "bg-white/25 w-1.5"}`}
             />
           ))}
         </div>
@@ -192,7 +206,6 @@ export default function FoodCarousel({
           ›
         </button>
       </div>
-
     </div>
   );
 }

@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Registration from '@/models/Registration';
-import Product from '@/models/Product';
-import Settings from '@/models/Settings';
-import { nanoid } from 'nanoid';
-import { isRegistrationOpen } from '@/constants/settings';
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/dbConnect";
+import Registration from "@/models/Registration";
+import Product from "@/models/Product";
+import Settings from "@/models/Settings";
+import { nanoid } from "nanoid";
+import { isRegistrationOpen } from "@/constants/settings";
 
 // ── types ──────────────────────────────────────────────────────────────────
 
@@ -24,27 +24,31 @@ interface RegistrationBody {
 // ── helpers ────────────────────────────────────────────────────────────────
 
 function isValidEmail(value: unknown): value is string {
-  return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function isValidTicketType(value: unknown): value is 'single' | 'couple' {
-  return value === 'single' || value === 'couple';
+function isValidTicketType(value: unknown): value is "single" | "couple" {
+  return value === "single" || value === "couple";
 }
 
 async function calculateTotal(
-  ticketType: 'single' | 'couple',
+  ticketType: "single" | "couple",
   meshSelection: unknown,
 ): Promise<number> {
   await dbConnect();
-  
+
   // Fallback prices in case Settings haven't been seeded in DB yet
-  const settings = await Settings.findOne().lean() || { couplePrice: 50000, singlePrice: 30000 };
-  const base = ticketType === 'couple' ? settings.couplePrice : settings.singlePrice;
+  const settings = (await Settings.findOne().lean()) || {
+    couplePrice: 50000,
+    singlePrice: 30000,
+  };
+  const base =
+    ticketType === "couple" ? settings.couplePrice : settings.singlePrice;
 
   if (!meshSelection) return base;
 
   const mesh = await Product.findById(meshSelection).lean();
-  const meshPrice = (mesh?.price ?? 0) * (ticketType === 'couple' ? 2 : 1);
+  const meshPrice = (mesh?.price ?? 0) * (ticketType === "couple" ? 2 : 1);
 
   return base + meshPrice;
 }
@@ -52,36 +56,48 @@ async function calculateTotal(
 // ── route handler ──────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
-  if(!isRegistrationOpen()){
-    return NextResponse.json({error: "Registration has closed"}, {status: 403});
+  if (!isRegistrationOpen()) {
+    return NextResponse.json(
+      { error: "Registration has closed" },
+      { status: 403 },
+    );
   }
-  
+
   try {
     await dbConnect();
 
     const body = (await request.json()) as RegistrationBody;
-    const { 
-      name, 
-      email, 
-      ticketType, 
-      partnerName, 
-      meshSelection, 
-      meshColor, 
-      meshSize, 
-      meshInscriptions, 
-      foodSelections, 
-      drinkSelection 
+    const {
+      name,
+      email,
+      ticketType,
+      partnerName,
+      meshSelection,
+      meshColor,
+      meshSize,
+      meshInscriptions,
+      foodSelections,
+      drinkSelection,
     } = body;
 
     // Validation
-    if (!name || typeof name !== 'string') {
-      return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
+    if (!name || typeof name !== "string") {
+      return NextResponse.json(
+        { success: false, error: "Name is required" },
+        { status: 400 },
+      );
     }
     if (!isValidEmail(email)) {
-      return NextResponse.json({ success: false, error: 'A valid email is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "A valid email is required" },
+        { status: 400 },
+      );
     }
     if (!isValidTicketType(ticketType)) {
-      return NextResponse.json({ success: false, error: 'Ticket type must be "single" or "couple"' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Ticket type must be "single" or "couple"' },
+        { status: 400 },
+      );
     }
 
     const totalAmount = await calculateTotal(ticketType, meshSelection);
@@ -114,8 +130,12 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create registration';
-    console.error('Registration error:', message);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Failed to create registration";
+    console.error("Registration error:", message);
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 },
+    );
   }
 }

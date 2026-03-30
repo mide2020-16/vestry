@@ -113,14 +113,14 @@ export default function Step2Mesh({
             {renderViewport()}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ColorPicker 
-                meshColor={meshColor} 
-                setmeshColor={setmeshColor} 
+              <ColorPicker
+                meshColor={meshColor}
+                setmeshColor={setmeshColor}
                 colors={meshColors}
               />
-              <SizePicker 
-                meshSize={meshSize} 
-                setMeshSize={setMeshSize} 
+              <SizePicker
+                meshSize={meshSize}
+                setMeshSize={setMeshSize}
                 sizes={meshSizes}
               />
               <InscriptionPicker

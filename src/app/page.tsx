@@ -1,48 +1,50 @@
-import Link from 'next/link';
-import type { Metadata, Viewport } from 'next';
-import { PushNotificationManager } from '@/components/PushNotificationManager';
-import { InstallPrompt } from '@/components/InstallPrompt';
-import { Toggle } from '@/components/toggleButton';
+import Link from "next/link";
+import type { Metadata, Viewport } from "next";
+import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { Toggle } from "@/components/toggleButton";
 
 export const metadata: Metadata = {
-  title: 'Vestry Event',
-  description: 'Register for the Vestry Event',
-  manifest: '/manifest.webmanifest',
+  title: "Vestry Event",
+  description: "Register for the Vestry Event",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Vestry',
+    statusBarStyle: "black-translucent",
+    title: "Vestry",
   },
   icons: {
-    icon: '/logo/logo.png',
-    apple: '/apple-touch-icon.png',
+    icon: "/logo/logo.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: 'Vestry 2026/2027',
-    description: 'Secure your ticket, select your merch allocation, and customize your dining experience.',
-    siteName: 'Vestry Event',
-    type: 'website',
+    title: "Vestry 2026/2027",
+    description:
+      "Secure your ticket, select your merch allocation, and customize your dining experience.",
+    siteName: "Vestry Event",
+    type: "website",
     images: [
       {
-        url: '/og-image.png',
+        url: "/logo/logo.png",
         width: 1200,
         height: 630,
-        alt: 'Vestry 2026/2027 — Official Registration Portal',
+        alt: "Vestry 2026/2027 — Official Registration Portal",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Vestry 2026/2027',
-    description: 'Secure your ticket, select your merch allocation, and customize your dining experience.',
-    images: ['/og-image.png'],
+    card: "summary_large_image",
+    title: "Vestry 2026/2027",
+    description:
+      "Secure your ticket, select your merch allocation, and customize your dining experience.",
+    images: ["/logo/logo.png"],
   },
 };
 
 // Correct Next.js 14+ way to export viewport/themeColor
 export const viewport: Viewport = {
-  themeColor: '#0a0a0a',
-  width: 'device-width',
+  themeColor: "#0a0a0a",
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
@@ -50,7 +52,6 @@ export const viewport: Viewport = {
 export default function Home() {
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-
       {/* Layered ambient glows */}
       <div className="absolute inset-0 pointer-events-none -z-10">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/8 rounded-full blur-[140px]" />
@@ -61,7 +62,7 @@ export default function Home() {
           style={{
             backgroundImage: `linear-gradient(rgba(251,191,36,0.5) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(251,191,36,0.5) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
+            backgroundSize: "60px 60px",
           }}
         />
         <div className="absolute top-8 left-8 w-16 h-16 border-l border-t border-amber-500/20 rounded-tl-lg" />
@@ -69,7 +70,6 @@ export default function Home() {
       </div>
 
       <div className="text-center space-y-6 max-w-2xl relative z-10 animate-fade-in">
-
         {/* Eyebrow label */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-2">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -80,26 +80,32 @@ export default function Home() {
         <h1
           className="text-6xl md:text-8xl font-black text-transparent leading-none tracking-tighter"
           style={{
-            backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fbbf24 40%, #d97706 80%, #92400e 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            backgroundImage:
+              "linear-gradient(135deg, #fef3c7 0%, #fbbf24 40%, #d97706 80%, #92400e 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           Vestry
           <br />
-          <span className="text-5xl md:text-6xl font-bold opacity-80">2026 / 2027</span>
+          <span className="text-5xl md:text-6xl font-bold opacity-80">
+            2026 / 2027
+          </span>
         </h1>
 
         {/* Divider */}
         <div className="flex items-center gap-4 justify-center py-2">
           <div className="h-px w-12 bg-linear-to-r from-transparent to-amber-500/50" />
-          <span className="text-amber-500/60 text-xs tracking-widest uppercase">Official Portal</span>
+          <span className="text-amber-500/60 text-xs tracking-widest uppercase">
+            Official Portal
+          </span>
           <div className="h-px w-12 bg-linear-to-l from-transparent to-amber-500/50" />
         </div>
 
         {/* Subtitle */}
         <p className="text-base md:text-lg text-neutral-400 leading-relaxed max-w-md mx-auto">
-          Secure your ticket 🎟️, select your merch allocation 🗺️, and customize your dining experience 🍽️ — all in one place.
+          Secure your ticket 🎟️, select your merch allocation 🗺️, and customize
+          your dining experience 🍽️ — all in one place.
         </p>
 
         {/* CTA Buttons */}
@@ -109,7 +115,9 @@ export default function Home() {
             className="vestry-primary-btn group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-2xl text-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 overflow-hidden"
           >
             <span className="absolute inset-0 translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-linear-to-r from-transparent via-white/20 to-transparent skew-x-12" />
-            <span className="relative flex items-center gap-2">✨ Start Registration</span>
+            <span className="relative flex items-center gap-2">
+              ✨ Start Registration
+            </span>
           </Link>
 
           <Link
@@ -125,8 +133,8 @@ export default function Home() {
           Need help? Reach out to your cell leader or parish coordinator.
         </p>
       </div>
-      
-      <Toggle label='Send Message'>
+
+      <Toggle label="Send Message">
         <PushNotificationManager />
       </Toggle>
       <InstallPrompt />

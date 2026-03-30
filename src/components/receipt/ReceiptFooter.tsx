@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { View, Text, Image } from '@react-pdf/renderer';
-import { styles } from '@/constants/receipt.styles';
+import { View, Text, Image } from "@react-pdf/renderer";
+import { styles } from "@/constants/receipt.styles";
 
 interface ReceiptFooterProps {
   totalAmount: number;

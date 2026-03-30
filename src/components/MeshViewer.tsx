@@ -1,9 +1,14 @@
-'use client';
+"use client";
 
-import { Suspense, useEffect, useMemo } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment, ContactShadows } from '@react-three/drei';
-import * as THREE from 'three';
+import { Suspense, useEffect, useMemo } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import {
+  OrbitControls,
+  useGLTF,
+  Environment,
+  ContactShadows,
+} from "@react-three/drei";
+import * as THREE from "three";
 
 /* ── Module-level cache: url → centered clone (no color applied) ─────────── */
 const sceneCache = new Map<string, THREE.Group>();
@@ -90,8 +95,8 @@ interface MeshViewerProps {
 }
 
 export default function MeshViewer({
-  modelUrl = '/models/shirt.glb',
-  color = '#ffffff',
+  modelUrl = "/models/shirt.glb",
+  color = "#ffffff",
 }: MeshViewerProps) {
   useGLTF.preload(modelUrl);
 
@@ -105,7 +110,12 @@ export default function MeshViewer({
         <Suspense fallback={<LoadingBox color={color} />}>
           <Model url={modelUrl} color={color} />
           <Environment preset="city" />
-          <ContactShadows position={[0, -1.2, 0]} opacity={0.3} blur={3} far={3} />
+          <ContactShadows
+            position={[0, -1.2, 0]}
+            opacity={0.3}
+            blur={3}
+            far={3}
+          />
         </Suspense>
 
         <OrbitControls

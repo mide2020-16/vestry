@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Registration from '@/models/Registration';
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/dbConnect";
+import Registration from "@/models/Registration";
 
 type Params = Promise<{ ref: string }>;
 
@@ -10,7 +10,7 @@ export async function GET(_: Request, { params }: { params: Params }) {
 
   if (!ref || !/^[\w-]+$/.test(ref)) {
     return NextResponse.json(
-      { success: false, error: 'Invalid reference format' },
+      { success: false, error: "Invalid reference format" },
       { status: 400 },
     );
   }
@@ -19,14 +19,14 @@ export async function GET(_: Request, { params }: { params: Params }) {
     await dbConnect();
 
     const registration = await Registration.findOne({ paystackReference: ref })
-      .populate('meshSelection', 'name price')
-      .populate('foodSelections', 'name')
-      .populate('drinkSelection', 'name')
+      .populate("meshSelection", "name price")
+      .populate("foodSelections", "name")
+      .populate("drinkSelection", "name")
       .lean();
 
     if (!registration) {
       return NextResponse.json(
-        { success: false, error: 'Registration not found' },
+        { success: false, error: "Registration not found" },
         { status: 404 },
       );
     }
@@ -34,7 +34,7 @@ export async function GET(_: Request, { params }: { params: Params }) {
     return NextResponse.json({ success: true, data: registration });
   } catch {
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch registration' },
+      { success: false, error: "Failed to fetch registration" },
       { status: 500 },
     );
   }

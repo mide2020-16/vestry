@@ -34,7 +34,7 @@ export default function OutlineTitle({ text }: OutlineTitleProps) {
         width="100%"
         viewBox="0 0 900 90"
         preserveAspectRatio="xMidYMid meet"
-        style={{ overflow: 'visible', maxHeight: 90 }}
+        style={{ overflow: "visible", maxHeight: 90 }}
         aria-label={text}
         role="img"
       >

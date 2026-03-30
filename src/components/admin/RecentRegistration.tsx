@@ -12,24 +12,28 @@ interface RecentRegistrationsProps {
 }
 
 function PaymentBadge({ status }: { status: boolean | string }) {
-  const paid = status === true || status === 'success';
+  const paid = status === true || status === "success";
   return (
     <span
       className={`px-2 py-1 rounded-full text-xs font-medium ${
         paid
-          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-          : 'bg-neutral-800 text-neutral-300 border border-neutral-700'
+          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+          : "bg-neutral-800 text-neutral-300 border border-neutral-700"
       }`}
     >
-      {paid ? 'Paid' : 'Pending'}
+      {paid ? "Paid" : "Pending"}
     </span>
   );
 }
 
-export function RecentRegistrations({ registrations }: RecentRegistrationsProps) {
+export function RecentRegistrations({
+  registrations,
+}: RecentRegistrationsProps) {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-lg p-6">
-      <h3 className="text-xl font-bold text-white mb-6">Recent Registrations</h3>
+      <h3 className="text-xl font-bold text-white mb-6">
+        Recent Registrations
+      </h3>
 
       {registrations.length === 0 ? (
         <p className="text-neutral-500 py-8 text-center bg-black/20 rounded-xl border border-neutral-800">
@@ -52,9 +56,13 @@ export function RecentRegistrations({ registrations }: RecentRegistrationsProps)
                   key={reg._id.toString()}
                   className="border-b border-neutral-800/50 hover:bg-neutral-800/20 transition-colors"
                 >
-                  <td className="px-6 py-4 font-medium text-white">{reg.name}</td>
+                  <td className="px-6 py-4 font-medium text-white">
+                    {reg.name}
+                  </td>
                   <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
-                  <td className="px-6 py-4 font-mono">₦{reg.totalAmount.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-mono">
+                    ₦{reg.totalAmount.toLocaleString()}
+                  </td>
                   <td className="px-6 py-4">
                     <PaymentBadge status={reg.paymentStatus} />
                   </td>

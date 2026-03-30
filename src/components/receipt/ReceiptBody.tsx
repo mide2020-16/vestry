@@ -10,7 +10,11 @@ interface ReceiptBodyProps {
   eventDate: string;
 }
 
-export function ReceiptBody({ registration, attendee, eventDate }: ReceiptBodyProps) {
+export function ReceiptBody({
+  registration,
+  attendee,
+  eventDate,
+}: ReceiptBodyProps) {
   return (
     <View style={styles.body}>
       <Text style={styles.sectionLabel}>Attendee details</Text>
@@ -27,9 +31,21 @@ export function ReceiptBody({ registration, attendee, eventDate }: ReceiptBodyPr
           <Row label="Merch" value={registration.meshSelection.name} />
 
           {(registration.meshColor || registration.meshSize) && (
-            <View style={{ flexDirection: "row", marginTop: 2, justifyContent: 'flex-end' }}>
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 2,
+                justifyContent: "flex-end",
+              }}
+            >
               {registration.meshColor && (
-                <View style={{ flexDirection: "row", alignItems: "center", marginRight: 10 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginRight: 10,
+                  }}
+                >
                   <View
                     style={{
                       width: 7,
@@ -37,16 +53,31 @@ export function ReceiptBody({ registration, attendee, eventDate }: ReceiptBodyPr
                       borderRadius: 3.5, // Perfect circle for PDF
                       backgroundColor: registration.meshColor,
                       marginRight: 4,
-                      border: '0.5pt solid #EEEEEE' // Hairline border for visibility
+                      border: "0.5pt solid #EEEEEE", // Hairline border for visibility
                     }}
                   />
-                  <Text style={{ fontSize: 9, color: "#666666" }}>Color Selected</Text>
+                  <Text style={{ fontSize: 9, color: "#666666" }}>
+                    Color Selected
+                  </Text>
                 </View>
               )}
 
               {registration.meshSize && (
-                <View style={{ paddingHorizontal: 4, paddingVertical: 1, backgroundColor: '#F5F5F5', borderRadius: 2 }}>
-                  <Text style={{ fontSize: 9, color: "#444444", fontWeight: 'bold' }}>
+                <View
+                  style={{
+                    paddingHorizontal: 4,
+                    paddingVertical: 1,
+                    backgroundColor: "#F5F5F5",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      color: "#444444",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Size: {registration.meshSize}
                   </Text>
                 </View>
@@ -60,7 +91,9 @@ export function ReceiptBody({ registration, attendee, eventDate }: ReceiptBodyPr
       {(registration.foodSelections?.length ?? 0) > 0 && (
         <Row
           label="Food"
-          value={registration.foodSelections?.map((f: any) => f.name).join(", ")}
+          value={registration.foodSelections
+            ?.map((f: any) => f.name)
+            .join(", ")}
         />
       )}
 

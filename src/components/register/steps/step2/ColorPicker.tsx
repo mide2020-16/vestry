@@ -3,7 +3,7 @@
 interface ColorPickerProps {
   meshColor: string;
   setmeshColor: (c: string) => void;
-  colors: { label: string; value: string}[];
+  colors: { label: string; value: string }[];
 }
 
 export default function ColorPicker({

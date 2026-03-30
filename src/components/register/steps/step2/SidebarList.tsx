@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Product, TicketType } from '@/app/register/useRegister';
-import MiniCard from './MiniCard';
+import { Product, TicketType } from "@/app/register/useRegister";
+import MiniCard from "./MiniCard";
 
 interface SidebarListProps {
   meshes: Product[];
@@ -10,7 +10,12 @@ interface SidebarListProps {
   onToggle: (id: string) => void;
 }
 
-export default function SidebarList({ meshes, selectedmeshId, ticketType, onToggle }: SidebarListProps) {
+export default function SidebarList({
+  meshes,
+  selectedmeshId,
+  ticketType,
+  onToggle,
+}: SidebarListProps) {
   return (
     <div className="flex flex-col gap-2 w-36 shrink-0">
       {meshes.map((m) => (

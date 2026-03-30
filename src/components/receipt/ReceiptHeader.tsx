@@ -1,6 +1,6 @@
 // components/receipt/ReceiptHeader.tsx
-import { View, Text } from '@react-pdf/renderer';
-import { styles } from '@/constants/receipt.styles';
+import { View, Text } from "@react-pdf/renderer";
+import { styles } from "@/constants/receipt.styles";
 
 interface ReceiptHeaderProps {
   paystackReference: string;
