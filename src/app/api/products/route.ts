@@ -12,6 +12,8 @@ function isValidCategory(value: unknown): value is Category {
 
 // GET /api/products
 export async function GET(request: Request) {
+  await dbConnect();
+  
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
@@ -28,7 +30,6 @@ export async function GET(request: Request) {
       );
     }
 
-    await dbConnect();
 
     // Admins see everything; public only sees available products
     const query: Record<string, unknown> = category ? { category } : {};

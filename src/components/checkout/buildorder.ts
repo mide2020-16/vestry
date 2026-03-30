@@ -24,7 +24,7 @@ export async function buildOrder(
   const foodIds = searchParams.getAll("foodId");
   const drinkId = searchParams.get("drinkId");
   const ticketPrice = Number(searchParams.get("ticketPrice") ?? 0);
-  const meshInscriptions = searchParams.getAll('meshInscriptions')
+  const meshInscription = searchParams.get('meshInscription')
 
   const [mesh, foods, drink] = await Promise.all([
     meshId ? fetchProduct(meshId) : Promise.resolve(null),
@@ -48,6 +48,6 @@ export async function buildOrder(
     ticketPrice,
     meshTotal,
     grandTotal: ticketPrice + meshTotal,
-    meshInscriptions,
+    meshInscription,
   };
 }

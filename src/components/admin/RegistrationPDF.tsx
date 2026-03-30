@@ -174,9 +174,10 @@ export const RegistrationPDF = ({
 
             <View style={styles.colInscription}>
               <Text style={styles.inscriptionText}>
-                {reg.meshInscriptions && reg.meshInscriptions.length > 0
+                {Array.isArray(reg.meshInscriptions) && reg.meshInscriptions.length > 0
                   ? reg.meshInscriptions.map((i) => `"${i}"`).join(", ")
-                  : "—"}
+                  : "—"
+                }
               </Text>
             </View>
 
