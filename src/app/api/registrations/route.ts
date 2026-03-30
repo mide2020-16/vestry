@@ -4,6 +4,7 @@ import Registration from '@/models/Registration';
 import Product from '@/models/Product';
 import Settings from '@/models/Settings';
 import { nanoid } from 'nanoid';
+import { isRegistrationOpen } from '@/constants/settings';
 
 // ── types ──────────────────────────────────────────────────────────────────
 
@@ -13,6 +14,9 @@ interface RegistrationBody {
   ticketType?: unknown;
   partnerName?: unknown;
   meshSelection?: unknown;
+  meshColor?: unknown;
+  meshSize?: unknown;
+  meshInscriptions?: unknown; // Successfully mapped to model
   foodSelections?: unknown;
   drinkSelection?: unknown;
 }
@@ -31,7 +35,10 @@ async function calculateTotal(
   ticketType: 'single' | 'couple',
   meshSelection: unknown,
 ): Promise<number> {
-  const settings = await Settings.findOne().lean() ?? await Settings.create({});
+  await dbConnect();
+  
+  // Fallback prices in case Settings haven't been seeded in DB yet
+  const settings = await Settings.findOne().lean() || { couplePrice: 50000, singlePrice: 30000 };
   const base = ticketType === 'couple' ? settings.couplePrice : settings.singlePrice;
 
   if (!meshSelection) return base;
@@ -45,29 +52,36 @@ async function calculateTotal(
 // ── route handler ──────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  if(!isRegistrationOpen()){
+    return NextResponse.json({error: "Registration has closed"}, {status: 403});
+  }
+  
   try {
     await dbConnect();
 
     const body = (await request.json()) as RegistrationBody;
-    const { name, email, ticketType, partnerName, meshSelection, foodSelections, drinkSelection } = body;
+    const { 
+      name, 
+      email, 
+      ticketType, 
+      partnerName, 
+      meshSelection, 
+      meshColor, 
+      meshSize, 
+      meshInscriptions, 
+      foodSelections, 
+      drinkSelection 
+    } = body;
 
+    // Validation
     if (!name || typeof name !== 'string') {
-      return NextResponse.json(
-        { success: false, error: 'Name is required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
     }
     if (!isValidEmail(email)) {
-      return NextResponse.json(
-        { success: false, error: 'A valid email is required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: 'A valid email is required' }, { status: 400 });
     }
     if (!isValidTicketType(ticketType)) {
-      return NextResponse.json(
-        { success: false, error: 'ticketType must be "single" or "couple"' },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: 'Ticket type must be "single" or "couple"' }, { status: 400 });
     }
 
     const totalAmount = await calculateTotal(ticketType, meshSelection);
@@ -79,6 +93,9 @@ export async function POST(request: Request) {
       ticketType,
       partnerName,
       meshSelection,
+      meshColor,
+      meshSize,
+      meshInscriptions, // Saved to DB
       foodSelections,
       drinkSelection,
       totalAmount,
@@ -86,10 +103,9 @@ export async function POST(request: Request) {
       paymentStatus: false,
     });
 
-    console.log('Registration created:', registration._id, 'ref:', paystackReference);
-
     return NextResponse.json(
       {
+        success: true,
         _id: registration._id,
         paystackReference: registration.paystackReference,
         totalAmount: registration.totalAmount,

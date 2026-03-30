@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-'use client';
-import { useState, useEffect, useCallback } from 'react';
+"use client";
+import { useState, useEffect, useCallback } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -11,25 +11,25 @@ export interface UserSessionData {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const SESSION_KEY = 'vestry_user_session';
+const SESSION_KEY = "vestry_user_session";
 
 function parseSession(raw: string): UserSessionData | null {
   try {
     const parsed = JSON.parse(raw);
 
     if (
-      typeof parsed === 'object' &&
+      typeof parsed === "object" &&
       parsed !== null &&
-      typeof parsed.name === 'string' &&
-      typeof parsed.email === 'string'
+      typeof parsed.name === "string" &&
+      typeof parsed.email === "string"
     ) {
       return parsed as UserSessionData;
     }
 
-    console.warn('Invalid session shape in localStorage, discarding.');
+    console.warn("Invalid session shape in localStorage, discarding.");
     return null;
   } catch {
-    console.error('Failed to parse user session from localStorage.');
+    console.error("Failed to parse user session from localStorage.");
     return null;
   }
 }
@@ -41,7 +41,7 @@ export function useUserSession() {
 
   useEffect(() => {
     // Guard against SSR environments
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const raw = localStorage.getItem(SESSION_KEY);
     if (raw) {

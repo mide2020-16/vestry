@@ -41,7 +41,7 @@ export function VestryReceiptPDF({ registration, qrDataUrl }: VestryReceiptPDFPr
 
         <View style={styles.strip}>
           <Text style={styles.stripText}>Present this ticket at the entrance</Text>
-          <Text style={styles.stripAccent}>mfmcf.funaab</Text>
+          <Text style={styles.stripAccent}>VESTRY | MFMCFFUNAAB</Text>
         </View>
 
         <View style={styles.accentBar} />

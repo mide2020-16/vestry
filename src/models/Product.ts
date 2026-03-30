@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { ProductCategory } from '@/constants/ProductCategory';
+import mongoose, { Schema, Document } from "mongoose";
+import { ProductCategory } from "@/constants/ProductCategory";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -8,6 +8,7 @@ export interface IProduct extends Document {
   image_url: string;
   modelUrl?: string;
   price: number;
+  inscriptions: string[]; // Fixed: changed from [string] to string[] and made plural
   category: ProductCategory;
   available: boolean;
   createdAt: Date;
@@ -32,10 +33,15 @@ const ProductSchema: Schema = new Schema(
       type: String,
       trim: true,
     },
+    inscriptions: {
+      type: [String], // Cleaner syntax for an array of strings
+      default: [],
+      trim: true,
+    },
     price: {
       type: Number,
       required: true,
-      min: [0, 'Price cannot be negative'],
+      min: [0, "Price cannot be negative"],
     },
     category: {
       type: String,
@@ -51,13 +57,13 @@ const ProductSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 
 const Product =
   (mongoose.models.Product as mongoose.Model<IProduct>) ||
-  mongoose.model<IProduct>('Product', ProductSchema);
+  mongoose.model<IProduct>("Product", ProductSchema);
 
 export default Product;

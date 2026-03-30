@@ -3,14 +3,16 @@ interface Registration {
   name: string;
   ticketType: string;
   totalAmount: number;
-  paymentStatus: boolean;
+  // Matches the schema — can be boolean OR the legacy string 'success'
+  paymentStatus: boolean | string;
 }
 
 interface RecentRegistrationsProps {
   registrations: Registration[];
 }
 
-function PaymentBadge({ paid }: { paid: boolean }) {
+function PaymentBadge({ status }: { status: boolean | string }) {
+  const paid = status === true || status === 'success';
   return (
     <span
       className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -54,7 +56,7 @@ export function RecentRegistrations({ registrations }: RecentRegistrationsProps)
                   <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
                   <td className="px-6 py-4 font-mono">₦{reg.totalAmount.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <PaymentBadge paid={reg.paymentStatus} />
+                    <PaymentBadge status={reg.paymentStatus} />
                   </td>
                 </tr>
               ))}

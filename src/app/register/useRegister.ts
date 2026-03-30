@@ -1,19 +1,19 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserSession } from '@/hooks/useUserSession';
-import { ProductCategory } from '@/constants/ProductCategory';
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUserSession } from "@/hooks/useUserSession";
+import { ProductCategory } from "@/constants/ProductCategory";
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
-
 export interface Product {
   _id: string;
   name: string;
   image_url: string;
-  model_url?: string;
+  modelUrl?: string;
   price: number;
+  inscriptions: string[];
   category?: string;
   available: boolean;
 }
@@ -23,43 +23,54 @@ export interface Settings {
   couplePrice: number;
   tenureName: string;
   logoUrl: string;
+  meshColors: { label: string; value: string }[];
+  meshSizes: string[];
 }
 
-export type TicketType = 'single' | 'couple';
+export type TicketType = "single" | "couple";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
 export const TOTAL_STEPS = 4;
-
-export const mesh_COLORS: { label: string; value: string }[] = [
-  { label: 'Pearl White',    value: '#f5f5f0' },
-  { label: 'Midnight Black', value: '#1a1a1a' },
-  { label: 'Royal Gold',     value: '#c9a84c' },
-  { label: 'Deep Navy',      value: '#1b2a4a' },
-  { label: 'Burgundy',       value: '#6e1c2e' },
-  { label: 'Forest Green',   value: '#2d4a3e' },
-];
-
-const DEFAULT_MESH_COLOR = mesh_COLORS[0].value;
 const MAX_FOOD_SELECTIONS = 2;
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-async function fetchInitialData(): Promise<{ products: Product[]; settings: Settings | null }> {
-  const [productsRes, settingsRes] = await Promise.all([
-    fetch('/api/products'),
-    fetch('/api/settings'),
-  ]);
+async function fetchInitialData(): Promise<{
+  products: Product[];
+  settings: Settings | null;
+}> {
+  try {
+    const [productsRes, settingsRes] = await Promise.all([
+      fetch("/api/products"),
+      fetch("/api/settings"),
+    ]);
 
-  const [productsJson, settingsJson] = await Promise.all([
-    productsRes.json(),
-    settingsRes.json(),
-  ]);
+    const productsJson = await productsRes.json();
+    const settingsJson = await settingsRes.json();
 
-  return {
-    products: productsJson.success ? productsJson.data : [],
-    settings: settingsJson.success ? settingsJson.data : null,
-  };
+    // SUPER BULLETPROOF PARSING:
+    // Check for .data OR .settings wrappers (very common in Next.js APIs)
+    let finalSettings =
+      settingsJson.data || settingsJson.settings || settingsJson;
+    if (Array.isArray(finalSettings)) {
+      finalSettings = finalSettings[0];
+    }
+
+    let finalProducts =
+      productsJson.data || productsJson.products || productsJson;
+    if (!Array.isArray(finalProducts)) {
+      finalProducts = []; // Ensure products is always an array
+    }
+
+    return {
+      products: finalProducts,
+      settings: finalSettings || null,
+    };
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return { products: [], settings: null };
+  }
 }
 
 function buildCheckoutParams(data: {
@@ -68,26 +79,33 @@ function buildCheckoutParams(data: {
   name: string;
   email: string;
   partnerName: string;
-  selectedmeshId: string | null;
+  selectedMeshId: string | null;
   selectedDrinkId: string | null;
   selectedFoodIds: string[];
   meshColor: string | null;
   meshSize: string | null;
+  meshInscriptions: string | null;
 }): URLSearchParams {
   const params = new URLSearchParams({
-    ticketType:  data.ticketType,
+    ticketType: data.ticketType,
     ticketPrice: data.ticketPrice.toString(),
-    name:        data.name,
-    email:       data.email,
-    ...(data.partnerName      && { partnerName: data.partnerName }),
-    ...(data.selectedmeshId   && { meshId:      data.selectedmeshId }),
-    ...(data.selectedDrinkId  && { drinkId:     data.selectedDrinkId }),
-    // Only include color/size when a mesh is selected
-    ...(data.selectedmeshId && data.meshColor && { meshColor: data.meshColor }),
-    ...(data.selectedmeshId && data.meshSize  && { meshSize:  data.meshSize  }),
+    name: data.name,
+    email: data.email,
   });
 
-  data.selectedFoodIds.forEach((id) => params.append('foodId', id));
+  if (data.partnerName) params.append("partnerName", data.partnerName);
+
+  // Mesh related params - only appended if a mesh is selected
+  if (data.selectedMeshId) {
+    params.append("meshId", data.selectedMeshId);
+    if (data.meshColor) params.append("meshColor", data.meshColor);
+    if (data.meshSize) params.append("meshSize", data.meshSize);
+    if (data.meshInscriptions)
+      params.append("meshInscriptions", data.meshInscriptions);
+  }
+
+  if (data.selectedDrinkId) params.append("drinkId", data.selectedDrinkId);
+  data.selectedFoodIds.forEach((id) => params.append("foodId", id));
 
   return params;
 }
@@ -98,75 +116,119 @@ export function useRegister() {
   const router = useRouter();
   const { session, saveSession } = useUserSession();
 
-  // Navigation
   const [step, setStep] = useState(1);
-
-  // Remote data
-  const [products,    setProducts]    = useState<Product[]>([]);
-  const [settings,    setSettings]    = useState<Settings | null>(null);
   const [loadingData, setLoadingData] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
 
-  // Step 1 — attendee details
-  const [name,        setName]        = useState(session?.name  ?? '');
-  const [email,       setEmail]       = useState(session?.email ?? '');
-  const [ticketType,  setTicketType]  = useState<TicketType>('single');
-  const [partnerName, setPartnerName] = useState('');
+  // Form States
+  const [name, setName] = useState(session?.name ?? "");
+  const [email, setEmail] = useState(session?.email ?? "");
+  const [ticketType, setTicketType] = useState<TicketType>("single");
+  const [partnerName, setPartnerName] = useState("");
+  const [selectedMeshId, setSelectedMeshId] = useState<string | null>(null);
+  const [meshColor, setMeshColor] = useState("");
+  const [meshSize, setMeshSize] = useState<string | null>(null);
 
-  // Step 2 — merch selection
-  const [selectedmeshId, setSelectedmeshId] = useState<string | null>(null);
-  const [meshColor,      setmeshColor]      = useState(DEFAULT_MESH_COLOR);
-  const [meshSize,       setMeshSize]       = useState<string | null>(null);
+  // Explicit states for colors and sizes
+  const [meshColors, setMeshColors] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [meshSizes, setMeshSizes] = useState<string[]>([]);
 
-  // Step 3 — food & drink
-  const [selectedFoodIds,  setSelectedFoodIds]  = useState<string[]>([]);
-  const [selectedDrinkId,  setSelectedDrinkId]  = useState<string | null>(null);
+  const [meshInscriptions, setmeshInscriptions] = useState<string | null>(null);
+  const [selectedFoodIds, setSelectedFoodIds] = useState<string[]>([]);
+  const [selectedDrinkId, setSelectedDrinkId] = useState<string | null>(null);
 
-  /* Fetch on mount */
+  /* Initialization */
   useEffect(() => {
-    fetchInitialData()
-      .then(({ products, settings }) => {
-        setProducts(products);
-        setSettings(settings);
-      })
-      .catch((err) => console.error('Failed to load registration data:', err))
-      .finally(() => setLoadingData(false));
+    let isMounted = true;
+    fetchInitialData().then((data) => {
+      if (!isMounted) return;
+
+      setProducts(data.products);
+      setSettings(data.settings);
+
+      // FIXED: Safely extract colors and sizes, defaulting to empty arrays
+      const fetchedColors = data.settings?.meshColors || [];
+      const fetchedSizes = data.settings?.meshSizes || [];
+
+      // Always set the state, even if they are empty
+      setMeshColors(fetchedColors);
+      setMeshSizes(fetchedSizes);
+
+      // Set default color if available
+      if (fetchedColors.length > 0) {
+        setMeshColor(fetchedColors[0].value);
+      }
+
+      setLoadingData(false);
+    });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  /* Reset size when a different merch item is selected */
+  /* Reset dependent fields when mesh changes */
   useEffect(() => {
     setMeshSize(null);
-  }, [selectedmeshId]);
+    setmeshInscriptions(null);
+  }, [selectedMeshId]);
 
-  /* Derived product lists */
-  const meshes = useMemo(() => products.filter((p) => p.category === ProductCategory.mesh),  [products]);
-  const foods  = useMemo(() => products.filter((p) => p.category === ProductCategory.FOOD),  [products]);
-  const drinks = useMemo(() => products.filter((p) => p.category === ProductCategory.DRINK), [products]);
-
-  const selectedmesh = useMemo(
-    () => meshes.find((m) => m._id === selectedmeshId) ?? null,
-    [meshes, selectedmeshId],
+  const meshes = useMemo(
+    () => products.filter((p) => p.category === ProductCategory.mesh),
+    [products],
+  );
+  const foods = useMemo(
+    () => products.filter((p) => p.category === ProductCategory.FOOD),
+    [products],
+  );
+  const drinks = useMemo(
+    () => products.filter((p) => p.category === ProductCategory.DRINK),
+    [products],
   );
 
-  /* Pricing */
-  const isCouple    = ticketType === 'couple';
-  const ticketPrice = settings ? (isCouple ? settings.couplePrice : settings.singlePrice) : 0;
-  const meshPrice   = selectedmesh ? selectedmesh.price * (isCouple ? 2 : 1) : 0;
-  const grandTotal  = ticketPrice + meshPrice;
+  const selectedMesh = useMemo(
+    () => meshes.find((m) => m._id === selectedMeshId) ?? null,
+    [meshes, selectedMeshId],
+  );
 
-  /* Step validation */
+  const isCouple = ticketType === "couple";
+  const ticketPrice = settings
+    ? isCouple
+      ? settings.couplePrice
+      : settings.singlePrice
+    : 0;
+  const meshPrice = selectedMesh ? selectedMesh.price * (isCouple ? 2 : 1) : 0;
+  const grandTotal = ticketPrice + meshPrice;
+
   const canProceed = useMemo(() => {
     switch (step) {
       case 1:
-        return !!name && !!email && (ticketType === 'single' || !!partnerName);
+        return (
+          !!name.trim() &&
+          !!email.trim() &&
+          (ticketType === "single" || !!partnerName.trim())
+        );
       case 2:
-        // If a merch item is selected, a size must also be chosen
-        return !selectedmeshId || !!meshSize;
+        if (!selectedMeshId) return true;
+        const needsInscription = (selectedMesh?.inscriptions?.length ?? 0) > 0;
+        return !!meshSize && (!needsInscription || !!meshInscriptions);
       default:
         return true;
     }
-  }, [step, name, email, ticketType, partnerName, selectedmeshId, meshSize]);
+  }, [
+    step,
+    name,
+    email,
+    ticketType,
+    partnerName,
+    selectedMeshId,
+    meshSize,
+    meshInscriptions,
+    selectedMesh,
+  ]);
 
-  /* Handlers */
   const handleFoodToggle = (id: string) => {
     setSelectedFoodIds((prev) => {
       if (prev.includes(id)) return prev.filter((f) => f !== id);
@@ -188,30 +250,57 @@ export function useRegister() {
 
   const handleSubmit = () => {
     const params = buildCheckoutParams({
-      ticketType, ticketPrice, name, email,
-      partnerName, selectedmeshId, selectedDrinkId, selectedFoodIds,
-      meshColor: selectedmeshId ? meshColor : null,
-      meshSize:  selectedmeshId ? meshSize  : null,
+      ticketType,
+      ticketPrice,
+      name,
+      email,
+      partnerName,
+      selectedMeshId,
+      selectedDrinkId,
+      selectedFoodIds,
+      meshColor: selectedMeshId ? meshColor : null,
+      meshSize: selectedMeshId ? meshSize : null,
+      meshInscriptions: selectedMeshId ? meshInscriptions : null,
     });
     router.push(`/checkout?${params.toString()}`);
   };
 
   return {
-    // Navigation
-    step, loadingData, settings, canProceed,
-    // Step 1
-    name, setName, email, setEmail,
-    ticketType, setTicketType, partnerName, setPartnerName,
-    // Step 2
-    meshes, selectedmeshId, setSelectedmeshId,
-    meshColor, setmeshColor, selectedmesh,
-    meshSize, setMeshSize,
-    // Step 3
-    foods, drinks, selectedFoodIds, selectedDrinkId,
-    handleFoodToggle, handleDrinkToggle,
-    // Pricing
-    ticketPrice, meshPrice, grandTotal,
-    // Actions
-    handleNext, handleBack, handleSubmit,
+    step,
+    loadingData,
+    settings,
+    canProceed,
+    name,
+    setName,
+    email,
+    setEmail,
+    ticketType,
+    setTicketType,
+    partnerName,
+    setPartnerName,
+    meshes,
+    selectedMeshId,
+    setSelectedMeshId,
+    selectedMesh,
+    meshColor,
+    setMeshColor,
+    meshSize,
+    setMeshSize,
+    meshColors, // Now guaranteed to be populated correctly!
+    meshSizes, // Now guaranteed to be populated correctly!
+    meshInscriptions,
+    setmeshInscriptions,
+    foods,
+    drinks,
+    selectedFoodIds,
+    selectedDrinkId,
+    handleFoodToggle,
+    handleDrinkToggle,
+    ticketPrice,
+    meshPrice,
+    grandTotal,
+    handleNext,
+    handleBack,
+    handleSubmit,
   };
 }

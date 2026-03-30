@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Registration } from '@/types/receipt.types';
-import { TicketQR } from './TicketQR';
+import { Registration } from "@/types/receipt.types";
+import { TicketQR } from "./TicketQR";
 
-function ReceiptRow({ label, children }: { label: string; children: React.ReactNode }) {
+function ReceiptRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex justify-between items-start gap-4 py-2">
       <span className="text-neutral-500 text-sm shrink-0">{label}</span>
@@ -21,10 +27,23 @@ function TearLine() {
   );
 }
 
-export function ReceiptCard({ registration }: { registration: Registration }) {
-  const eventDate = new Date(registration.createdAt).toLocaleDateString('en-NG', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  });
+export function ReceiptCard({
+  registration,
+  meshColors = []
+ }: { 
+  registration: Registration,
+  meshColors: { label: string; value: string }[]
+}) {
+  const eventDate = new Date(registration.createdAt).toLocaleDateString(
+    "en-NG",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
+  const colorLabel = meshColors.find(c => c.value === registration.meshColor)?.label;
 
   return (
     <div className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl mt-8">
@@ -32,11 +51,17 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
       <div className="bg-linear-to-r from-amber-400 to-amber-500 px-6 py-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-black font-black text-lg uppercase tracking-widest leading-none">Vestry</p>
-            <p className="text-black/55 text-xs font-medium mt-0.5">Official Entry Ticket</p>
+            <p className="text-black font-black text-lg uppercase tracking-widest leading-none">
+              Vestry
+            </p>
+            <p className="text-black/55 text-xs font-medium mt-0.5">
+              Official Entry Ticket
+            </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-black/50 text-[10px] uppercase tracking-widest">REF</p>
+            <p className="text-black/50 text-[10px] uppercase tracking-widest">
+              REF
+            </p>
             <p className="text-black font-mono font-bold text-xs mt-0.5 break-all max-w-30">
               {registration.paystackReference}
             </p>
@@ -47,10 +72,18 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
       <TearLine />
 
       <div className="px-6 py-4">
-        <ReceiptRow label={registration.ticketType === 'couple' ? 'Attendees' : 'Attendee'}>
-          <p className="text-white font-semibold text-sm">{registration.name}</p>
+        <ReceiptRow
+          label={
+            registration.ticketType === "couple" ? "Attendees" : "Attendee"
+          }
+        >
+          <p className="text-white font-semibold text-sm">
+            {registration.name}
+          </p>
           {registration.partnerName && (
-            <p className="text-neutral-400 text-sm">💝 {registration.partnerName}</p>
+            <p className="text-neutral-400 text-sm">
+              💝 {registration.partnerName}
+            </p>
           )}
         </ReceiptRow>
         <ReceiptRow label="Email">
@@ -62,20 +95,49 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
           </span>
         </ReceiptRow>
         {registration.meshSelection && (
-          <ReceiptRow label="mesh">
-            <p className="text-white text-sm">{registration.meshSelection.name}</p>
+          <ReceiptRow label="Merch">
+            <div className="flex flex-col items-end">
+              <p className="text-white text-sm font-medium">
+                {registration.meshSelection.name}
+              </p>
+
+              {(registration.meshColor || registration.meshSize) && (
+                <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
+
+                  {registration.meshColor && (
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-white/10"
+                        style={{ backgroundColor: registration.meshColor }}
+                      />
+                      <span className="uppercase tracking-wide text-[10px]">{colorLabel}</span>
+                    </div>
+                  )}
+
+                  {registration.meshSize && (
+                    <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 font-bold text-[10px] border border-neutral-700">
+                      {registration.meshSize}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </ReceiptRow>
         )}
         {(registration.foodSelections?.length ?? 0) > 0 && (
           <ReceiptRow label="Food">
             {registration.foodSelections?.map((f: any) => (
-              <p key={f.name} className="text-white text-sm">{f.name}</p>
+              <p key={f.name} className="text-white text-sm">
+                {f.name}
+              </p>
             ))}
           </ReceiptRow>
         )}
         {registration.drinkSelection && (
           <ReceiptRow label="Drink">
-            <p className="text-white text-sm">{registration.drinkSelection.name}</p>
+            <p className="text-white text-sm">
+              {registration.drinkSelection.name}
+            </p>
           </ReceiptRow>
         )}
         <ReceiptRow label="Date">
@@ -87,7 +149,9 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
 
       <div className="px-6 py-4 flex items-center justify-between gap-4">
         <div>
-          <p className="text-neutral-500 text-xs uppercase tracking-widest mb-1">Amount Paid</p>
+          <p className="text-neutral-500 text-xs uppercase tracking-widest mb-1">
+            Amount Paid
+          </p>
           <p className="text-3xl font-black text-white tracking-tight">
             ₦{registration.totalAmount.toLocaleString()}
           </p>
@@ -98,7 +162,9 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
       <div className="px-6 pb-5">
         <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">Payment Confirmed</span>
+          <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            Payment Confirmed
+          </span>
         </div>
       </div>
     </div>

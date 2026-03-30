@@ -5,14 +5,15 @@ import { ProductForm } from '@/types/product.types';
 export const EMPTY_FORM: ProductForm = {
   name: '',
   image_url: '',
-  model_url: '',
+  modelUrl: '',
   price: 0,
   available: true,
+  inscriptions: [],
 };
 
 export const CATEGORY_CONFIG = {
   [ProductCategory.mesh]: {
-    label: 'mesh / Outfit',
+    label: 'Merch / Outfit',
     icon: Package,
     color: 'amber',
     description: 'Clothing items attendees can select and preview in 3D',

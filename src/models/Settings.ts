@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISettings extends Document {
   tenureName: string;
@@ -9,20 +9,32 @@ export interface ISettings extends Document {
   paystackPublicKey: string;
   paystackSecretKey: string;
   logoUrl: string;
+  registrationEndDate?: Date;
+  meshColors: { label: string; value: string }[];
+  meshSizes: string[];
 }
 
 const SettingsSchema: Schema = new Schema(
   {
-    tenureName:        { type: String, default: 'Vestry Event' },
-    singlePrice:       { type: Number, default: 0 },
-    couplePrice:       { type: Number, default: 0 },
-    meshSinglePrice:   { type: Number, default: 0 },
-    meshCouplePrice:   { type: Number, default: 0 },
-    paystackPublicKey: { type: String, default: '' },
-    paystackSecretKey: { type: String, default: '' },
-    logoUrl:           { type: String, default: '' },
+    tenureName: { type: String, default: "Vestry Event" },
+    singlePrice: { type: Number, default: 0 },
+    couplePrice: { type: Number, default: 0 },
+    meshSinglePrice: { type: Number, default: 0 },
+    meshCouplePrice: { type: Number, default: 0 },
+    paystackPublicKey: { type: String, default: "" },
+    paystackSecretKey: { type: String, default: "" },
+    logoUrl: { type: String, default: "" },
+    registrationEndDate: { type: Date },
+    meshColors: [
+      {
+        label: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+    meshSizes: [{ type: String }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema);
+export default mongoose.models.Settings ||
+  mongoose.model<ISettings>("Settings", SettingsSchema);

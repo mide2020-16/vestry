@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export enum TicketType {
-  SINGLE = 'single',
-  COUPLE = 'couple',
+  SINGLE = "single",
+  COUPLE = "couple",
 }
 
 export interface IRegistration extends Document {
@@ -13,6 +13,7 @@ export interface IRegistration extends Document {
   meshSelection?: mongoose.Types.ObjectId;
   meshColor?: string;
   meshSize?: string;
+  meshInscriptions?: string;
   foodSelections: mongoose.Types.ObjectId[];
   drinkSelection?: mongoose.Types.ObjectId;
   paymentStatus: boolean;
@@ -22,26 +23,27 @@ export interface IRegistration extends Document {
 
 const RegistrationSchema: Schema = new Schema(
   {
-    name:        { type: String, required: true },
+    name: { type: String, required: true },
     partnerName: { type: String },
-    email:       { type: String, required: true },
+    email: { type: String, required: true },
     ticketType: {
-      type:     String,
-      enum:     Object.values(TicketType),
+      type: String,
+      enum: Object.values(TicketType),
       required: true,
-      default:  TicketType.SINGLE,
+      default: TicketType.SINGLE,
     },
-    meshSelection:  { type: Schema.Types.ObjectId, ref: 'Product' },
-    meshColor:      { type: String },
-    meshSize:       { type: String },
-    foodSelections: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    drinkSelection: { type: Schema.Types.ObjectId, ref: 'Product' },
-    paymentStatus:  { type: Boolean, default: false },
+    meshSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    meshColor: { type: String },
+    meshSize: { type: String },
+    meshInscriptions: { type: String },
+    foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    drinkSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    paymentStatus: { type: Boolean, default: false },
     paystackReference: { type: String, unique: true, sparse: true },
-    totalAmount:    { type: Number, required: true, default: 0 },
+    totalAmount: { type: Number, required: true, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.models.Registration ||
-  mongoose.model<IRegistration>('Registration', RegistrationSchema);
+  mongoose.model<IRegistration>("Registration", RegistrationSchema);

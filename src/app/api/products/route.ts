@@ -69,12 +69,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, image_url, price, category, available } = body as {
+    const { name, image_url, price, category, available, modelUrl, inscriptions } = body as {
       name?: unknown;
       image_url?: unknown;
       price?: unknown;
       category?: unknown;
       available?: unknown;
+      modelUrl?: unknown;
+      inscriptions?: unknown;
     };
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -111,6 +113,8 @@ export async function POST(request: Request) {
       price: isNaN(parsedPrice) || parsedPrice < 0 ? 0 : parsedPrice,
       category,
       available: available !== false,
+      modelUrl: typeof modelUrl === 'string' ? modelUrl.trim() : undefined,
+      inscriptions: Array.isArray(inscriptions) ? inscriptions.filter((i): i is string => typeof i === 'string') : [],
     });
 
     return NextResponse.json({ success: true, data: product }, { status: 201 });

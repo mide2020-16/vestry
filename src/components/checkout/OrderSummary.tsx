@@ -85,6 +85,11 @@ export function OrderSummary({ order, onPay }: OrderSummaryProps) {
                       {order.meshSize}
                     </span>
                   )}
+                  {order.meshInscriptions && (
+                    <p className="text-amber-400 font-semibold uppercase tracking-tighter">
+                      Inscription: &quot;{order.meshInscriptions}&quot;
+                    </p>
+                  )}
                 </div>
               )}
 

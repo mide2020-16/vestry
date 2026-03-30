@@ -28,7 +28,7 @@ export async function PUT(request: Request) {
 
     const settings = await Settings.findOneAndUpdate(
       {},
-      body,
+      {$set: body},
       { new: true, upsert: true, runValidators: true },
     ).lean();
 

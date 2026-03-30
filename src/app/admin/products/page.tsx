@@ -48,9 +48,10 @@ export default function AdminProductsPage() {
     setForm({
       name:      product.name,
       image_url: product.image_url,
-      model_url: product.model_url ?? '',
+      modelUrl: product.modelUrl ?? '',
       price:     product.price,
       available: product.available,
+      inscriptions: product.inscriptions ?? [],
     });
     setIsModalOpen(true);
   };

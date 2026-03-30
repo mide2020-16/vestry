@@ -1,6 +1,5 @@
 export enum ProductCategory {
-  mesh  = 'mesh',
-  FOOD  = 'food',
-  DRINK = 'drink',
+  mesh = "mesh",
+  FOOD = "food",
+  DRINK = "drink",
 }
- 

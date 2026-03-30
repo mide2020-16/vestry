@@ -1,0 +1,1 @@
+export { type Product, type TicketType } from '@/app/register/useRegister';

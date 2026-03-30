@@ -16,7 +16,6 @@ function AutoFitCamera({ target }: { target: THREE.Group }) {
     const box = new THREE.Box3().setFromObject(target);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-
     const maxDim = Math.max(size.x, size.y, size.z);
     const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
     const distance = (maxDim / 2 / Math.tan(fov / 2)) * 1.15;
@@ -91,7 +90,7 @@ interface MeshViewerProps {
 }
 
 export default function MeshViewer({
-  modelUrl = '/models/mesh.glb',
+  modelUrl = '/models/shirt.glb',
   color = '#ffffff',
 }: MeshViewerProps) {
   useGLTF.preload(modelUrl);

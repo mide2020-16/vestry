@@ -16,6 +16,7 @@ function SuccessContent() {
 
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [meshColors, setMeshColors] = useState<{label: string, value: string}[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState('');
 
@@ -28,11 +29,18 @@ function SuccessContent() {
 
     (async () => {
       try {
-        const verifyRes = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reference: ref }),
-        });
+        const [settingsRes, verifyRes] = await Promise.all([
+          fetch('/api/settings'),
+          fetch('/api/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference: ref }),
+          })
+        ]);
+
+        const settingsData = await settingsRes.json();
+        setMeshColors(settingsData?.meshColors ?? []);
+
         const verifyData = await verifyRes.json();
         if (!verifyData.verified) throw new Error(verifyData.error || 'Payment verification failed');
 
@@ -97,7 +105,7 @@ function SuccessContent() {
           <p className="text-neutral-400 text-sm">Payment confirmed — your spot is secured.</p>
         </div>
 
-        <ReceiptCard registration={registration} />
+        <ReceiptCard registration={registration} meshColors={meshColors}/>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 w-full mt-8 mb-4">

@@ -1,6 +1,7 @@
 'use client';
 
-import { Check, X } from 'lucide-react';
+import { Check, X, Plus } from 'lucide-react';
+import { useState } from 'react';
 import { ProductCategory } from '@/constants/ProductCategory';
 import { ACCENT_MAP, CATEGORY_CONFIG } from '@/components/admin/products/config';
 import { FileUploadInput } from './FileUploadInput';
@@ -30,6 +31,22 @@ export function ProductModal({
   const accentClass = ACCENT_MAP[config.color];
   const inputCls = `w-full bg-black/40 border border-neutral-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:ring-2 ${accentClass} transition-colors`;
 
+  const [newInscription, setNewInscription] = useState('');
+
+  const addInscription = () => {
+    const trimmed = newInscription.trim();
+    if (!trimmed) return;
+    const current = form.inscriptions ?? [];
+    if (current.includes(trimmed)) return;
+    onChange({ inscriptions: [...current, trimmed] });
+    setNewInscription('');
+  };
+
+  const removeInscription = (index: number) => {
+    const current = form.inscriptions ?? [];
+    onChange({ inscriptions: current.filter((_, i) => i !== index) });
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
@@ -48,6 +65,7 @@ export function ProductModal({
           </h3>
           <button
             type="button"
+            title="Close modal"
             aria-label="Close modal"
             onClick={onClose}
             className="p-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
@@ -103,8 +121,8 @@ export function ProductModal({
               </label>
               <FileUploadInput
                 kind="model"
-                value={form.model_url ?? ''}
-                onChange={(url) => onChange({ model_url: url })}
+                value={form.modelUrl ?? ''}
+                onChange={(url) => onChange({ modelUrl: url })}
                 accept=".glb"
                 placeholder="/models/shirt.glb or https://..."
                 hint=".glb only — max 50 MB"
@@ -129,10 +147,71 @@ export function ProductModal({
             />
           </div>
 
+          {/* Inscriptions — mesh only */}
+          {activeCategory === ProductCategory.mesh && (
+            <div className="space-y-3 pt-3 border-t border-neutral-800">
+              <div>
+                <label className="block text-sm font-medium text-amber-400">
+                  Inscriptions
+                </label>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Text options customers can print on their merch.
+                </p>
+              </div>
+
+              {/* Add row */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newInscription}
+                  onChange={(e) => setNewInscription(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addInscription())}
+                  placeholder='e.g. "His" or "Hers"'
+                  className={`${inputCls} flex-1`}
+                />
+                <button
+                  type="button"
+                  title="Add inscription"
+                  aria-label="Add inscription"
+                  onClick={addInscription}
+                  className="bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-3 rounded-lg font-bold transition-colors flex items-center gap-1 shrink-0"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 min-h-6">
+                {(form.inscriptions ?? []).length === 0 ? (
+                  <span className="text-xs text-neutral-600 italic">No inscriptions added yet.</span>
+                ) : (
+                  (form.inscriptions ?? []).map((text, i) => (
+                    <span
+                      key={i}
+                      className="flex items-center gap-1.5 bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs px-3 py-1.5 rounded-full"
+                    >
+                      {text}
+                      <button
+                        type="button"
+                        title={`Remove "${text}"`}
+                        aria-label={`Remove inscription ${text}`}
+                        onClick={() => removeInscription(i)}
+                        className="text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Available toggle */}
           <div className="flex items-center gap-3 pt-1">
             <button
               type="button"
+              title={form.available ? 'Hide from attendees' : 'Show to attendees'}
               aria-label={form.available ? 'Hide from attendees' : 'Show to attendees'}
               onClick={() => onChange({ available: !form.available })}
               className={`w-10 h-6 rounded-full transition-all relative shrink-0 ${form.available ? 'bg-emerald-500' : 'bg-neutral-700'}`}
@@ -145,10 +224,11 @@ export function ProductModal({
           </div>
         </div>
 
-        {/* Actions — full-width stacked tap targets on mobile */}
+        {/* Actions */}
         <div className="flex gap-3 mt-8">
           <button
             type="button"
+            title="Cancel and close"
             onClick={onClose}
             className="flex-1 py-3.5 sm:py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-colors"
           >
@@ -156,6 +236,7 @@ export function ProductModal({
           </button>
           <button
             type="submit"
+            title={isEditing ? 'Save changes' : 'Create product'}
             onClick={onSave}
             disabled={isSaving}
             className="flex-1 py-3.5 sm:py-3 bg-white hover:bg-neutral-200 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
