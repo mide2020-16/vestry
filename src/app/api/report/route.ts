@@ -4,7 +4,7 @@ import {
   fetchConfirmedRegistrations, 
   generateRegistryBuffer, 
   sendRegistryEmail 
-} from "../cron/close-registration/route";
+} from "@/lib/registryService";
 
 export async function GET() {
   const session = await auth();
