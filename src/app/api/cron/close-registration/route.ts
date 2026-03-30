@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
 import { RegistrationPDF } from "@/components/admin/RegistrationPDF";
-import Products from "@/models/Product";
+import Product from "@/models/Product";
 
 export async function fetchConfirmedRegistrations() {
   await dbConnect();
