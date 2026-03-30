@@ -127,7 +127,7 @@ export default function AdminProductsPage() {
       {/* Header */}
       <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1.5">Product Management</h2>
       <p className="text-neutral-400 mb-6 border-b border-neutral-800 pb-4 text-sm sm:text-base">
-        Manage mesh outfits, food, and drink options available during registration.
+        Manage merch outfits, food, and drink options available during registration.
       </p>
 
       {/* Toast — fixed on mobile so it's always visible */}

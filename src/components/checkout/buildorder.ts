@@ -19,6 +19,8 @@ export async function buildOrder(
   const ticketType  = (searchParams.get('ticketType') ?? 'single') as TicketType;
   const partnerName = searchParams.get('partnerName') ?? undefined;
   const meshId      = searchParams.get('meshId');
+  const meshSize    = searchParams.get('meshSize');
+  const meshColor   = searchParams.get('meshColor');
   const foodIds     = searchParams.getAll('foodId');
   const drinkId     = searchParams.get('drinkId');
   const ticketPrice = Number(searchParams.get('ticketPrice') ?? 0);
@@ -38,6 +40,8 @@ export async function buildOrder(
     ticketType,
     partnerName,
     mesh,
+    meshSize: mesh ? meshSize : null,
+    meshColor: mesh ? meshColor : null,
     foods: validFoods,
     drink,
     ticketPrice,

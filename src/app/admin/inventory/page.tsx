@@ -105,7 +105,7 @@ export default async function AdminInventoryPage() {
 
   // Accumulate counts from paid registrations
   for (const reg of registrations) {
-    // mesh — couples receive 2
+    // merch — couples receive 2
     if (reg.meshSelection) {
       const id = toId(reg.meshSelection);
       const stat = statMap.get(id);

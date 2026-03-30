@@ -11,6 +11,8 @@ interface Props {
   partnerName: string;
   selectedmesh: Product | null;
   meshPrice: number;
+  meshColor: string | null;
+  meshSize: string | null;
   foods: Product[];
   selectedFoodIds: string[];
   drinks: Product[];
@@ -68,7 +70,7 @@ function FoodRow({ item }: { item: Product }) {
 
 export default function Step4Review({
   name, email, ticketType, ticketPrice,
-  partnerName, selectedmesh, meshPrice,
+  partnerName, selectedmesh, meshPrice, meshColor, meshSize,
   foods, selectedFoodIds, drinks, selectedDrinkId,
   grandTotal,
 }: Props) {
@@ -122,9 +124,32 @@ export default function Step4Review({
                 />
               </div>
             )}
-            <p className="flex-1 min-w-0 text-white text-sm font-medium truncate">
-              {selectedmesh.name}
-            </p>
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-medium truncate">
+                {selectedmesh.name}
+              </p>
+              {(meshColor || meshSize) && (
+                <div className="flex items-center gap-2 mt-1 text-[11px] text-white/40">
+                  
+                  {meshColor && (
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="w-3 h-3 rounded-full border border-white/20"
+                        style={{ backgroundColor: meshColor }}
+                      />
+                      <span>Color</span>
+                    </div>
+                  )}
+
+                  {meshSize && (
+                    <span className="px-1.5 py-0.5 rounded bg-white/10 text-white/60">
+                      {meshSize}
+                    </span>
+                  )}
+
+                </div>
+              )}
+            </div>
             <span className="text-amber-400 text-sm font-semibold shrink-0">
               ₦{meshPrice.toLocaleString()}
             </span>

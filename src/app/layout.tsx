@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Vestry 2026/2027',
-    description: 'Secure your ticket, select your mesh allocation, and customize your dining experience.',
+    description: 'Secure your ticket, select your merch allocation, and customize your dining experience.',
     siteName: 'Vestry Event',
     type: 'website',
     images: [
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Vestry 2026/2027',
-    description: 'Secure your ticket, select your Mesh allocation, and customize your dining experience.',
+    description: 'Secure your ticket, select your merch allocation, and customize your dining experience.',
     images: ['/og-image.png'],
   },
 };

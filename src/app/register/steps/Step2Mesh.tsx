@@ -8,6 +8,9 @@ const MeshViewer = dynamic(() => import('@/components/MeshViewer'), { ssr: false
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
+export const MESH_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const;
+export type MeshSize = typeof MESH_SIZES[number];
+
 interface Props {
   meshes: Product[];
   selectedmeshId: string | null;
@@ -15,6 +18,8 @@ interface Props {
   selectedmesh: Product | null;
   meshColor: string;
   setmeshColor: (c: string) => void;
+  meshSize: string | null;
+  setMeshSize: (s: string) => void;
   ticketType: TicketType;
   meshPrice: number;
 }
@@ -107,7 +112,46 @@ function ColorPicker({ meshColor, setmeshColor }: ColorPickerProps) {
   );
 }
 
-/* ── GridCard (unselected full grid) ────────────────────────────────────── */
+/* ── SizePicker ─────────────────────────────────────────────────────────── */
+
+interface SizePickerProps {
+  meshSize: string | null;
+  setMeshSize: (s: string) => void;
+}
+
+function SizePicker({ meshSize, setMeshSize }: SizePickerProps) {
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-white/50 text-[10px] uppercase tracking-widest">Size</p>
+        {meshSize && (
+          <p className="text-amber-400/70 text-[10px] font-medium">{meshSize}</p>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {MESH_SIZES.map((size) => (
+          <button
+            type="button"
+            key={size}
+            onClick={() => setMeshSize(size)}
+            aria-pressed={meshSize === size}
+            className={`min-w-10 h-9 px-2 rounded-lg text-xs font-semibold transition-all duration-150
+              ${meshSize === size
+                ? 'bg-amber-400 text-black shadow-[0_0_10px_rgba(251,191,36,0.4)]'
+                : 'bg-white/5 border border-white/15 text-white/50 hover:border-white/30 hover:text-white/80'}`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+      {!meshSize && (
+        <p className="text-white/25 text-[10px] mt-2">Please select a size</p>
+      )}
+    </div>
+  );
+}
+
+/* ── GridCard ───────────────────────────────────────────────────────────── */
 
 interface GridCardProps {
   mesh: Product;
@@ -156,7 +200,7 @@ interface SidebarListProps {
 
 function SidebarList({ meshes, selectedmeshId, ticketType, onSelect }: SidebarListProps) {
   return (
-    <div className="flex flex-col gap-2 w-35 shrink-0">
+    <div className="flex flex-col gap-2 w-36 shrink-0">
       {meshes.map((m) => (
         <MiniCard
           key={m._id}
@@ -172,13 +216,22 @@ function SidebarList({ meshes, selectedmeshId, ticketType, onSelect }: SidebarLi
 
 /* ── Step 2 ─────────────────────────────────────────────────────────────── */
 
-export default function Step2mesh({
+export default function Step2Mesh({
   meshes, selectedmeshId, setSelectedmeshId,
   selectedmesh, meshColor, setmeshColor,
+  meshSize, setMeshSize,
   ticketType, meshPrice,
 }: Props) {
-  const has3D     = !!selectedmesh?.model_url;
-  const hasImage  = !!selectedmesh && !has3D;
+  const has3D    = !!selectedmesh?.model_url;
+  const hasImage = !!selectedmesh && !has3D;
+
+  /** Controls panel shown when a merch item is selected */
+  const Controls = selectedmesh ? (
+    <div className="flex flex-col gap-3">
+      <ColorPicker meshColor={meshColor} setmeshColor={setmeshColor} />
+      <SizePicker  meshSize={meshSize}   setMeshSize={setMeshSize}   />
+    </div>
+  ) : null;
 
   return (
     <div className="flex flex-col gap-5">
@@ -186,12 +239,12 @@ export default function Step2mesh({
       {/* Section label */}
       <div className="flex items-center gap-4 mb-6">
         <span className="text-amber-400/80 text-[13px] font-semibold uppercase tracking-[0.25em]">
-          Select Your mesh
+          Select Your Merch
         </span>
         <div className="flex-1 h-px bg-white/10" />
       </div>
 
-      {/* 3D selected: sidebar + viewer */}
+      {/* 3D selected: sidebar + viewer + controls */}
       {has3D && selectedmesh && (
         <div className="flex gap-4 items-start">
           <SidebarList
@@ -202,12 +255,12 @@ export default function Step2mesh({
           />
           <div className="flex-1 flex flex-col gap-3 min-w-0">
             <MeshViewer modelUrl={selectedmesh.model_url!} color={meshColor} />
-            <ColorPicker meshColor={meshColor} setmeshColor={setmeshColor} />
+            {Controls}
           </div>
         </div>
       )}
 
-      {/* Image-only selected: sidebar + large preview */}
+      {/* Image-only selected: sidebar + large preview + controls */}
       {hasImage && selectedmesh && (
         <div className="flex gap-4 items-start">
           <SidebarList
@@ -217,7 +270,10 @@ export default function Step2mesh({
             onSelect={setSelectedmeshId}
           />
           <div className="flex-1 flex flex-col gap-3 min-w-0">
-            <div className="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-white/5" style={{ height: 420 }}>
+            <div
+              className="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-white/5"
+              style={{ height: 300 }}
+            >
               <Image
                 src={selectedmesh.image_url}
                 alt={selectedmesh.name}
@@ -234,6 +290,7 @@ export default function Step2mesh({
                 </p>
               </div>
             </div>
+            {Controls}
           </div>
         </div>
       )}
@@ -252,12 +309,27 @@ export default function Step2mesh({
         </div>
       )}
 
+      {/* Size warning when merch is selected but no size chosen */}
+      {selectedmesh && !meshSize && (
+        <p className="text-amber-400/60 text-xs text-center -mt-1">
+          ⚠ Please pick a size to continue
+        </p>
+      )}
+
       {/* Subtotal */}
-      <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3.5 border border-white/10 mt-6">
+      <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3.5 border border-white/10 mt-2">
         <div>
           <span className="text-white/40 text-xs uppercase tracking-wide">Subtotal</span>
           <p className="text-white/25 text-[10px] mt-0.5">
-            {selectedmesh ? selectedmesh.name : 'No mesh selected'}
+            {selectedmesh
+              ? `${selectedmesh.name}${meshSize ? ` · ${meshSize}` : ''}${meshColor ? ` · ` : ''}`
+              : 'No merch selected'}
+            {selectedmesh && meshColor && (
+              <span
+                className="inline-block w-2 h-2 rounded-full ml-0.5 align-middle"
+                style={{ backgroundColor: meshColor }}
+              />
+            )}
           </p>
         </div>
         <span className="text-amber-400 font-bold text-lg">

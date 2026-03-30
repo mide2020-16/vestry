@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -39,7 +40,7 @@ export const mesh_COLORS: { label: string; value: string }[] = [
   { label: 'Forest Green',   value: '#2d4a3e' },
 ];
 
-const DEFAULT_mesh_COLOR = mesh_COLORS[0].value;
+const DEFAULT_MESH_COLOR = mesh_COLORS[0].value;
 const MAX_FOOD_SELECTIONS = 2;
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -70,17 +71,24 @@ function buildCheckoutParams(data: {
   selectedmeshId: string | null;
   selectedDrinkId: string | null;
   selectedFoodIds: string[];
+  meshColor: string | null;
+  meshSize: string | null;
 }): URLSearchParams {
   const params = new URLSearchParams({
     ticketType:  data.ticketType,
     ticketPrice: data.ticketPrice.toString(),
     name:        data.name,
     email:       data.email,
-    ...(data.partnerName    && { partnerName: data.partnerName }),
-    ...(data.selectedmeshId  && { meshId: data.selectedmeshId }),
-    ...(data.selectedDrinkId && { drinkId: data.selectedDrinkId }),
+    ...(data.partnerName      && { partnerName: data.partnerName }),
+    ...(data.selectedmeshId   && { meshId:      data.selectedmeshId }),
+    ...(data.selectedDrinkId  && { drinkId:     data.selectedDrinkId }),
+    // Only include color/size when a mesh is selected
+    ...(data.selectedmeshId && data.meshColor && { meshColor: data.meshColor }),
+    ...(data.selectedmeshId && data.meshSize  && { meshSize:  data.meshSize  }),
   });
+
   data.selectedFoodIds.forEach((id) => params.append('foodId', id));
+
   return params;
 }
 
@@ -104,9 +112,10 @@ export function useRegister() {
   const [ticketType,  setTicketType]  = useState<TicketType>('single');
   const [partnerName, setPartnerName] = useState('');
 
-  // Step 2 — mesh selection
+  // Step 2 — merch selection
   const [selectedmeshId, setSelectedmeshId] = useState<string | null>(null);
-  const [meshColor,      setmeshColor]      = useState(DEFAULT_mesh_COLOR);
+  const [meshColor,      setmeshColor]      = useState(DEFAULT_MESH_COLOR);
+  const [meshSize,       setMeshSize]       = useState<string | null>(null);
 
   // Step 3 — food & drink
   const [selectedFoodIds,  setSelectedFoodIds]  = useState<string[]>([]);
@@ -123,10 +132,16 @@ export function useRegister() {
       .finally(() => setLoadingData(false));
   }, []);
 
+  /* Reset size when a different merch item is selected */
+  useEffect(() => {
+    setMeshSize(null);
+  }, [selectedmeshId]);
+
   /* Derived product lists */
   const meshes = useMemo(() => products.filter((p) => p.category === ProductCategory.mesh),  [products]);
   const foods  = useMemo(() => products.filter((p) => p.category === ProductCategory.FOOD),  [products]);
   const drinks = useMemo(() => products.filter((p) => p.category === ProductCategory.DRINK), [products]);
+
   const selectedmesh = useMemo(
     () => meshes.find((m) => m._id === selectedmeshId) ?? null,
     [meshes, selectedmeshId],
@@ -141,11 +156,15 @@ export function useRegister() {
   /* Step validation */
   const canProceed = useMemo(() => {
     switch (step) {
-      case 1: return !!name && !!email && (ticketType === 'single' || !!partnerName);
-      case 2: return !!selectedmeshId;
-      default: return true;
+      case 1:
+        return !!name && !!email && (ticketType === 'single' || !!partnerName);
+      case 2:
+        // If a merch item is selected, a size must also be chosen
+        return !selectedmeshId || !!meshSize;
+      default:
+        return true;
     }
-  }, [step, name, email, ticketType, partnerName, selectedmeshId]);
+  }, [step, name, email, ticketType, partnerName, selectedmeshId, meshSize]);
 
   /* Handlers */
   const handleFoodToggle = (id: string) => {
@@ -171,6 +190,8 @@ export function useRegister() {
     const params = buildCheckoutParams({
       ticketType, ticketPrice, name, email,
       partnerName, selectedmeshId, selectedDrinkId, selectedFoodIds,
+      meshColor: selectedmeshId ? meshColor : null,
+      meshSize:  selectedmeshId ? meshSize  : null,
     });
     router.push(`/checkout?${params.toString()}`);
   };
@@ -184,6 +205,7 @@ export function useRegister() {
     // Step 2
     meshes, selectedmeshId, setSelectedmeshId,
     meshColor, setmeshColor, selectedmesh,
+    meshSize, setMeshSize,
     // Step 3
     foods, drinks, selectedFoodIds, selectedDrinkId,
     handleFoodToggle, handleDrinkToggle,

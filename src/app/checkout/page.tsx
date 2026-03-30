@@ -60,6 +60,8 @@ function CheckoutContent() {
         ticketType:     order.ticketType,
         partnerName:    order.partnerName,
         meshSelection:  order.mesh?._id,
+        meshSize:       order.meshSize,
+        meshColor:      order.meshColor,
         foodSelections: order.foods.map((f) => f._id),
         drinkSelection: order.drink?._id,
         totalAmount:    order.grandTotal,

@@ -7,19 +7,22 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ order, onPay }: OrderSummaryProps) {
   const attendeeRows = [
-    { label: 'Primary Attendee', value: order.name },
-    ...(order.ticketType === 'couple' && order.partnerName
-      ? [{ label: 'Partner', value: order.partnerName }]
+    { label: "Primary Attendee", value: order.name },
+    ...(order.ticketType === "couple" && order.partnerName
+      ? [{ label: "Partner", value: order.partnerName }]
       : []),
-    { label: 'Email',       value: order.email },
-    { label: 'Ticket Type', value: order.ticketType.toUpperCase(), amber: true },
+    { label: "Email", value: order.email },
+    {
+      label: "Ticket Type",
+      value: order.ticketType.toUpperCase(),
+      amber: true,
+    },
   ];
 
   const hasFoodDrink = order.foods.length > 0 || order.drink !== null;
 
   return (
     <div className="max-w-xl w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-
       {/* Ambient glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
@@ -31,9 +34,18 @@ export function OrderSummary({ order, onPay }: OrderSummaryProps) {
       {/* Attendee details */}
       <div className="space-y-3 mb-8">
         {attendeeRows.map(({ label, value, amber }) => (
-          <div key={label} className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/5">
+          <div
+            key={label}
+            className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/5"
+          >
             <span className="text-neutral-400">{label}</span>
-            <span className={amber ? 'text-amber-400 font-bold tracking-wide' : 'text-white font-medium'}>
+            <span
+              className={
+                amber
+                  ? "text-amber-400 font-bold tracking-wide"
+                  : "text-white font-medium"
+              }
+            >
               {value}
             </span>
           </div>
@@ -46,20 +58,45 @@ export function OrderSummary({ order, onPay }: OrderSummaryProps) {
 
         <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-white/5">
           <span className="text-white">🎟️ Tickets ({order.ticketType})</span>
-          <span className="font-mono text-neutral-300">₦{order.ticketPrice.toLocaleString()}</span>
+          <span className="font-mono text-neutral-300">
+            ₦{order.ticketPrice.toLocaleString()}
+          </span>
         </div>
 
         {order.mesh && (
           <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-white/5">
             <div className="flex flex-col">
               <span className="text-white">👕 {order.mesh.name}</span>
-              {order.ticketType === 'couple' && (
+
+              {(order.meshColor || order.meshSize) && (
+                <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
+                  {order.meshColor && (
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="w-3 h-3 rounded-full border border-white/20"
+                        style={{ backgroundColor: order.meshColor }}
+                      />
+                      <span className="uppercase tracking-wide">Color</span>
+                    </div>
+                  )}
+
+                  {order.meshSize && (
+                    <span className="px-2 py-0.5 rounded bg-white/10 text-white/70 font-medium">
+                      {order.meshSize}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {order.ticketType === "couple" && (
                 <span className="text-neutral-500 text-xs mt-0.5">
                   ₦{order.mesh.price.toLocaleString()} × 2 (couple)
                 </span>
               )}
             </div>
-            <span className="font-mono text-neutral-300">₦{order.meshTotal.toLocaleString()}</span>
+            <span className="font-mono text-neutral-300">
+              ₦{order.meshTotal.toLocaleString()}
+            </span>
           </div>
         )}
 
@@ -70,38 +107,29 @@ export function OrderSummary({ order, onPay }: OrderSummaryProps) {
             </span>
             <ul className="space-y-1 pl-2 border-l-2 border-neutral-800">
               {order.foods.map((food) => (
-                <li key={food._id} className="text-sm text-neutral-400 flex items-center gap-2">
-                  <span className="w-1 h-1 bg-neutral-600 rounded-full" aria-hidden />
+                <li
+                  key={food._id}
+                  className="text-sm text-neutral-400 flex items-center gap-2"
+                >
+                  <span
+                    className="w-1 h-1 bg-neutral-600 rounded-full"
+                    aria-hidden
+                  />
                   {food.name}
                 </li>
               ))}
               {order.drink && (
                 <li className="text-sm text-neutral-400 flex items-center gap-2">
-                  <span className="w-1 h-1 bg-neutral-600 rounded-full" aria-hidden />
+                  <span
+                    className="w-1 h-1 bg-neutral-600 rounded-full"
+                    aria-hidden
+                  />
                   {order.drink.name}
                 </li>
               )}
             </ul>
           </div>
         )}
-      </div>
-
-      {/* Price breakdown */}
-      <div className="border-t border-neutral-800 pt-6 space-y-3">
-        <div className="flex justify-between text-sm text-neutral-400">
-          <span>Ticket ({order.ticketType})</span>
-          <span className="font-mono">₦{order.ticketPrice.toLocaleString()}</span>
-        </div>
-        {order.mesh && (
-          <div className="flex justify-between text-sm text-neutral-400">
-            <span>mesh{order.ticketType === 'couple' ? ' (×2)' : ''}</span>
-            <span className="font-mono">₦{order.meshTotal.toLocaleString()}</span>
-          </div>
-        )}
-        <div className="border-t border-neutral-800 pt-3 flex justify-between items-end">
-          <span className="text-neutral-400 text-lg">Total</span>
-          <span className="text-4xl font-black text-white">₦{order.grandTotal.toLocaleString()}</span>
-        </div>
       </div>
 
       <button

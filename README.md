@@ -22,7 +22,7 @@ Admins get a dedicated dashboard to manage products, monitor registrations, and 
 
 ### 🎽 Product Selection
 
-Attendees can browse and select from curated mesh outfits, food, and drink options during the registration flow. Each product can be toggled available or hidden by admins in real time.
+Attendees can browse and select from curated merch outfits, food, and drink options during the registration flow. Each product can be toggled available or hidden by admins in real time.
 
 ### 🧍 3D Outfit Preview
 

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ProductCategory } from '@/constants/ProductCategory';
 import { Product } from '@/app/register/useRegister';
+import { CheckIcon } from 'lucide-react';
 
 interface FoodCarouselProps {
   items: Product[];
@@ -71,8 +72,8 @@ export default function FoodCarousel({
       <div className="relative w-full overflow-hidden" style={{ height: TRACK_H }}>
 
         {/* Edge fades */}
-        <div className="absolute inset-y-0 left-0 w-10 z-20 pointer-events-none bg-gradient-to-r from-neutral-950 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-10 z-20 pointer-events-none bg-gradient-to-l from-neutral-950 to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-10 z-20 pointer-events-none bg-linear-to-r from-neutral-950 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-10 z-20 pointer-events-none bg-linear-to-l from-neutral-950 to-transparent" />
 
         {available.map((item, index) => {
           const offset     = index - activeIndex;
@@ -124,7 +125,7 @@ export default function FoodCarousel({
                   {isSelected && isCenter && (
                     <div className="absolute inset-0 bg-amber-400/15 flex items-center justify-center">
                       <span className="bg-amber-400 text-black rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
-                        ✓
+                        <CheckIcon />
                       </span>
                     </div>
                   )}

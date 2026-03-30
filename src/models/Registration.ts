@@ -11,6 +11,8 @@ export interface IRegistration extends Document {
   email: string;
   ticketType: TicketType;
   meshSelection?: mongoose.Types.ObjectId;
+  meshColor?: string;
+  meshSize?: string;
   foodSelections: mongoose.Types.ObjectId[];
   drinkSelection?: mongoose.Types.ObjectId;
   paymentStatus: boolean;
@@ -20,9 +22,9 @@ export interface IRegistration extends Document {
 
 const RegistrationSchema: Schema = new Schema(
   {
-    name:          { type: String, required: true },
-    partnerName:   { type: String },
-    email:         { type: String, required: true },
+    name:        { type: String, required: true },
+    partnerName: { type: String },
+    email:       { type: String, required: true },
     ticketType: {
       type:     String,
       enum:     Object.values(TicketType),
@@ -30,6 +32,8 @@ const RegistrationSchema: Schema = new Schema(
       default:  TicketType.SINGLE,
     },
     meshSelection:  { type: Schema.Types.ObjectId, ref: 'Product' },
+    meshColor:      { type: String },
+    meshSize:       { type: String },
     foodSelections: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     drinkSelection: { type: Schema.Types.ObjectId, ref: 'Product' },
     paymentStatus:  { type: Boolean, default: false },

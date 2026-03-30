@@ -1,4 +1,6 @@
-const LABELS = ['Details', 'mesh', 'Food & Drink', 'Review'];
+import { CheckIcon } from "lucide-react";
+
+const LABELS = ['Details', 'Merch', 'Food & Drink', 'Review'];
 
 type StepState = 'done' | 'active' | 'upcoming';
 
@@ -39,7 +41,7 @@ export default function StepIndicator({ current }: StepIndicatorProps) {
                 aria-current={state === 'active' ? 'step' : undefined}
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${CIRCLE_STYLES[state]}`}
               >
-                {state === 'done' ? '✓' : step}
+                {state === 'done' ? <CheckIcon /> : step}
               </div>
               <span className={`text-[10px] ${LABEL_STYLES[state]}`}>
                 {label}

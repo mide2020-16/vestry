@@ -13,6 +13,8 @@ export interface OrderData {
   ticketType: TicketType;
   partnerName?: string;
   mesh: CheckoutProduct | null;
+  meshSize: string | null;
+  meshColor: string | null;
   foods: CheckoutProduct[];
   drink: CheckoutProduct | null;
   ticketPrice: number;

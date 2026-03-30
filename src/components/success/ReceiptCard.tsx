@@ -50,7 +50,7 @@ export function ReceiptCard({ registration }: { registration: Registration }) {
         <ReceiptRow label={registration.ticketType === 'couple' ? 'Attendees' : 'Attendee'}>
           <p className="text-white font-semibold text-sm">{registration.name}</p>
           {registration.partnerName && (
-            <p className="text-neutral-400 text-sm">& {registration.partnerName}</p>
+            <p className="text-neutral-400 text-sm">💝 {registration.partnerName}</p>
           )}
         </ReceiptRow>
         <ReceiptRow label="Email">

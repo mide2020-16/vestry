@@ -70,9 +70,10 @@ export default function RegisterPage() {
             meshes={r.meshes}
             selectedmeshId={r.selectedmeshId} setSelectedmeshId={r.setSelectedmeshId}
             selectedmesh={r.selectedmesh}
-            meshColor={r.meshColor}           setmeshColor={r.setmeshColor}
+            meshColor={r.meshColor} setmeshColor={r.setmeshColor}
             ticketType={r.ticketType}
             meshPrice={r.meshPrice}
+            meshSize={r.meshSize} setMeshSize={r.setMeshSize}
           />
         )}
 
@@ -89,7 +90,7 @@ export default function RegisterPage() {
             name={r.name}             email={r.email}
             ticketType={r.ticketType} ticketPrice={r.ticketPrice}
             partnerName={r.partnerName}
-            selectedmesh={r.selectedmesh} meshPrice={r.meshPrice}
+            selectedmesh={r.selectedmesh} meshPrice={r.meshPrice} meshColor={r.meshColor} meshSize={r.meshSize}
             foods={r.foods}               selectedFoodIds={r.selectedFoodIds}
             drinks={r.drinks}             selectedDrinkId={r.selectedDrinkId}
             grandTotal={r.grandTotal}

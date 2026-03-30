@@ -165,15 +165,15 @@ export default function AdminSettingsPage() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-neutral-300 mb-1">mesh / Outfit Pricing</p>
+            <p className="text-sm font-semibold text-neutral-300 mb-1">merch / Outfit Pricing</p>
             <p className="text-xs text-neutral-500 mb-3">
-              Base price per mesh item. Couple price is charged ×2 automatically.
+              Base price per merch item. Couple price is charged ×2 automatically.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="mesh — Single (₦)">
+              <Field label="merch — Single (₦)">
                 <input title='meshprice' type="number" name="meshSinglePrice" value={form.meshSinglePrice} onChange={handleChange} min="0" className={inputCls()} />
               </Field>
-              <Field label="mesh — Couple (₦ per person)">
+              <Field label="merch — Couple (₦ per person)">
                 <input title='meshcouple' type="number" name="meshCouplePrice" value={form.meshCouplePrice} onChange={handleChange} min="0" className={inputCls()} />
               </Field>
             </div>

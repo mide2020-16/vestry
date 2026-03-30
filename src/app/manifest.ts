@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Vestry | MFMCF FUNAAB',
     short_name: 'Vestry',
-    description: 'Register for the Vestry Event — select your mesh, food, and drinks.',
+    description: 'Register for the Vestry Event — select your merch, food, and drinks.',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
