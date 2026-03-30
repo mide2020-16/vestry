@@ -22,7 +22,7 @@ async function resolveSecretKey(): Promise<string> {
   const settings = await Settings.findOne().lean();
   return (
     (settings as { paystackSecretKey?: string } | null)?.paystackSecretKey ??
-    process.env.PAYSTACK_SECRET_KEY ?? // never use NEXT_PUBLIC_ for secrets
+    process.env.PAYSTACK_SECRET_KEY ??
     ""
   );
 }
