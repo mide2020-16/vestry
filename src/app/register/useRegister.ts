@@ -84,6 +84,7 @@ function buildCheckoutParams(data: {
   selectedFoodIds: string[];
   meshColor: string | null;
   meshSize: string | null;
+  meshQuantity: number;
   meshInscriptions: string | null;
 }): URLSearchParams {
   const params = new URLSearchParams({
@@ -100,6 +101,7 @@ function buildCheckoutParams(data: {
     params.append("meshId", data.selectedMeshId);
     if (data.meshColor) params.append("meshColor", data.meshColor);
     if (data.meshSize) params.append("meshSize", data.meshSize);
+    params.append("meshQuantity", data.meshQuantity.toString());
     if (data.meshInscriptions)
       params.append("meshInscriptions", data.meshInscriptions);
   }
@@ -129,6 +131,7 @@ export function useRegister() {
   const [selectedMeshId, setSelectedMeshId] = useState<string | null>(null);
   const [meshColor, setMeshColor] = useState("");
   const [meshSize, setMeshSize] = useState<string | null>(null);
+  const [meshQuantity, setMeshQuantity] = useState<number>(1);
 
   // Explicit states for colors and sizes
   const [meshColors, setMeshColors] = useState<
@@ -172,6 +175,7 @@ export function useRegister() {
   /* Reset dependent fields when mesh changes */
   useEffect(() => {
     setMeshSize(null);
+    setMeshQuantity(1);
     setmeshInscriptions(null);
   }, [selectedMeshId]);
 
@@ -199,7 +203,7 @@ export function useRegister() {
       ? settings.couplePrice
       : settings.singlePrice
     : 0;
-  const meshPrice = selectedMesh ? selectedMesh.price * (isCouple ? 2 : 1) : 0;
+  const meshPrice = selectedMesh ? selectedMesh.price * meshQuantity : 0;
   const grandTotal = ticketPrice + meshPrice;
 
   const canProceed = useMemo(() => {
@@ -260,6 +264,7 @@ export function useRegister() {
       selectedFoodIds,
       meshColor: selectedMeshId ? meshColor : null,
       meshSize: selectedMeshId ? meshSize : null,
+      meshQuantity: selectedMeshId ? meshQuantity : 1,
       meshInscriptions: selectedMeshId ? meshInscriptions : null,
     });
     router.push(`/checkout?${params.toString()}`);
@@ -286,6 +291,8 @@ export function useRegister() {
     setMeshColor,
     meshSize,
     setMeshSize,
+    meshQuantity,
+    setMeshQuantity,
     meshColors, // Now guaranteed to be populated correctly!
     meshSizes, // Now guaranteed to be populated correctly!
     meshInscriptions,

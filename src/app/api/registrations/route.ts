@@ -14,6 +14,7 @@ interface RegistrationBody {
   ticketType?: unknown;
   partnerName?: unknown;
   meshSelection?: unknown;
+  meshQuantity?: unknown;
   meshColor?: unknown;
   meshSize?: unknown;
   meshInscriptions?: unknown; // Successfully mapped to model
@@ -34,6 +35,7 @@ function isValidTicketType(value: unknown): value is "single" | "couple" {
 async function calculateTotal(
   ticketType: "single" | "couple",
   meshSelection: unknown,
+  meshQuantity: number = 1,
 ): Promise<number> {
   await dbConnect();
 
@@ -48,7 +50,7 @@ async function calculateTotal(
   if (!meshSelection) return base;
 
   const mesh = await Product.findById(meshSelection).lean();
-  const meshPrice = (mesh?.price ?? 0) * (ticketType === "couple" ? 2 : 1);
+  const meshPrice = (mesh?.price ?? 0) * meshQuantity;
 
   return base + meshPrice;
 }
@@ -73,6 +75,7 @@ export async function POST(request: Request) {
       ticketType,
       partnerName,
       meshSelection,
+      meshQuantity,
       meshColor,
       meshSize,
       meshInscriptions,
@@ -100,7 +103,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const totalAmount = await calculateTotal(ticketType, meshSelection);
+    const totalAmount = await calculateTotal(
+      ticketType,
+      meshSelection,
+      Number(meshQuantity) || 1
+    );
     const paystackReference = `VESTRY-${nanoid(10).toUpperCase()}`;
 
     const registration = await Registration.create({
@@ -109,6 +116,7 @@ export async function POST(request: Request) {
       ticketType,
       partnerName,
       meshSelection,
+      meshQuantity: Number(meshQuantity) || 1,
       meshColor,
       meshSize,
       meshInscriptions, // Saved to DB

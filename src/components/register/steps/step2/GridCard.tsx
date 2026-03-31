@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { Product, TicketType } from "@/app/register/useRegister";
 
-function itemPrice(mesh: Product, ticketType: TicketType) {
-  return mesh.price * (ticketType === "couple" ? 2 : 1);
+function itemPrice(mesh: Product) {
+  return mesh.price;
 }
 
 interface GridCardProps {
@@ -57,10 +57,7 @@ export default function GridCard({
         {mesh.name}
       </p>
       <p className="text-xs mt-0.5 text-white/40">
-        ₦{itemPrice(mesh, ticketType).toLocaleString()}
-        {ticketType === "couple" && (
-          <span className="ml-1 text-white/25">×2</span>
-        )}
+        ₦{itemPrice(mesh).toLocaleString()}
       </p>
     </button>
   );

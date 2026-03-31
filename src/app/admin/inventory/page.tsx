@@ -150,7 +150,7 @@ export default async function AdminInventoryPage() {
       const id = toId(reg.meshSelection);
       const stat = statMap.get(id);
       if (stat) {
-        const qty = reg.ticketType === "couple" ? 2 : 1;
+        const qty = reg.meshQuantity ?? 1;
         const prod = products.find((p) => p._id.toString() === id);
         stat.count += qty;
         stat.revenue += (prod?.price ?? 0) * qty;

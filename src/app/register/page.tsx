@@ -60,6 +60,8 @@ export default function RegisterPage() {
             meshSizes={r.meshSizes}
             meshSize={r.meshSize}
             setMeshSize={r.setMeshSize}
+            meshQuantity={r.meshQuantity}
+            setMeshQuantity={r.setMeshQuantity}
             meshInscriptions={r.meshInscriptions}
             setmeshInscriptions={r.setmeshInscriptions}
             ticketType={r.ticketType}

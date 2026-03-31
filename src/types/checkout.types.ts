@@ -18,6 +18,7 @@ export interface OrderData {
   mesh: CheckoutProduct | null;
   meshSize: string | null;
   meshColor: string | null;
+  meshQuantity: number;
   meshInscription: string | null;
 
   // F&B Selections

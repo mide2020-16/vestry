@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ProductCategory } from "@/constants/ProductCategory";
@@ -31,11 +31,24 @@ export default function FoodCarousel({
   maxSelections,
 }: FoodCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const label = category === ProductCategory.FOOD ? "Food" : "Drink";
   const available = items.filter((i) => i.available);
 
-  // Clamp activeIndex if available list shrinks
+  // Measure track width and keep it updated on resize
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setTrackWidth(entry.contentRect.width);
+    });
+    ro.observe(el);
+    setTrackWidth(el.getBoundingClientRect().width);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     if (activeIndex >= available.length) {
       setActiveIndex(Math.max(0, available.length - 1));
@@ -46,6 +59,9 @@ export default function FoodCarousel({
     setActiveIndex(Math.max(0, Math.min(index, available.length - 1)));
 
   const canSelect = selectedIds.length < maxSelections;
+
+  // Center of track in px — the card's left edge to sit it perfectly centered
+  const centerX = trackWidth / 2 - CARD_W / 2;
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
@@ -71,106 +87,109 @@ export default function FoodCarousel({
 
       {/* Carousel track */}
       <div
+        ref={trackRef}
         className="relative w-full overflow-hidden"
         style={{ height: TRACK_H }}
       >
         {/* Edge fades */}
-        <div className="absolute inset-y-0 left-0 w-10 z-20 pointer-events-none bg-linear-to-r from-neutral-950 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-10 z-20 pointer-events-none bg-linear-to-l from-neutral-950 to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-16 z-20 pointer-events-none bg-linear-to-r from-neutral-950 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-16 z-20 pointer-events-none bg-linear-to-l from-neutral-950 to-transparent" />
 
-        {available.map((item, index) => {
-          const offset = index - activeIndex;
-          const isCenter = offset === 0;
-          const isSelected = selectedIds.includes(item._id.toString());
-          const isVisible = Math.abs(offset) <= 2;
+        {trackWidth > 0 &&
+          available.map((item, index) => {
+            const offset = index - activeIndex;
+            const isCenter = offset === 0;
+            const isSelected = selectedIds.includes(item._id.toString());
+            const isVisible = Math.abs(offset) <= 2;
 
-          const handleClick = () => {
-            if (isCenter) {
-              if (isSelected || canSelect) onToggle(item._id.toString());
-            } else {
-              goTo(index);
-            }
-          };
+            // Pure pixel position — no CSS calc, no ambiguity
+            const xPx = centerX + offset * CARD_GAP;
 
-          return (
-            <motion.div
-              key={item._id.toString()}
-              animate={{
-                x: `calc(50% - ${CARD_W / 2}px + ${offset * CARD_GAP}px)`,
-                y: 0,
-                scale: isCenter ? 1 : 0.78,
-                opacity: isVisible ? (isCenter ? 1 : 0.45) : 0,
-                zIndex: isCenter ? 10 : 10 - Math.abs(offset),
-              }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="absolute top-0 cursor-pointer"
-              style={{ width: CARD_W }}
-              onClick={handleClick}
-            >
-              <div
-                className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-white/5
-                ${
-                  isSelected && isCenter
-                    ? "border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
-                    : isCenter
-                      ? "border-white/20"
-                      : "border-white/10"
-                }`}
+            const handleClick = () => {
+              if (isCenter) {
+                if (isSelected || canSelect) onToggle(item._id.toString());
+              } else {
+                goTo(index);
+              }
+            };
+
+            return (
+              <motion.div
+                key={item._id.toString()}
+                animate={{
+                  x: xPx,
+                  scale: isCenter ? 1 : 0.78,
+                  opacity: isVisible ? (isCenter ? 1 : 0.5) : 0,
+                  zIndex: isCenter ? 10 : 10 - Math.abs(offset),
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="absolute top-0 left-0 cursor-pointer"
+                style={{ width: CARD_W }}
+                onClick={handleClick}
               >
-                {/* Image */}
-                <div className="relative w-full" style={{ height: IMAGE_H }}>
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    sizes={`${CARD_W}px`}
-                  />
-                  {/* Only show selection overlay on the center card */}
-                  {isSelected && isCenter && (
-                    <div className="absolute inset-0 bg-amber-400/15 flex items-center justify-center">
-                      <span className="bg-amber-400 text-black rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
-                        <CheckIcon />
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
                 <div
-                  className="px-3 py-2.5 text-center"
-                  style={{ height: INFO_H }}
-                >
-                  <p
-                    className={`text-sm font-semibold truncate ${isCenter ? "text-white" : "text-white/60"}`}
-                  >
-                    {item.name}
-                  </p>
-                  <p
-                    className={`text-xs mt-0.5 ${isCenter ? "text-amber-400" : "text-amber-400/40"}`}
-                  >
-                    ₦{item.price.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tap hint */}
-              {isCenter && (
-                <p
-                  className={`text-center text-[10px] mt-1.5 transition-colors ${
-                    isSelected ? "text-amber-400/60" : "text-white/30"
+                  className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-white/5
+                  ${
+                    isSelected && isCenter
+                      ? "border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
+                      : isCenter
+                        ? "border-white/20"
+                        : "border-white/10"
                   }`}
                 >
-                  {isSelected
-                    ? "Tap to remove"
-                    : canSelect
-                      ? "Tap to select"
-                      : "Max reached"}
-                </p>
-              )}
-            </motion.div>
-          );
-        })}
+                  {/* Image */}
+                  <div className="relative w-full" style={{ height: IMAGE_H }}>
+                    <Image
+                      src={item.image_url}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes={`${CARD_W}px`}
+                    />
+                    {isSelected && isCenter && (
+                      <div className="absolute inset-0 bg-amber-400/15 flex items-center justify-center">
+                        <span className="bg-amber-400 text-black rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
+                          <CheckIcon />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div
+                    className="px-3 py-2.5 text-center"
+                    style={{ height: INFO_H }}
+                  >
+                    <p
+                      className={`text-sm font-semibold truncate ${isCenter ? "text-white" : "text-white/60"}`}
+                    >
+                      {item.name}
+                    </p>
+                    <p
+                      className={`text-xs mt-0.5 ${isCenter ? "text-amber-400" : "text-amber-400/40"}`}
+                    >
+                      ₦{item.price.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tap hint — only on center */}
+                {isCenter && (
+                  <p
+                    className={`text-center text-[10px] mt-1.5 transition-colors ${
+                      isSelected ? "text-amber-400/60" : "text-white/30"
+                    }`}
+                  >
+                    {isSelected
+                      ? "Tap to remove"
+                      : canSelect
+                        ? "Tap to select"
+                        : "Max reached"}
+                  </p>
+                )}
+              </motion.div>
+            );
+          })}
       </div>
 
       {/* Prev / Next + dots */}

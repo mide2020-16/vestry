@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { Product, TicketType } from "@/app/register/useRegister";
 
-function itemPrice(mesh: Product, ticketType: TicketType) {
-  return mesh.price * (ticketType === "couple" ? 2 : 1);
+function itemPrice(mesh: Product) {
+  return mesh.price;
 }
 
 interface MiniCardProps {
@@ -56,7 +56,7 @@ export default function MiniCard({
       <p
         className={`text-[10px] mt-0.5 ${isSelected ? "text-amber-400/60" : "text-white/40"}`}
       >
-        ₦{itemPrice(mesh, ticketType).toLocaleString()}
+        ₦{itemPrice(mesh).toLocaleString()}
       </p>
     </button>
   );

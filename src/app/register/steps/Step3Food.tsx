@@ -31,9 +31,9 @@ export default function Step3Food({
   const selectedDrinkIds = selectedDrinkId ? [selectedDrinkId] : [];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 w-full max-w-md mx-auto items-center">
       {/* Section label */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 w-full">
         <span className="text-amber-400/80 text-[13px] font-semibold uppercase tracking-[0.25em]">
           Food &amp; Drinks
         </span>
@@ -41,24 +41,28 @@ export default function Step3Food({
       </div>
 
       {/* Food */}
-      <FoodCarousel
-        items={foods}
-        category={ProductCategory.FOOD}
-        selectedIds={selectedFoodIds}
-        onToggle={onFoodToggle}
-        maxSelections={MAX_FOOD_SELECTIONS}
-      />
+      <div className="w-full">
+        <FoodCarousel
+          items={foods}
+          category={ProductCategory.FOOD}
+          selectedIds={selectedFoodIds}
+          onToggle={onFoodToggle}
+          maxSelections={MAX_FOOD_SELECTIONS}
+        />
+      </div>
 
-      <div className="border-t border-white/5" />
+      <div className="border-t border-white/5 w-full" />
 
       {/* Drinks */}
-      <FoodCarousel
-        items={drinks}
-        category={ProductCategory.DRINK}
-        selectedIds={selectedDrinkIds}
-        onToggle={onDrinkToggle}
-        maxSelections={MAX_DRINK_SELECTIONS}
-      />
+      <div className="w-full">
+        <FoodCarousel
+          items={drinks}
+          category={ProductCategory.DRINK}
+          selectedIds={selectedDrinkIds}
+          onToggle={onDrinkToggle}
+          maxSelections={MAX_DRINK_SELECTIONS}
+        />
+      </div>
     </div>
   );
 }

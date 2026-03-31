@@ -11,6 +11,7 @@ export interface IRegistration extends Document {
   email: string;
   ticketType: TicketType;
   meshSelection?: mongoose.Types.ObjectId;
+  meshQuantity?: number;
   meshColor?: string;
   meshSize?: string;
   meshInscriptions?: string;
@@ -33,6 +34,7 @@ const RegistrationSchema: Schema = new Schema(
       default: TicketType.SINGLE,
     },
     meshSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    meshQuantity: { type: Number, default: 1 },
     meshColor: { type: String },
     meshSize: { type: String },
     meshInscriptions: { type: String },

@@ -62,6 +62,7 @@ function CheckoutContent() {
           meshSelection: order.mesh?._id,
           meshSize: order.meshSize,
           meshColor: order.meshColor,
+          meshQuantity: order.meshQuantity,
           meshInscriptions: order.meshInscription,
           foodSelections: order.foods.map((f) => f._id),
           drinkSelection: order.drink?._id,

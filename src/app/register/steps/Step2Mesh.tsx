@@ -26,12 +26,14 @@ interface Props {
   meshSizes: string[];
   meshInscriptions: string | null;
   setmeshInscriptions: (i: string) => void;
+  meshQuantity: number;
+  setMeshQuantity: (q: number) => void;
   ticketType: TicketType;
   meshPrice: number;
 }
 
-function itemPrice(mesh: Product, ticketType: TicketType) {
-  return mesh.price * (ticketType === "couple" ? 2 : 1);
+function itemPrice(mesh: Product, qty: number) {
+  return mesh.price * qty;
 }
 
 export default function Step2Mesh({
@@ -45,6 +47,8 @@ export default function Step2Mesh({
   meshSize,
   meshSizes,
   setMeshSize,
+  meshQuantity,
+  setMeshQuantity,
   meshInscriptions,
   setmeshInscriptions,
   ticketType,
@@ -75,9 +79,9 @@ export default function Step2Mesh({
         <div className="absolute bottom-0 inset-x-0 p-4 bg-linear-to-t from-black/80 to-transparent">
           <p className="text-white font-bold text-sm">{selectedmesh.name}</p>
           <p className="text-amber-400/80 text-xs tabular-nums">
-            ₦{itemPrice(selectedmesh, ticketType).toLocaleString()}
-            {ticketType === "couple" && (
-              <span className="opacity-50 ml-1">×2</span>
+            ₦{itemPrice(selectedmesh, meshQuantity).toLocaleString()}
+            {meshQuantity > 1 && (
+              <span className="opacity-50 ml-1 text-[10px]">×{meshQuantity}</span>
             )}
           </p>
         </div>
@@ -123,6 +127,30 @@ export default function Step2Mesh({
                 setMeshSize={setMeshSize}
                 sizes={meshSizes}
               />
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">
+                  Quantity
+                </span>
+                <div className="flex flex-row items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-1 w-max">
+                  <button
+                    type="button"
+                    onClick={() => setMeshQuantity(Math.max(1, meshQuantity - 1))}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-white"
+                  >
+                    -
+                  </button>
+                  <span className="font-bold tabular-nums text-sm min-w-[2ch] flex justify-center text-amber-500">
+                    {meshQuantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMeshQuantity(meshQuantity + 1)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-white"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
               <InscriptionPicker
                 inscriptions={selectedmesh.inscriptions || []}
                 selected={meshInscriptions}

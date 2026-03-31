@@ -24,6 +24,7 @@ export async function buildOrder(
   const foodIds = searchParams.getAll("foodId");
   const drinkId = searchParams.get("drinkId");
   const ticketPrice = Number(searchParams.get("ticketPrice") ?? 0);
+  const meshQuantity = Number(searchParams.get("meshQuantity") ?? 1);
   const meshInscription = searchParams.get('meshInscription')
 
   const [mesh, foods, drink] = await Promise.all([
@@ -33,7 +34,7 @@ export async function buildOrder(
   ]);
 
   const validFoods = foods.filter((f): f is CheckoutProduct => f !== null);
-  const meshTotal = mesh ? mesh.price * (ticketType === "couple" ? 2 : 1) : 0;
+  const meshTotal = mesh ? mesh.price * meshQuantity : 0;
 
   return {
     name: session?.name ?? searchParams.get("name") ?? "Guest",
@@ -48,6 +49,7 @@ export async function buildOrder(
     ticketPrice,
     meshTotal,
     grandTotal: ticketPrice + meshTotal,
+    meshQuantity,
     meshInscription,
   };
 }
