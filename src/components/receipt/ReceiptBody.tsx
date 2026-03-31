@@ -84,6 +84,10 @@ export function ReceiptBody({
               )}
             </View>
           )}
+
+          {registration.meshInscriptions && (
+            <Row label="Inscription" value={`"${registration.meshInscriptions}"`} />
+          )}
         </View>
       )}
 

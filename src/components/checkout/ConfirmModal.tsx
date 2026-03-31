@@ -2,12 +2,14 @@ import { Loader2, AlertTriangle } from "lucide-react";
 
 interface ConfirmModalProps {
   isPaying: boolean;
+  paymentMethod: "paystack" | "transfer";
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 export function ConfirmModal({
   isPaying,
+  paymentMethod,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
@@ -20,15 +22,21 @@ export function ConfirmModal({
 
         <h3 className="text-2xl font-bold text-white mb-2">Important Notice</h3>
         <p className="text-neutral-300 mb-6 leading-relaxed">
-          You are about to be redirected to Paystack securely.{" "}
-          <strong className="text-amber-400">
-            Do not refresh or close the page
-          </strong>{" "}
-          while processing your payment.
-          <br />
-          <br />
-          If making a bank transfer, ensure you transfer the{" "}
-          <strong className="text-white">exact amount</strong> shown.
+          {paymentMethod === "transfer" ? (
+            <>
+              You are selecting manual bank transfer. Please ensure you have transferred the exact amount to the displayed Admin Bank Account and uploaded your receipt.
+              <br /><br />
+              <strong className="text-amber-400">Do not refresh or close the page</strong> while processing your payment.
+            </>
+          ) : (
+            <>
+              You are about to be redirected to Paystack securely.{" "}
+              <strong className="text-amber-400">
+                Do not refresh or close the page
+              </strong>{" "}
+              while processing your payment.
+            </>
+          )}
         </p>
 
         <div className="flex gap-4">
@@ -49,7 +57,7 @@ export function ConfirmModal({
             {isPaying ? (
               <Loader2 className="animate-spin h-5 w-5 text-black" />
             ) : (
-              "Continue to Pay"
+              paymentMethod === "transfer" ? "Submit for Approval" : "Continue to Pay"
             )}
           </button>
         </div>

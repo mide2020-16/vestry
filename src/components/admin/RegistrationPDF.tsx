@@ -83,7 +83,7 @@ interface Registration {
   meshSelection?: { name: string };
   meshSize?: string;
   meshColor?: string;
-  meshInscriptions?: string[];
+  meshInscriptions?: string;
   totalAmount: number;
 }
 
@@ -174,10 +174,7 @@ export const RegistrationPDF = ({
 
             <View style={styles.colInscription}>
               <Text style={styles.inscriptionText}>
-                {Array.isArray(reg.meshInscriptions) && reg.meshInscriptions.length > 0
-                  ? reg.meshInscriptions.map((i) => `"${i}"`).join(", ")
-                  : "—"
-                }
+                {reg.meshInscriptions ? `"${reg.meshInscriptions}"` : "—"}
               </Text>
             </View>
 

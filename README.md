@@ -1,5 +1,3 @@
-<div align="center">
-
 # 🎟️ Vestry Event Registration Platform
 
 **A premium, fully-featured event registration and management system built with Next.js.**
@@ -10,9 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 
-[Features](#-features) • [Previews](#-previews) • [Tech Stack](#-tech-stack) • [Installation](#-installation-&-setup) • [Environment Variables](#-environment-variables)
-
-</div>
+[Features](#-features) • [Previews](#-previews) • [Tech Stack](#-tech-stack) • [Installation & Setup](#-installation-&-setup) • [Environment Variables](#-environment-variables)
 
 ---
 
@@ -22,18 +18,15 @@
 
 ### 🎥 Live Demo / Walkthrough Video
 
-<div align="center">
-  <a href="https://your-video-link.com" target="_blank">
-    <img src="https://via.placeholder.com/800x450.png?text=Click+to+Watch+Demo+Video" alt="Watch the video" width="800" />
-  </a>
-  <p><i>Watch the full end-to-end registration and checkout flow.</i></p>
-</div>
+[![Watch the video](https://via.placeholder.com/800x450.png?text=Click+to+Watch+Demo+Video)](https://your-video-link.com)
+
+_Watch the full end-to-end registration and checkout flow._
 
 ### 🖼️ Screenshots
 
-| User Checkout Flow | Admin Dashboard Overview | Admin Settings & Config |
-|:---:|:---:|:---:|
-| <img src="https://via.placeholder.com/400x300.png?text=Checkout+UI" width="400"/> | <img src="https://via.placeholder.com/400x300.png?text=Admin+Dashboard" width="400"/> | <img src="https://via.placeholder.com/400x300.png?text=Admin+Settings" width="400"/> |
+| User Checkout Flow                                                       | Admin Dashboard Overview                                                         | Admin Settings & Config                                                        |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| ![Checkout UI](https://via.placeholder.com/400x300.png?text=Checkout+UI) | ![Admin Dashboard](https://via.placeholder.com/400x300.png?text=Admin+Dashboard) | ![Admin Settings](https://via.placeholder.com/400x300.png?text=Admin+Settings) |
 
 ---
 
@@ -148,6 +141,4 @@ Contributions are always welcome!
 
 Distributed under the MIT License.
 
-<div align="center">
-  <b>Built with ❤️ for incredible events!</b>
-</div>
+**Built with ❤️ for incredible events!**

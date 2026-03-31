@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
 import { auth } from "@/auth";
+import { sendUserApprovalNotification } from "@/lib/email";
 
 export async function PATCH(
   request: Request,
@@ -25,6 +26,9 @@ export async function PATCH(
     if (!registration) {
       return NextResponse.json({ success: false, error: "Registration not found" }, { status: 404 });
     }
+
+    // Fire email without blocking
+    sendUserApprovalNotification(registration).catch(console.error);
 
     return NextResponse.json({ success: true, registration });
   } catch (error) {

@@ -127,6 +127,11 @@ export function ReceiptCard({
             </div>
           </ReceiptRow>
         )}
+        {registration.meshInscriptions && (
+          <ReceiptRow label="Inscription">
+            <p className="text-white text-sm italic font-medium">&quot;{registration.meshInscriptions}&quot;</p>
+          </ReceiptRow>
+        )}
         {(registration.foodSelections?.length ?? 0) > 0 && (
           <ReceiptRow label="Food">
             {registration.foodSelections?.map((f: any) => (

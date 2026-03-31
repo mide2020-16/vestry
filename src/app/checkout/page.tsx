@@ -172,6 +172,7 @@ function CheckoutContent() {
       {isModalOpen && (
         <ConfirmModal
           isPaying={isPaying}
+          paymentMethod={paymentMethod}
           onConfirm={handleConfirmPayment}
           onCancel={() => setIsModalOpen(false)}
         />

@@ -5,6 +5,7 @@ import Product from "@/models/Product";
 import Settings from "@/models/Settings";
 import { nanoid } from "nanoid";
 import { isRegistrationOpen } from "@/constants/settings";
+import { sendAdminTransferNotification } from "@/lib/email";
 
 // ── types ──────────────────────────────────────────────────────────────────
 
@@ -148,6 +149,11 @@ export async function POST(request: Request) {
       paymentMethod: paymentMethod === "transfer" ? "transfer" : "paystack",
       paymentReceiptUrl: typeof paymentReceiptUrl === "string" ? paymentReceiptUrl : undefined,
     });
+
+    if (registration.paymentMethod === "transfer") {
+      // Don't await email, let it run in background so response is furious fast
+      sendAdminTransferNotification(registration).catch(console.error);
+    }
 
     return NextResponse.json(
       {
