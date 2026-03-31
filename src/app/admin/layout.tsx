@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { MobileNav } from "@/components/admin/MobileNav";
 
 export default async function AdminLayout({
   children,
@@ -25,12 +26,14 @@ export default async function AdminLayout({
         </div>
 
         {/* Scrollable Container */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar pb-20 md:pb-0">
           <div className="max-w-6xl mx-auto px-4 py-8 md:px-10 md:py-12">
             {children}
           </div>
         </div>
       </main>
+
+      <MobileNav />
     </div>
   );
 }

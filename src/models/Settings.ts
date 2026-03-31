@@ -12,6 +12,9 @@ export interface ISettings extends Document {
   registrationEndDate?: Date;
   meshColors: { label: string; value: string }[];
   meshSizes: string[];
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
 }
 
 const SettingsSchema: Schema = new Schema(
@@ -32,6 +35,9 @@ const SettingsSchema: Schema = new Schema(
       },
     ],
     meshSizes: [{ type: String }],
+    bankName: { type: String, default: "" },
+    accountName: { type: String, default: "" },
+    accountNumber: { type: String, default: "" },
   },
   { timestamps: true },
 );

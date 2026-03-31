@@ -49,7 +49,7 @@ export default function AdminSidebar({ email }: Props) {
 
   return (
     <aside
-      className={`flex flex-col bg-neutral-900 border-r border-neutral-800 sticky top-0 h-screen shrink-0 transition-all duration-500 ease-in-out
+      className={`hidden md:flex flex-col bg-neutral-900 border-r border-neutral-800 sticky top-0 h-screen shrink-0 transition-all duration-500 ease-in-out
         ${collapsed ? "w-18" : "w-72"}`}
     >
       <div className="flex flex-col h-full py-8 gap-8 overflow-hidden">

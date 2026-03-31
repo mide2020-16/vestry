@@ -31,6 +31,8 @@ function CheckoutContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "transfer">("paystack");
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,7 +68,9 @@ function CheckoutContent() {
           meshInscriptions: order.meshInscription,
           foodSelections: order.foods.map((f) => f._id),
           drinkSelection: order.drink?._id,
-          totalAmount: order.grandTotal,
+          totalAmount: order.grandTotal, // API will overwrite this based on its own calculations, but this is fine to pass
+          paymentMethod,
+          paymentReceiptUrl: receiptUrl,
           paymentStatus: false,
         }),
       });
@@ -74,6 +78,11 @@ function CheckoutContent() {
       const data = await res.json();
       if (!res.ok)
         throw new Error(data.error ?? "Failed to create registration");
+
+      if (paymentMethod === "transfer") {
+        router.push(`/success?ref=${data.paystackReference}`);
+        return;
+      }
 
       // Paystack Config Checks
       if (!data.paystackReference)
@@ -150,7 +159,15 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 pt-20">
-      <OrderSummary order={order} onPay={() => setIsModalOpen(true)} />
+      <OrderSummary 
+        order={order} 
+        onPay={() => setIsModalOpen(true)}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        receiptUrl={receiptUrl}
+        setReceiptUrl={setReceiptUrl}
+        isPaying={isPaying}
+      />
 
       {isModalOpen && (
         <ConfirmModal

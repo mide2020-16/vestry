@@ -20,6 +20,19 @@ interface RegistrationBody {
   meshInscriptions?: unknown; // Successfully mapped to model
   foodSelections?: unknown;
   drinkSelection?: unknown;
+  paymentMethod?: unknown;
+  paymentReceiptUrl?: unknown;
+}
+
+function calculatePaystackFee(baseAmount: number): number {
+  if (baseAmount <= 0) return 0;
+  let fee = 0;
+  if (baseAmount < 2500) {
+    fee = (baseAmount * 0.015) / (1 - 0.015);
+  } else {
+    fee = ((baseAmount + 100) * 0.015) / (1 - 0.015) + 100;
+  }
+  return Math.min(fee, 2000);
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -81,6 +94,8 @@ export async function POST(request: Request) {
       meshInscriptions,
       foodSelections,
       drinkSelection,
+      paymentMethod = "paystack",
+      paymentReceiptUrl,
     } = body;
 
     // Validation
@@ -103,11 +118,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const totalAmount = await calculateTotal(
+    const baseTotal = await calculateTotal(
       ticketType,
       meshSelection,
       Number(meshQuantity) || 1
     );
+
+    const totalAmount = paymentMethod === "paystack" 
+      ? baseTotal + calculatePaystackFee(baseTotal) 
+      : baseTotal;
+
     const paystackReference = `VESTRY-${nanoid(10).toUpperCase()}`;
 
     const registration = await Registration.create({
@@ -125,6 +145,8 @@ export async function POST(request: Request) {
       totalAmount,
       paystackReference,
       paymentStatus: false,
+      paymentMethod: paymentMethod === "transfer" ? "transfer" : "paystack",
+      paymentReceiptUrl: typeof paymentReceiptUrl === "string" ? paymentReceiptUrl : undefined,
     });
 
     return NextResponse.json(

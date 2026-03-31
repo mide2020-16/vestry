@@ -1,11 +1,25 @@
 import { OrderData } from "@/types/checkout.types";
+import { UploadDropzone } from "@/lib/uploadthing";
 
 interface OrderSummaryProps {
   order: OrderData;
   onPay: () => void;
+  paymentMethod: "paystack" | "transfer";
+  setPaymentMethod: (method: "paystack" | "transfer") => void;
+  receiptUrl: string | null;
+  setReceiptUrl: (url: string) => void;
+  isPaying: boolean;
 }
 
-export function OrderSummary({ order, onPay }: OrderSummaryProps) {
+export function OrderSummary({
+  order,
+  onPay,
+  paymentMethod,
+  setPaymentMethod,
+  receiptUrl,
+  setReceiptUrl,
+  isPaying,
+}: OrderSummaryProps) {
   const attendeeRows = [
     { label: "Primary Attendee", value: order.name },
     ...(order.ticketType === "couple" && order.partnerName
@@ -137,14 +151,106 @@ export function OrderSummary({ order, onPay }: OrderSummaryProps) {
         )}
       </div>
 
+      {/* Payment Method Selection */}
+      <div className="space-y-4 mb-8">
+        <h2 className="text-neutral-300 font-semibold mb-2">Payment Method</h2>
+        
+        <div className="grid gap-3">
+          <label className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`} onClick={() => setPaymentMethod("paystack")}>
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === "paystack" ? "border-amber-500" : "border-neutral-500"}`}>
+              {paymentMethod === "paystack" && <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />}
+            </div>
+            <div>
+              <p className="font-bold text-white">Pay Online (Paystack)</p>
+              <p className="text-xs text-neutral-400">Instant verification via card or bank transfer.</p>
+            </div>
+          </label>
+
+          <label className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "transfer" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`} onClick={() => setPaymentMethod("transfer")}>
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === "transfer" ? "border-amber-500" : "border-neutral-500"}`}>
+              {paymentMethod === "transfer" && <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />}
+            </div>
+            <div>
+              <p className="font-bold text-white">Manual Bank Transfer</p>
+              <p className="text-xs text-neutral-400">Transfer directly and upload your receipt (Wait for admin approval).</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {/* Manual Transfer Instructions */}
+      {paymentMethod === "transfer" && (
+        <div className="space-y-4 mb-8 bg-neutral-950 p-6 rounded-xl border border-neutral-800">
+          <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wide">Bank Details</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between border-b border-neutral-800 pb-2">
+              <span className="text-neutral-400 text-sm">Bank Name</span>
+              <span className="text-white font-medium">{order.bankDetails?.bankName}</span>
+            </div>
+            <div className="flex justify-between border-b border-neutral-800 pb-2">
+              <span className="text-neutral-400 text-sm">Account Name</span>
+              <span className="text-white font-medium">{order.bankDetails?.accountName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-neutral-400 text-sm">Account Number</span>
+              <span className="text-amber-400 font-mono text-lg">{order.bankDetails?.accountNumber}</span>
+            </div>
+          </div>
+
+          <div className="pt-4 mt-4 border-t border-neutral-800">
+            <h3 className="text-sm font-bold text-white mb-3">Upload Payment Receipt</h3>
+            {receiptUrl ? (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm p-4 rounded-xl flex justify-between items-center">
+                <span>✅ Receipt Uploaded</span>
+                <button onClick={() => setReceiptUrl("")} className="text-xs underline hover:text-emerald-300">Remove</button>
+              </div>
+            ) : (
+              <div className="bg-white/5 rounded-xl border border-neutral-800 p-2">
+                <UploadDropzone
+                  endpoint="receiptUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res.length > 0) {
+                      setReceiptUrl(res[0].url);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    alert(`Error uploading receipt: ${error.message}`);
+                  }}
+                  appearance={{
+                    button: "bg-amber-500 text-black px-4 py-2 mt-4 ut-uploading:bg-amber-600",
+                    label: "text-amber-500 hover:text-amber-400",
+                    container: "p-4",
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Paystack Fee Notice */}
+      {paymentMethod === "paystack" && (
+         <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-neutral-950 border border-neutral-800 mb-6">
+           <span className="text-neutral-400">Processing Fee</span>
+           <span className="font-mono text-neutral-300">
+             ₦{order.paystackFee.toLocaleString()}
+           </span>
+         </div>
+      )}
+
       <button
         type="button"
         onClick={onPay}
-        className="w-full mt-8 bg-linear-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500
+        disabled={isPaying || (paymentMethod === "transfer" && !receiptUrl)}
+        className="w-full bg-linear-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 disabled:opacity-50 disabled:cursor-not-allowed
           text-black font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.2)]
           hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] transition-all active:scale-[0.98]"
       >
-        Pay ₦{order.grandTotal.toLocaleString()}
+        {isPaying 
+          ? "Processing..." 
+          : paymentMethod === 'paystack' 
+            ? `Pay ₦${order.grandTotal.toLocaleString()}` 
+            : `Confirm Registration (₦${order.baseTotal.toLocaleString()})`}
       </button>
     </div>
   );

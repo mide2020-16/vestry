@@ -40,6 +40,16 @@ export const ourFileRouter = {
       console.log("[UploadThing] upload complete on server:", file.ufsUrl);
       return { url: file.ufsUrl };
     }),
+
+  receiptUploader: f({
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
+    pdf: { maxFileSize: "4MB", maxFileCount: 1 },
+  })
+    // No auth middleware required because unauthenticated users need to upload receipts upon checkout
+    .onUploadComplete(async ({ file }) => {
+      console.log("[UploadThing] receipt upload complete:", file.ufsUrl);
+      return { url: file.ufsUrl };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

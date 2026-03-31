@@ -18,6 +18,8 @@ export interface IRegistration extends Document {
   foodSelections: mongoose.Types.ObjectId[];
   drinkSelection?: mongoose.Types.ObjectId;
   paymentStatus: boolean;
+  paymentMethod: "paystack" | "transfer";
+  paymentReceiptUrl?: string;
   paystackReference?: string;
   totalAmount: number;
 }
@@ -41,6 +43,12 @@ const RegistrationSchema: Schema = new Schema(
     foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     drinkSelection: { type: Schema.Types.ObjectId, ref: "Product" },
     paymentStatus: { type: Boolean, default: false },
+    paymentMethod: {
+      type: String,
+      enum: ["paystack", "transfer"],
+      default: "paystack",
+    },
+    paymentReceiptUrl: { type: String },
     paystackReference: { type: String, unique: true, sparse: true },
     totalAmount: { type: Number, required: true, default: 0 },
   },

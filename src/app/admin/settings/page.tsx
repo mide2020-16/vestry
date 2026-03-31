@@ -37,6 +37,9 @@ interface SettingsForm {
   registrationEndDate: string;
   meshColors: { label: string; value: string }[];
   meshSizes: string[];
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
 }
 
 const DEFAULTS: SettingsForm = {
@@ -51,6 +54,9 @@ const DEFAULTS: SettingsForm = {
   registrationEndDate: "",
   meshColors: [],
   meshSizes: [],
+  bankName: "",
+  accountName: "",
+  accountNumber: "",
 };
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
@@ -88,6 +94,9 @@ export default function AdminSettingsPage() {
               : "",
             meshColors: data.data.meshColors ?? [],
             meshSizes: data.data.meshSizes ?? [],
+            bankName: data.data.bankName ?? "",
+            accountName: data.data.accountName ?? "",
+            accountNumber: data.data.accountNumber ?? "",
           });
         }
       } catch (err) {
@@ -481,6 +490,49 @@ export default function AdminSettingsPage() {
               placeholder="sk_test_..."
             />
           </Field>
+        </section>
+
+        {/* Bank Details (Transfer) */}
+        <section className="space-y-5 pt-6 border-t border-neutral-800">
+          <h3 className="text-xl font-bold text-amber-500 border-b border-neutral-800 pb-2">
+            Bank Details (Manual Transfer)
+          </h3>
+          <p className="text-xs text-neutral-500">
+            Provide the account details for users who choose to pay via manual bank transfer.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Bank Name" hint="e.g. Access Bank, GTBank">
+              <input
+                type="text"
+                name="bankName"
+                value={form.bankName}
+                onChange={handleChange}
+                className={inputCls("amber")}
+                placeholder="Guaranty Trust Bank"
+              />
+            </Field>
+            <Field label="Account Name">
+              <input
+                type="text"
+                name="accountName"
+                value={form.accountName}
+                onChange={handleChange}
+                className={inputCls("amber")}
+                placeholder="Vestry Event Limited"
+              />
+            </Field>
+            <Field label="Account Number">
+              <input
+                type="text"
+                name="accountNumber"
+                value={form.accountNumber}
+                onChange={handleChange}
+                className={inputCls("amber")}
+                placeholder="0123456789"
+              />
+            </Field>
+          </div>
         </section>
 
         {/* Submit */}

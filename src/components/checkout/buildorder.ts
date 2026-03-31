@@ -1,6 +1,18 @@
 import { TicketType } from "@/app/register/useRegister";
 import { CheckoutProduct, OrderData } from "@/types/checkout.types";
 
+function calculatePaystackFee(baseAmount: number): number {
+  if (baseAmount <= 0) return 0;
+  let fee = 0;
+  if (baseAmount < 2500) {
+    fee = (baseAmount * 0.015) / (1 - 0.015);
+  } else {
+    fee = ((baseAmount + 100) * 0.015) / (1 - 0.015) + 100;
+  }
+  // Cap at 2000
+  return Math.min(fee, 2000);
+}
+
 async function fetchProduct(id: string): Promise<CheckoutProduct | null> {
   try {
     const res = await fetch(`/api/products/${id}`);
@@ -27,10 +39,11 @@ export async function buildOrder(
   const meshQuantity = Number(searchParams.get("meshQuantity") ?? 1);
   const meshInscription = searchParams.get('meshInscription')
 
-  const [mesh, foods, drink] = await Promise.all([
+  const [mesh, foods, drink, settingsRes] = await Promise.all([
     meshId ? fetchProduct(meshId) : Promise.resolve(null),
     Promise.all(foodIds.map(fetchProduct)),
     drinkId ? fetchProduct(drinkId) : Promise.resolve(null),
+    fetch("/api/settings").then((r) => r.json()).catch(() => null),
   ]);
 
   const validFoods = foods.filter((f): f is CheckoutProduct => f !== null);
@@ -48,8 +61,15 @@ export async function buildOrder(
     drink,
     ticketPrice,
     meshTotal,
-    grandTotal: ticketPrice + meshTotal,
+    baseTotal: ticketPrice + meshTotal,
+    paystackFee: calculatePaystackFee(ticketPrice + meshTotal),
+    grandTotal: ticketPrice + meshTotal + calculatePaystackFee(ticketPrice + meshTotal),
     meshQuantity,
     meshInscription,
+    bankDetails: settingsRes?.data ? {
+      bankName: settingsRes.data.bankName,
+      accountName: settingsRes.data.accountName,
+      accountNumber: settingsRes.data.accountNumber,
+    } : undefined,
   };
 }

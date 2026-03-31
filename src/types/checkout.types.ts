@@ -28,5 +28,13 @@ export interface OrderData {
   // Financials
   ticketPrice: number;
   meshTotal: number;
+  baseTotal: number;
+  paystackFee: number;
   grandTotal: number;
+
+  bankDetails?: {
+    bankName: string;
+    accountName: string;
+    accountNumber: string;
+  };
 }

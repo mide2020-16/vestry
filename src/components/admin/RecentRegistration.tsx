@@ -1,10 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
+import { useState } from "react";
+import { Check, ExternalLink, Loader2 } from "lucide-react";
+
 interface Registration {
   _id: { toString(): string };
   name: string;
   ticketType: string;
   totalAmount: number;
-  // Matches the schema — can be boolean OR the legacy string 'success'
   paymentStatus: boolean | string;
+  paymentMethod?: "paystack" | "transfer";
+  paymentReceiptUrl?: string;
 }
 
 interface RecentRegistrationsProps {
@@ -27,8 +34,34 @@ function PaymentBadge({ status }: { status: boolean | string }) {
 }
 
 export function RecentRegistrations({
-  registrations,
+  registrations: initialRegistrations,
 }: RecentRegistrationsProps) {
+  const [registrations, setRegistrations] = useState(initialRegistrations);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  const handleApprove = async (id: string) => {
+    try {
+      setApprovingId(id);
+      const res = await fetch(`/api/registrations/${id}/approve`, {
+        method: "PATCH",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRegistrations((prev) =>
+          prev.map((r) =>
+            r._id.toString() === id ? { ...r, paymentStatus: true } : r
+          )
+        );
+      } else {
+        alert(data.error || "Failed to approve");
+      }
+    } catch (err) {
+      alert("An error occurred");
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-lg p-6">
       <h3 className="text-xl font-bold text-white mb-6">
@@ -47,27 +80,66 @@ export function RecentRegistrations({
                 <th className="px-6 py-4 rounded-tl-lg">Name</th>
                 <th className="px-6 py-4">Ticket</th>
                 <th className="px-6 py-4">Total Amount</th>
-                <th className="px-6 py-4 rounded-tr-lg">Status</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 rounded-tr-lg">Action / Receipt</th>
               </tr>
             </thead>
             <tbody>
-              {registrations.slice(0, 5).map((reg) => (
-                <tr
-                  key={reg._id.toString()}
-                  className="border-b border-neutral-800/50 hover:bg-neutral-800/20 transition-colors"
-                >
-                  <td className="px-6 py-4 font-medium text-white">
-                    {reg.name}
-                  </td>
-                  <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
-                  <td className="px-6 py-4 font-mono">
-                    ₦{reg.totalAmount.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <PaymentBadge status={reg.paymentStatus} />
-                  </td>
-                </tr>
-              ))}
+              {registrations.slice(0, 8).map((reg) => {
+                const isPendingTransfer = reg.paymentMethod === "transfer" && (reg.paymentStatus === false || reg.paymentStatus === "pending");
+                
+                return (
+                  <tr
+                    key={reg._id.toString()}
+                    className="border-b border-neutral-800/50 hover:bg-neutral-800/20 transition-colors"
+                  >
+                    <td className="px-6 py-4 font-medium text-white">
+                      {reg.name}
+                    </td>
+                    <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
+                    <td className="px-6 py-4 font-mono">
+                      ₦{reg.totalAmount.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 flex flex-col gap-1 items-start">
+                      <PaymentBadge status={reg.paymentStatus} />
+                      {reg.paymentMethod === "transfer" && (
+                        <span className="text-[10px] uppercase tracking-wider text-amber-500 font-bold">Transfer</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {reg.paymentReceiptUrl ? (
+                          <a
+                            href={reg.paymentReceiptUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 underline"
+                          >
+                            <ExternalLink size={14} /> Receipt
+                          </a>
+                        ) : (
+                          <span className="text-xs text-neutral-600">N/A</span>
+                        )}
+
+                        {isPendingTransfer && (
+                          <button
+                            onClick={() => handleApprove(reg._id.toString())}
+                            disabled={approvingId === reg._id.toString()}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 font-semibold rounded disabled:opacity-50 text-xs transition-colors"
+                          >
+                            {approvingId === reg._id.toString() ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Check className="w-3 h-3" />
+                            )}
+                            Approve
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import Settings from "@/models/Settings";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     await dbConnect();
