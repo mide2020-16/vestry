@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-
+import "./Product";
 export enum TicketType {
   SINGLE = "single",
   COUPLE = "couple",
