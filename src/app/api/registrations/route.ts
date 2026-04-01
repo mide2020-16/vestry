@@ -4,7 +4,7 @@ import Registration from "@/models/Registration";
 import Product from "@/models/Product";
 import Settings from "@/models/Settings";
 import { nanoid } from "nanoid";
-import { isRegistrationOpen } from "@/lib/settings";
+import { isRegistrationOpen } from "@/lib/registration";
 import { sendAdminTransferNotification } from "@/lib/email";
 
 // ── types ──────────────────────────────────────────────────────────────────
