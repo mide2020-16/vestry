@@ -164,11 +164,21 @@ export default function AdminSettingsPage() {
     setIsSaving(true);
     setMessage(null);
     try {
+      
+      const payload = {
+      ...form,
+      // Convert local datetime string → UTC ISO string for consistent storage
+      registrationEndDate: form.registrationEndDate
+        ? new Date(form.registrationEndDate).toISOString()
+        : null,
+    };
+
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
+
       const data = await res.json();
       setMessage(
         data.success
