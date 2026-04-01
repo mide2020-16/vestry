@@ -30,6 +30,12 @@ export async function PUT(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
+    
+    if (body.registrationEndDate) {
+      body.registrationEndDate = new Date(body.registrationEndDate);
+    } else {
+      body.registrationEndDate = null;
+    }
 
     const settings = await Settings.findOneAndUpdate(
       {},
