@@ -22,6 +22,8 @@ function LoadingScreen({ message = "Loading..." }: { message?: string }) {
   );
 }
 
+/* ── Checkout content ───────────────────────────────────────────────────── */
+
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,7 +70,7 @@ function CheckoutContent() {
           meshInscriptions: order.meshInscription,
           foodSelections: order.foods.map((f) => f._id),
           drinkSelection: order.drink?._id,
-          totalAmount: order.grandTotal, // API will overwrite this based on its own calculations, but this is fine to pass
+          totalAmount: order.grandTotal,
           paymentMethod,
           paymentReceiptUrl: receiptUrl,
           paymentStatus: false,
@@ -84,28 +86,25 @@ function CheckoutContent() {
         return;
       }
 
-      // Paystack Config Checks
       if (!data.paystackReference)
         throw new Error("No payment reference returned");
-      if (!data.paystackKey) throw new Error("Payment configuration missing");
+      if (!data.paystackKey)
+        throw new Error("Payment configuration missing");
 
       const { paystackReference, totalAmount, paystackKey } = data;
 
-      // Dynamic import of Paystack for performance
       const PaystackPop = (await import("@paystack/inline-js")).default;
       const paystack = new PaystackPop();
 
       paystack.newTransaction({
         key: paystackKey,
         email: order.email,
-        amount: totalAmount * 100, // Paystack expects Kobo (Sub-units)
+        amount: totalAmount * 100,
         reference: paystackReference,
         onSuccess: (transaction: { reference: string }) => {
-          // Redirect to a pretty success page
           router.push(`/success?ref=${transaction.reference}`);
         },
         onCancel: async () => {
-          // Cleanup: Remove the pending registration if they back out
           await fetch(`/api/registrations/${data.registrationId}`, {
             method: "DELETE",
           });
@@ -124,19 +123,6 @@ function CheckoutContent() {
       setIsModalOpen(false);
     }
   };
-
-  /* ── Shared loading screen ──────────────────────────────────────────────── */
-
-  function LoadingScreen({ message = "Loading..." }: { message?: string }) {
-    return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin h-10 w-10 text-amber-400" />
-          <p className="text-neutral-400 text-sm">{message}</p>
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) return <LoadingScreen message="Building your order..." />;
 
@@ -159,8 +145,8 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 pt-20">
-      <OrderSummary 
-        order={order} 
+      <OrderSummary
+        order={order}
         onPay={() => setIsModalOpen(true)}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
