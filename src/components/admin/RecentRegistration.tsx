@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Registration {
   _id: { toString(): string };
@@ -45,6 +45,7 @@ export function RecentRegistrations({
   const totalPages = Math.ceil(registrations.length / PAGE_SIZE);
   const start = page * PAGE_SIZE;
   const currentPage = registrations.slice(start, start + PAGE_SIZE);
+  const router = useRouter();
 
   const handleApprove = async (id: string) => {
     try {
@@ -59,6 +60,7 @@ export function RecentRegistrations({
             r._id.toString() === id ? { ...r, paymentStatus: true } : r
           )
         );
+        router.refresh();
       } else {
         alert(data.error || "Failed to approve");
       }
@@ -130,7 +132,7 @@ export function RecentRegistrations({
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {reg.paymentReceiptUrl ? (
-                            
+                            <a
                               href={reg.paymentReceiptUrl ?? "#"}
                               target="_blank"
                               rel="noreferrer"
@@ -144,6 +146,7 @@ export function RecentRegistrations({
 
                           {isPendingTransfer && (
                             <button
+                              type="button"
                               onClick={() => handleApprove(reg._id.toString())}
                               disabled={approvingId === reg._id.toString()}
                               className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 font-semibold rounded disabled:opacity-50 text-xs transition-colors"
@@ -169,6 +172,7 @@ export function RecentRegistrations({
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-5 pt-4 border-t border-neutral-800">
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -179,6 +183,7 @@ export function RecentRegistrations({
               <div className="flex items-center gap-1.5">
                 {Array.from({ length: totalPages }).map((_, i) => (
                   <button
+                    type="button"
                     key={i}
                     onClick={() => setPage(i)}
                     className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
@@ -193,6 +198,7 @@ export function RecentRegistrations({
               </div>
 
               <button
+                type='button'
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page === totalPages - 1}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

@@ -43,7 +43,7 @@ export const sendUserApprovalNotification = async (registration: any) => {
     return;
   }
   
-  const ticketUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/success?ref=${registration.paystackReference}`;
+  const ticketUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/success?ref=${registration.paystackReference}`;
 
   const mailOptions = {
     from: `"Vestry Events" <${process.env.SMTP_USER}>`,
