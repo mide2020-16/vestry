@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import { OrderData } from "@/types/checkout.types";
 import { UploadDropzone } from "@/lib/uploadthing";
+import { Copy, Check } from "lucide-react";
 
 interface OrderSummaryProps {
   order: OrderData;
@@ -9,6 +13,27 @@ interface OrderSummaryProps {
   receiptUrl: string | null;
   setReceiptUrl: (url: string) => void;
   isPaying: boolean;
+}
+
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="ml-2 p-1 rounded text-neutral-500 hover:text-amber-400 hover:bg-white/5 transition-colors"
+      title="Copy"
+    >
+      {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+    </button>
+  );
 }
 
 export function OrderSummary({
@@ -35,6 +60,12 @@ export function OrderSummary({
 
   const hasFoodDrink = order.foods.length > 0 || order.drink !== null;
 
+  const bankRows = [
+    { label: "Bank Name", value: order.bankDetails?.bankName ?? "" },
+    { label: "Account Name", value: order.bankDetails?.accountName ?? "" },
+    { label: "Account Number", value: order.bankDetails?.accountNumber ?? "", mono: true, amber: true },
+  ];
+
   return (
     <div className="max-w-xl w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
       {/* Ambient glow */}
@@ -53,13 +84,7 @@ export function OrderSummary({
             className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/5"
           >
             <span className="text-neutral-400">{label}</span>
-            <span
-              className={
-                amber
-                  ? "text-amber-400 font-bold tracking-wide"
-                  : "text-white font-medium"
-              }
-            >
+            <span className={amber ? "text-amber-400 font-bold tracking-wide" : "text-white font-medium"}>
               {value}
             </span>
           </div>
@@ -72,32 +97,23 @@ export function OrderSummary({
 
         <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-white/5">
           <span className="text-white">🎟️ Tickets ({order.ticketType})</span>
-          <span className="font-mono text-neutral-300">
-            ₦{order.ticketPrice.toLocaleString()}
-          </span>
+          <span className="font-mono text-neutral-300">₦{order.ticketPrice.toLocaleString()}</span>
         </div>
 
         {order.mesh && (
           <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-white/5">
             <div className="flex flex-col">
               <span className="text-white">👕 {order.mesh.name}</span>
-
               {(order.meshColor || order.meshSize) && (
                 <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
                   {order.meshColor && (
                     <div className="flex items-center gap-1">
-                      <span
-                        className="w-3 h-3 rounded-full border border-white/20"
-                        style={{ backgroundColor: order.meshColor }}
-                      />
+                      <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: order.meshColor }} />
                       <span className="uppercase tracking-wide">Color</span>
                     </div>
                   )}
-
                   {order.meshSize && (
-                    <span className="px-2 py-0.5 rounded bg-white/10 text-white/70 font-medium">
-                      {order.meshSize}
-                    </span>
+                    <span className="px-2 py-0.5 rounded bg-white/10 text-white/70 font-medium">{order.meshSize}</span>
                   )}
                   {order.meshInscription && (
                     <p className="text-amber-400 font-semibold uppercase tracking-tighter">
@@ -106,16 +122,13 @@ export function OrderSummary({
                   )}
                 </div>
               )}
-
               {order.ticketType === "couple" && (
                 <span className="text-neutral-500 text-xs mt-0.5">
                   ₦{order.mesh.price.toLocaleString()} × 2 (couple)
                 </span>
               )}
             </div>
-            <span className="font-mono text-neutral-300">
-              ₦{order.meshTotal.toLocaleString()}
-            </span>
+            <span className="font-mono text-neutral-300">₦{order.meshTotal.toLocaleString()}</span>
           </div>
         )}
 
@@ -126,23 +139,14 @@ export function OrderSummary({
             </span>
             <ul className="space-y-1 pl-2 border-l-2 border-neutral-800">
               {order.foods.map((food) => (
-                <li
-                  key={food._id}
-                  className="text-sm text-neutral-400 flex items-center gap-2"
-                >
-                  <span
-                    className="w-1 h-1 bg-neutral-600 rounded-full"
-                    aria-hidden
-                  />
+                <li key={food._id} className="text-sm text-neutral-400 flex items-center gap-2">
+                  <span className="w-1 h-1 bg-neutral-600 rounded-full" aria-hidden />
                   {food.name}
                 </li>
               ))}
               {order.drink && (
                 <li className="text-sm text-neutral-400 flex items-center gap-2">
-                  <span
-                    className="w-1 h-1 bg-neutral-600 rounded-full"
-                    aria-hidden
-                  />
+                  <span className="w-1 h-1 bg-neutral-600 rounded-full" aria-hidden />
                   {order.drink.name}
                 </li>
               )}
@@ -154,9 +158,11 @@ export function OrderSummary({
       {/* Payment Method Selection */}
       <div className="space-y-4 mb-8">
         <h2 className="text-neutral-300 font-semibold mb-2">Payment Method</h2>
-        
         <div className="grid gap-3">
-          <label className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`} onClick={() => setPaymentMethod("paystack")}>
+          <label
+            className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`}
+            onClick={() => setPaymentMethod("paystack")}
+          >
             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === "paystack" ? "border-amber-500" : "border-neutral-500"}`}>
               {paymentMethod === "paystack" && <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />}
             </div>
@@ -166,7 +172,10 @@ export function OrderSummary({
             </div>
           </label>
 
-          <label className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "transfer" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`} onClick={() => setPaymentMethod("transfer")}>
+          <label
+            className={`cursor-pointer rounded-xl p-4 border flex items-center gap-3 transition-colors ${paymentMethod === "transfer" ? "bg-amber-500/10 border-amber-500" : "bg-white/5 border-neutral-800 hover:border-neutral-700"}`}
+            onClick={() => setPaymentMethod("transfer")}
+          >
             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === "transfer" ? "border-amber-500" : "border-neutral-500"}`}>
               {paymentMethod === "transfer" && <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />}
             </div>
@@ -180,25 +189,34 @@ export function OrderSummary({
 
       {/* Manual Transfer Instructions */}
       {paymentMethod === "transfer" && (
-        <div className="space-y-4 mb-8 bg-neutral-950 p-6 rounded-xl border border-neutral-800">
-          <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wide">Bank Details</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between border-b border-neutral-800 pb-2">
-              <span className="text-neutral-400 text-sm">Bank Name</span>
-              <span className="text-white font-medium">{order.bankDetails?.bankName}</span>
-            </div>
-            <div className="flex justify-between border-b border-neutral-800 pb-2">
-              <span className="text-neutral-400 text-sm">Account Name</span>
-              <span className="text-white font-medium">{order.bankDetails?.accountName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-neutral-400 text-sm">Account Number</span>
-              <span className="text-amber-400 font-mono text-lg">{order.bankDetails?.accountNumber}</span>
-            </div>
+        <div className="space-y-4 mb-8 bg-neutral-950 p-5 rounded-xl border border-neutral-800">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Bank Details</h3>
+            <span className="text-[10px] text-neutral-600 uppercase tracking-wider">Transfer exact amount</span>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-neutral-800">
-            <h3 className="text-sm font-bold text-white mb-3">Upload Payment Receipt</h3>
+          <div className="space-y-1 rounded-lg overflow-hidden border border-neutral-800">
+            {bankRows.map(({ label, value, mono, amber }, i) => (
+              <div
+                key={label}
+                className={`flex items-center justify-between px-4 py-3 ${i % 2 === 0 ? "bg-white/[0.02]" : "bg-black/20"}`}
+              >
+                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{label}</span>
+                <div className="flex items-center gap-1">
+                  <span className={`text-xs font-bold ${amber ? "text-amber-400 font-mono text-sm tracking-widest" : "text-white"} ${mono ? "font-mono" : ""}`}>
+                    {value}
+                  </span>
+                  <CopyButton value={value} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Copy all button */}
+          <CopyAllButton bankDetails={order.bankDetails} />
+
+          <div className="pt-3 mt-1 border-t border-neutral-800">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Upload Payment Receipt</h3>
             {receiptUrl ? (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm p-4 rounded-xl flex justify-between items-center">
                 <span>✅ Receipt Uploaded</span>
@@ -209,9 +227,7 @@ export function OrderSummary({
                 <UploadDropzone
                   endpoint="receiptUploader"
                   onClientUploadComplete={(res) => {
-                    if (res && res.length > 0) {
-                      setReceiptUrl(res[0].url);
-                    }
+                    if (res && res.length > 0) setReceiptUrl(res[0].url);
                   }}
                   onUploadError={(error: Error) => {
                     alert(`Error uploading receipt: ${error.message}`);
@@ -230,12 +246,10 @@ export function OrderSummary({
 
       {/* Paystack Fee Notice */}
       {paymentMethod === "paystack" && (
-         <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-neutral-950 border border-neutral-800 mb-6">
-           <span className="text-neutral-400">Processing Fee</span>
-           <span className="font-mono text-neutral-300">
-             ₦{order.paystackFee.toLocaleString()}
-           </span>
-         </div>
+        <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-neutral-950 border border-neutral-800 mb-6">
+          <span className="text-neutral-400">Processing Fee</span>
+          <span className="font-mono text-neutral-300">₦{order.paystackFee.toLocaleString()}</span>
+        </div>
       )}
 
       <button
@@ -246,12 +260,37 @@ export function OrderSummary({
           text-black font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.2)]
           hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] transition-all active:scale-[0.98]"
       >
-        {isPaying 
-          ? "Processing..." 
-          : paymentMethod === 'paystack' 
-            ? `Pay ₦${order.grandTotal.toLocaleString()}` 
+        {isPaying
+          ? "Processing..."
+          : paymentMethod === "paystack"
+            ? `Pay ₦${order.grandTotal.toLocaleString()}`
             : `Confirm Registration (₦${order.baseTotal.toLocaleString()})`}
       </button>
     </div>
+  );
+}
+
+/* ── Copy All Button ─────────────────────────────────────────────────────── */
+
+function CopyAllButton({ bankDetails }: { bankDetails: OrderData["bankDetails"] }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const text = `Bank: ${bankDetails?.bankName}\nAccount Name: ${bankDetails?.accountName}\nAccount Number: ${bankDetails?.accountNumber}`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-neutral-800 text-xs font-semibold text-neutral-400 hover:text-white hover:border-neutral-600 hover:bg-white/5 transition-all"
+    >
+      {copied
+        ? <><Check size={12} className="text-emerald-400" /> <span className="text-emerald-400">Copied!</span></>
+        : <><Copy size={12} /> Copy All Bank Details</>}
+    </button>
   );
 }
