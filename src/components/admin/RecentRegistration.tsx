@@ -131,7 +131,7 @@ export function RecentRegistrations({
                         <div className="flex items-center gap-3">
                           {reg.paymentReceiptUrl ? (
                             
-                              href={reg.paymentReceiptUrl}
+                              href={reg.paymentReceiptUrl ?? "#"}
                               target="_blank"
                               rel="noreferrer"
                               className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 underline"
