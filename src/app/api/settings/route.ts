@@ -39,7 +39,13 @@ export async function PUT(request: Request) {
 
     const settings = await Settings.findOneAndUpdate(
       {},
-      { $set: body },
+      { 
+        $set: {
+          ...body,
+          paystackEnabled: body.paystackEnabled === true,
+          bankTransferEnabled: body.bankTransferEnabled === true,
+        } 
+      },
       { new: true, upsert: true, runValidators: true },
     ).lean();
 

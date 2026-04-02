@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Registration {
@@ -12,6 +18,13 @@ interface Registration {
   paymentStatus: boolean | string;
   paymentMethod?: "paystack" | "transfer";
   paymentReceiptUrl?: string;
+  merch?: {
+    name: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
 }
 
 interface RecentRegistrationsProps {
@@ -57,8 +70,8 @@ export function RecentRegistrations({
       if (data.success) {
         setRegistrations((prev) =>
           prev.map((r) =>
-            r._id.toString() === id ? { ...r, paymentStatus: true } : r
-          )
+            r._id.toString() === id ? { ...r, paymentStatus: true } : r,
+          ),
         );
         router.refresh();
       } else {
@@ -113,7 +126,47 @@ export function RecentRegistrations({
                       className="border-b border-neutral-800/50 hover:bg-neutral-800/20 transition-colors"
                     >
                       <td className="px-6 py-4 font-medium text-white">
-                        {reg.name}
+                        <div className="flex flex-col">
+                          <span>{reg.name}</span>
+                          <div className="flex flex-col gap-1.5 mt-2">
+                            {reg.merch?.map((m, i) => (
+                              <div
+                                key={i}
+                                className="flex flex-col bg-white/5 p-2 rounded-lg border border-white/10 group/item hover:bg-white/10 transition-colors"
+                              >
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-[10px] font-bold text-neutral-300">
+                                    {m.name}{" "}
+                                    {m.quantity > 1 && (
+                                      <span className="text-amber-500">
+                                        ×{m.quantity}
+                                      </span>
+                                    )}
+                                  </span>
+                                  <div className="flex gap-1">
+                                    {m.size && (
+                                      <span className="text-[8px] px-1 bg-neutral-700 text-neutral-400 rounded uppercase">
+                                        {m.size}
+                                      </span>
+                                    )}
+                                    {m.color && (
+                                      <div
+                                        className="w-2 h-2 rounded-full border border-white/20"
+                                        style={{ backgroundColor: m.color }}
+                                        title={m.color}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                                {m.inscriptions && (
+                                  <span className="text-[9px] text-amber-500/80 italic mt-1 leading-tight border-l-2 border-amber-500/30 pl-2">
+                                    &quot;{m.inscriptions}&quot;
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
                       <td className="px-6 py-4 font-mono">
@@ -141,7 +194,9 @@ export function RecentRegistrations({
                               <ExternalLink size={14} /> Receipt
                             </a>
                           ) : (
-                            <span className="text-xs text-neutral-600">N/A</span>
+                            <span className="text-xs text-neutral-600">
+                              N/A
+                            </span>
                           )}
 
                           {isPendingTransfer && (
@@ -198,7 +253,7 @@ export function RecentRegistrations({
               </div>
 
               <button
-                type='button'
+                type="button"
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page === totalPages - 1}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

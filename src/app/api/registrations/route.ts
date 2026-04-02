@@ -6,6 +6,12 @@ import Settings from "@/models/Settings";
 import { nanoid } from "nanoid";
 import { isRegistrationOpen } from "@/lib/registration";
 import { sendAdminTransferNotification } from "@/lib/email";
+import { 
+  calculatePaystackFee, 
+  isValidEmail, 
+  isValidTicketType 
+} from "@/lib/checkout";
+import { calculateRegistrationTotal } from "@/lib/checkout.server";
 
 // ── types ──────────────────────────────────────────────────────────────────
 
@@ -21,53 +27,18 @@ interface RegistrationBody {
   meshInscriptions?: unknown; // Successfully mapped to model
   foodSelections?: unknown;
   drinkSelection?: unknown;
+  merch?: {
+    productId: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
   paymentMethod?: unknown;
   paymentReceiptUrl?: unknown;
 }
 
-function calculatePaystackFee(baseAmount: number): number {
-  if (baseAmount <= 0) return 0;
-  let fee = 0;
-  if (baseAmount < 2500) {
-    fee = (baseAmount * 0.015) / (1 - 0.015);
-  } else {
-    fee = ((baseAmount + 100) * 0.015) / (1 - 0.015) + 100;
-  }
-  return Math.min(fee, 2000);
-}
-
-// ── helpers ────────────────────────────────────────────────────────────────
-
-function isValidEmail(value: unknown): value is string {
-  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function isValidTicketType(value: unknown): value is "single" | "couple" {
-  return value === "single" || value === "couple";
-}
-
-async function calculateTotal(
-  ticketType: "single" | "couple",
-  meshSelection: unknown,
-  meshQuantity: number = 1,
-): Promise<number> {
-  await dbConnect();
-
-  // Fallback prices in case Settings haven't been seeded in DB yet
-  const settings = (await Settings.findOne().lean()) || {
-    couplePrice: 50000,
-    singlePrice: 30000,
-  };
-  const base =
-    ticketType === "couple" ? settings.couplePrice : settings.singlePrice;
-
-  if (!meshSelection) return base;
-
-  const mesh = await Product.findById(meshSelection).lean();
-  const meshPrice = (mesh?.price ?? 0) * meshQuantity;
-
-  return base + meshPrice;
-}
+// (Functions moved to src/lib/checkout.ts)
 
 // ── route handler ──────────────────────────────────────────────────────────
 
@@ -95,9 +66,37 @@ export async function POST(request: Request) {
       meshInscriptions,
       foodSelections,
       drinkSelection,
-      paymentMethod = "paystack",
+      merch,
+      paymentMethod,
       paymentReceiptUrl,
     } = body;
+
+    const settings = await Settings.findOne().lean() as any;
+    const isPaystackEnabled = settings?.paystackEnabled ?? true;
+    const isTransferEnabled = settings?.bankTransferEnabled ?? true;
+
+    // Enforce payment method toggles
+    if (paymentMethod === "paystack" && !isPaystackEnabled) {
+      return NextResponse.json(
+        { success: false, error: "Online payment is currently disabled" },
+        { status: 403 },
+      );
+    }
+    if (paymentMethod === "transfer" && !isTransferEnabled) {
+      return NextResponse.json(
+        { success: false, error: "Manual bank transfer is currently disabled" },
+        { status: 403 },
+      );
+    }
+    if (!isPaystackEnabled && !isTransferEnabled) {
+      return NextResponse.json(
+        { success: false, error: "Registrations are temporarily closed (no payment method available)" },
+        { status: 403 },
+      );
+    }
+
+    const registrationEmail = typeof email === "string" ? email : "";
+    const registrationTicketType = typeof ticketType === "string" ? ticketType : "single";
 
     // Validation
     if (!name || typeof name !== "string") {
@@ -106,23 +105,22 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    if (!isValidEmail(email)) {
+    if (!isValidEmail(registrationEmail)) {
       return NextResponse.json(
         { success: false, error: "A valid email is required" },
         { status: 400 },
       );
     }
-    if (!isValidTicketType(ticketType)) {
+    if (!isValidTicketType(registrationTicketType)) {
       return NextResponse.json(
         { success: false, error: 'Ticket type must be "single" or "couple"' },
         { status: 400 },
       );
     }
 
-    const baseTotal = await calculateTotal(
-      ticketType,
-      meshSelection,
-      Number(meshQuantity) || 1
+    const baseTotal = await calculateRegistrationTotal(
+      registrationTicketType,
+      merch as any
     );
 
     const totalAmount = paymentMethod === "paystack" 
@@ -143,6 +141,7 @@ export async function POST(request: Request) {
       meshInscriptions, // Saved to DB
       foodSelections,
       drinkSelection,
+      merch,
       totalAmount,
       paystackReference,
       paymentStatus: false,

@@ -15,6 +15,8 @@ export interface ISettings extends Document {
   bankName: string;
   accountName: string;
   accountNumber: string;
+  paystackEnabled: boolean;
+  bankTransferEnabled: boolean;
 }
 
 const SettingsSchema: Schema = new Schema(
@@ -38,6 +40,8 @@ const SettingsSchema: Schema = new Schema(
     bankName: { type: String, default: "" },
     accountName: { type: String, default: "" },
     accountNumber: { type: String, default: "" },
+    paystackEnabled: { type: Boolean, default: true },
+    bankTransferEnabled: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

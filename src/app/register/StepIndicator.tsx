@@ -1,4 +1,7 @@
-import { CheckIcon } from "lucide-react";
+"use client";
+
+import React from "react";
+import { Check } from "lucide-react";
 
 const LABELS = ["Details", "Merch", "Food & Drink", "Review"];
 
@@ -10,18 +13,6 @@ function getStepState(step: number, current: number): StepState {
   return "upcoming";
 }
 
-const CIRCLE_STYLES: Record<StepState, string> = {
-  done: "bg-amber-400 text-black",
-  active: "bg-amber-400/20 border-2 border-amber-400 text-amber-400",
-  upcoming: "bg-white/5 border border-white/10 text-white/30",
-};
-
-const LABEL_STYLES: Record<StepState, string> = {
-  done: "text-amber-400",
-  active: "text-amber-400",
-  upcoming: "text-white/30",
-};
-
 interface StepIndicatorProps {
   current: number;
 }
@@ -30,7 +21,7 @@ export default function StepIndicator({ current }: StepIndicatorProps) {
   return (
     <nav
       aria-label="Registration steps"
-      className="flex items-center justify-center gap-2 mb-10"
+      className="flex items-center justify-center gap-2 mb-12"
     >
       {LABELS.map((label, i) => {
         const step = i + 1;
@@ -38,25 +29,35 @@ export default function StepIndicator({ current }: StepIndicatorProps) {
         const isLast = i === LABELS.length - 1;
 
         return (
-          <div key={step} className="flex items-center gap-2">
-            <div className="flex flex-col items-center gap-1">
+          <React.Fragment key={step}>
+            <div className="flex flex-col items-center gap-2 relative group">
               <div
                 aria-current={state === "active" ? "step" : undefined}
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${CIRCLE_STYLES[state]}`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ring-4 ${
+                  state === "done"
+                    ? "bg-emerald-500 text-white ring-emerald-500/20"
+                    : state === "active"
+                    ? "bg-amber-500 text-white ring-amber-500/30 scale-110 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                    : "bg-muted text-muted-foreground ring-transparent border border-border"
+                }`}
               >
-                {state === "done" ? <CheckIcon /> : step}
+                {state === "done" ? <Check size={18} strokeWidth={3} /> : step}
               </div>
-              <span className={`text-[10px] ${LABEL_STYLES[state]}`}>
+              <span className={`text-[10px] uppercase font-black tracking-widest transition-colors duration-300 ${
+                state === "active" ? "text-amber-600 dark:text-amber-500" : "text-muted-foreground/50"
+              }`}>
                 {label}
               </span>
             </div>
 
             {!isLast && (
-              <div
-                className={`w-10 h-px mb-4 transition-colors ${state === "done" ? "bg-amber-400" : "bg-white/10"}`}
-              />
+              <div className="flex items-center px-2 pb-6">
+                <div className={`h-1 rounded-full transition-all duration-1000 ${
+                  state === "done" ? "w-10 bg-emerald-500" : "w-6 bg-border/50"
+                }`} />
+              </div>
             )}
-          </div>
+          </React.Fragment>
         );
       })}
     </nav>

@@ -79,13 +79,15 @@ function buildCheckoutParams(data: {
   name: string;
   email: string;
   partnerName: string;
-  selectedMeshId: string | null;
+  selectedMerch: {
+    productId: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
   selectedDrinkId: string | null;
   selectedFoodIds: string[];
-  meshColor: string | null;
-  meshSize: string | null;
-  meshQuantity: number;
-  meshInscriptions: string | null;
 }): URLSearchParams {
   const params = new URLSearchParams({
     ticketType: data.ticketType,
@@ -96,15 +98,14 @@ function buildCheckoutParams(data: {
 
   if (data.partnerName) params.append("partnerName", data.partnerName);
 
-  // Mesh related params - only appended if a mesh is selected
-  if (data.selectedMeshId) {
-    params.append("meshId", data.selectedMeshId);
-    if (data.meshColor) params.append("meshColor", data.meshColor);
-    if (data.meshSize) params.append("meshSize", data.meshSize);
-    params.append("meshQuantity", data.meshQuantity.toString());
-    if (data.meshInscriptions)
-      params.append("meshInscriptions", data.meshInscriptions);
-  }
+  // Serialize multiple merch items
+  data.selectedMerch.forEach((item) => {
+    params.append("meshId", item.productId);
+    params.append("meshQty", item.quantity.toString());
+    params.append("meshColor", item.color || "");
+    params.append("meshSize", item.size || "");
+    params.append("meshInscription", item.inscriptions || "");
+  });
 
   if (data.selectedDrinkId) params.append("drinkId", data.selectedDrinkId);
   data.selectedFoodIds.forEach((id) => params.append("foodId", id));
@@ -128,18 +129,23 @@ export function useRegister() {
   const [email, setEmail] = useState(session?.email ?? "");
   const [ticketType, setTicketType] = useState<TicketType>("single");
   const [partnerName, setPartnerName] = useState("");
-  const [selectedMeshId, setSelectedMeshId] = useState<string | null>(null);
-  const [meshColor, setMeshColor] = useState("");
-  const [meshSize, setMeshSize] = useState<string | null>(null);
-  const [meshQuantity, setMeshQuantity] = useState<number>(1);
+
+  // New multi-merch state
+  const [selectedMerch, setSelectedMerch] = useState<
+    {
+      productId: string;
+      quantity: number;
+      color?: string;
+      size?: string;
+      inscriptions?: string;
+    }[]
+  >([]);
 
   // Explicit states for colors and sizes
   const [meshColors, setMeshColors] = useState<
     { label: string; value: string }[]
   >([]);
   const [meshSizes, setMeshSizes] = useState<string[]>([]);
-
-  const [meshInscriptions, setmeshInscriptions] = useState<string | null>(null);
   const [selectedFoodIds, setSelectedFoodIds] = useState<string[]>([]);
   const [selectedDrinkId, setSelectedDrinkId] = useState<string | null>(null);
 
@@ -160,11 +166,6 @@ export function useRegister() {
       setMeshColors(fetchedColors);
       setMeshSizes(fetchedSizes);
 
-      // Set default color if available
-      if (fetchedColors.length > 0) {
-        setMeshColor(fetchedColors[0].value);
-      }
-
       setLoadingData(false);
     });
     return () => {
@@ -172,12 +173,16 @@ export function useRegister() {
     };
   }, []);
 
-  /* Reset dependent fields when mesh changes */
+  /* Set default color when settings load */
   useEffect(() => {
-    setMeshSize(null);
-    setMeshQuantity(1);
-    setmeshInscriptions(null);
-  }, [selectedMeshId]);
+    if (meshColors.length > 0 && selectedMerch.length > 0) {
+      setSelectedMerch((prev) =>
+        prev.map((item) =>
+          item.color ? item : { ...item, color: meshColors[0].value },
+        ),
+      );
+    }
+  }, [meshColors]);
 
   const meshes = useMemo(
     () => products.filter((p) => p.category === ProductCategory.mesh),
@@ -193,8 +198,11 @@ export function useRegister() {
   );
 
   const selectedMesh = useMemo(
-    () => meshes.find((m) => m._id === selectedMeshId) ?? null,
-    [meshes, selectedMeshId],
+    () => {
+      if (selectedMerch.length === 0) return null;
+      return meshes.find((m) => m._id === selectedMerch[0].productId) ?? null;
+    },
+    [meshes, selectedMerch],
   );
 
   const isCouple = ticketType === "couple";
@@ -203,7 +211,14 @@ export function useRegister() {
       ? settings.couplePrice
       : settings.singlePrice
     : 0;
-  const meshPrice = selectedMesh ? selectedMesh.price * meshQuantity : 0;
+
+  const meshPrice = useMemo(() => {
+    return selectedMerch.reduce((acc, item) => {
+      const product = meshes.find((m) => m._id === item.productId);
+      return acc + (product?.price ?? 0) * item.quantity;
+    }, 0);
+  }, [selectedMerch, meshes]);
+
   const grandTotal = ticketPrice + meshPrice;
 
   const canProceed = useMemo(() => {
@@ -215,9 +230,13 @@ export function useRegister() {
           (ticketType === "single" || !!partnerName.trim())
         );
       case 2:
-        if (!selectedMeshId) return true;
-        const needsInscription = (selectedMesh?.inscriptions?.length ?? 0) > 0;
-        return !!meshSize && (!needsInscription || !!meshInscriptions);
+        if (selectedMerch.length === 0) return true;
+        // Validate each selected merch item has a size
+        return selectedMerch.every((item) => {
+          const product = meshes.find((m) => m._id === item.productId);
+          const needsInscription = (product?.inscriptions?.length ?? 0) > 0;
+          return !!item.size && (!needsInscription || !!item.inscriptions);
+        });
       default:
         return true;
     }
@@ -227,10 +246,8 @@ export function useRegister() {
     email,
     ticketType,
     partnerName,
-    selectedMeshId,
-    meshSize,
-    meshInscriptions,
-    selectedMesh,
+    selectedMerch,
+    meshes,
   ]);
 
   const handleFoodToggle = (id: string) => {
@@ -243,6 +260,26 @@ export function useRegister() {
 
   const handleDrinkToggle = (id: string) => {
     setSelectedDrinkId((prev) => (prev === id ? null : id));
+  };
+
+  const handleMerchToggle = (id: string) => {
+    setSelectedMerch((prev) => {
+      const exists = prev.find((m) => m.productId === id);
+      if (exists) return prev.filter((m) => m.productId !== id);
+      return [...prev, { 
+        productId: id, 
+        quantity: 1, 
+        color: meshColors.length > 0 ? meshColors[0].value : undefined 
+      }];
+    });
+  };
+
+  const updateMerch = (productId: string, updates: Partial<typeof selectedMerch[0]>) => {
+    setSelectedMerch((prev) =>
+      prev.map((item) =>
+        item.productId === productId ? { ...item, ...updates } : item,
+      ),
+    );
   };
 
   const handleNext = () => {
@@ -259,13 +296,9 @@ export function useRegister() {
       name,
       email,
       partnerName,
-      selectedMeshId,
+      selectedMerch,
       selectedDrinkId,
       selectedFoodIds,
-      meshColor: selectedMeshId ? meshColor : null,
-      meshSize: selectedMeshId ? meshSize : null,
-      meshQuantity: selectedMeshId ? meshQuantity : 1,
-      meshInscriptions: selectedMeshId ? meshInscriptions : null,
     });
     router.push(`/checkout?${params.toString()}`);
   };
@@ -284,19 +317,12 @@ export function useRegister() {
     partnerName,
     setPartnerName,
     meshes,
-    selectedMeshId,
-    setSelectedMeshId,
-    selectedMesh,
-    meshColor,
-    setMeshColor,
-    meshSize,
-    setMeshSize,
-    meshQuantity,
-    setMeshQuantity,
-    meshColors, // Now guaranteed to be populated correctly!
-    meshSizes, // Now guaranteed to be populated correctly!
-    meshInscriptions,
-    setmeshInscriptions,
+    selectedMerch,
+    setSelectedMerch,
+    handleMerchToggle,
+    updateMerch,
+    meshColors,
+    meshSizes,
     foods,
     drinks,
     selectedFoodIds,

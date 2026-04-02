@@ -11,11 +11,14 @@ interface Props {
   ticketType: TicketType;
   ticketPrice: number;
   partnerName: string;
-  selectedmesh: Product | null;
-  meshPrice: number;
-  meshColor: string | null;
-  meshSize: string | null;
-  meshInscriptions: string | null; // 👈 Added
+  selectedMerch: {
+    productId: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
+  meshes: Product[];
   foods: Product[];
   selectedFoodIds: string[];
   drinks: Product[];
@@ -91,11 +94,8 @@ export default function Step4Review({
   ticketType,
   ticketPrice,
   partnerName,
-  selectedmesh,
-  meshPrice,
-  meshColor,
-  meshSize,
-  meshInscriptions, // 👈 Destructured
+  selectedMerch,
+  meshes,
   foods,
   selectedFoodIds,
   drinks,
@@ -142,58 +142,53 @@ export default function Step4Review({
       </div>
 
       {/* Merchandise Selection */}
-      {selectedmesh && (
+      {selectedMerch.length > 0 && (
         <div className="space-y-2">
-          <SectionLabel>Custom Merchandise</SectionLabel>
-          <div className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-white/10 bg-white/3">
-            {selectedmesh.image_url && (
-              <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-black">
-                <Image
-                  src={selectedmesh.image_url}
-                  alt={selectedmesh.name}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-bold truncate">
-                {selectedmesh.name}
-              </p>
+          <SectionLabel>Custom Merchandise ({selectedMerch.length})</SectionLabel>
+          <div className="flex flex-col gap-2">
+            {selectedMerch.map((item, idx) => {
+              const product = meshes.find(p => p._id === item.productId);
+              
+              // Let's actually pass meshes or search in a combined pool if possible.
+              // Actually, Step4Review should probably have access to the full meshes list or the product objects should be in selectedMerch.
+              // For now, let's assume we can find them or we need to pass the full product objects.
+              
+              return (
+                <div key={idx} className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-white/10 bg-white/3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-bold truncate">
+                      {product?.name || `Item #${idx + 1}`} {item.quantity > 1 ? `(x${item.quantity})` : ""}
+                    </p>
 
-              <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                {meshColor && (
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: meshColor }}
-                    />
-                    <span className="text-[9px] uppercase font-bold text-white/40">
-                      Color
-                    </span>
+                    <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                      {item.color && (
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-[9px] uppercase font-bold text-white/40">
+                            Color
+                          </span>
+                        </div>
+                      )}
+
+                      {item.size && (
+                        <span className="text-[9px] font-black bg-white/10 text-white/70 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                          Size {item.size}
+                        </span>
+                      )}
+
+                      {item.inscriptions && (
+                        <span className="text-[9px] font-bold bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-md border border-amber-500/20 italic tracking-tight">
+                          &quot;{item.inscriptions}&quot;
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                {meshSize && (
-                  <span className="text-[9px] font-black bg-white/10 text-white/70 px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                    Size {meshSize}
-                  </span>
-                )}
-
-                {/* 👈 Custom Inscription Display */}
-                {meshInscriptions && (
-                  <span className="text-[9px] font-bold bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-md border border-amber-500/20 italic tracking-tight">
-                    &quot;{meshInscriptions}&quot;
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="text-amber-400 text-sm font-black tabular-nums">
-                ₦{meshPrice.toLocaleString()}
-              </span>
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

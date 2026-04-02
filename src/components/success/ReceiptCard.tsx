@@ -96,41 +96,86 @@ export function ReceiptCard({
             {registration.ticketType}
           </span>
         </ReceiptRow>
-        {registration.meshSelection && (
-          <ReceiptRow label="Merch">
-            <div className="flex flex-col items-end">
-              <p className="text-white text-sm font-medium">
-                {registration.meshSelection.name}
-              </p>
-
-              {(registration.meshColor || registration.meshSize) && (
-                <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
-                  {registration.meshColor && (
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full border border-white/10"
-                        style={{ backgroundColor: registration.meshColor }}
-                      />
-                      <span className="uppercase tracking-wide text-[10px]">
-                        {colorLabel}
+        {/* New Multi-Merch Rendering */}
+        {registration.merch && registration.merch.length > 0 ? (
+          registration.merch.map((item, idx) => (
+            <div key={`${item.productId.name}-${idx}`} className="mb-4 last:mb-0">
+              <ReceiptRow label={idx === 0 ? "Merch" : ""}>
+                <div className="flex flex-col items-end">
+                  <p className="text-white text-sm font-medium">
+                    {item.productId.name}{" "}
+                    {item.quantity > 1 && (
+                      <span className="text-amber-400 text-[10px]">
+                        x{item.quantity}
                       </span>
+                    )}
+                  </p>
+                  {(item.color || item.size) && (
+                    <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
+                      {item.color && (
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-white/10"
+                            style={{ backgroundColor: item.color }}
+                          />
+                        </div>
+                      )}
+                      {item.size && (
+                        <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 font-bold text-[10px] border border-neutral-700">
+                          {item.size}
+                        </span>
+                      )}
                     </div>
                   )}
-
-                  {registration.meshSize && (
-                    <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 font-bold text-[10px] border border-neutral-700">
-                      {registration.meshSize}
-                    </span>
+                  {item.inscriptions && (
+                    <p className="text-amber-400/80 text-[10px] italic mt-1">
+                      &quot;{item.inscriptions}&quot;
+                    </p>
                   )}
                 </div>
-              )}
+              </ReceiptRow>
             </div>
-          </ReceiptRow>
-        )}
-        {registration.meshInscriptions && (
-          <ReceiptRow label="Inscription">
-            <p className="text-white text-sm italic font-medium">&quot;{registration.meshInscriptions}&quot;</p>
-          </ReceiptRow>
+          ))
+        ) : (
+          /* Fallback for old single mesh selection */
+          <>
+            {registration.meshSelection && (
+              <ReceiptRow label="Merch">
+                <div className="flex flex-col items-end">
+                  <p className="text-white text-sm font-medium">
+                    {registration.meshSelection.name}
+                  </p>
+                  {(registration.meshColor || registration.meshSize) && (
+                    <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
+                      {registration.meshColor && (
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-white/10"
+                            style={{ backgroundColor: registration.meshColor }}
+                          />
+                          <span className="uppercase tracking-wide text-[10px]">
+                            {colorLabel}
+                          </span>
+                        </div>
+                      )}
+                      {registration.meshSize && (
+                        <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 font-bold text-[10px] border border-neutral-700">
+                          {registration.meshSize}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </ReceiptRow>
+            )}
+            {registration.meshInscriptions && (
+              <ReceiptRow label="Inscription">
+                <p className="text-white text-sm italic font-medium">
+                  &quot;{registration.meshInscriptions}&quot;
+                </p>
+              </ReceiptRow>
+            )}
+          </>
         )}
         {(registration.foodSelections?.length ?? 0) > 0 && (
           <ReceiptRow label="Food">

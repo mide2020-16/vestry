@@ -15,11 +15,13 @@ export interface OrderData {
   partnerName?: string;
 
   // Merch Customization
-  mesh: CheckoutProduct | null;
-  meshSize: string | null;
-  meshColor: string | null;
-  meshQuantity: number;
-  meshInscription: string | null;
+  merch: {
+    product: CheckoutProduct;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
 
   // F&B Selections
   foods: CheckoutProduct[];
@@ -37,4 +39,6 @@ export interface OrderData {
     accountName: string;
     accountNumber: string;
   };
+  paystackEnabled?: boolean;
+  bankTransferEnabled?: boolean;
 }

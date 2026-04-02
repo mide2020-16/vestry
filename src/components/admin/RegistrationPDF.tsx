@@ -84,6 +84,13 @@ interface Registration {
   meshSize?: string;
   meshColor?: string;
   meshInscriptions?: string;
+  merch?: {
+    name: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
   totalAmount: number;
 }
 
@@ -160,22 +167,48 @@ export const RegistrationPDF = ({
             </View>
 
             <View style={styles.colMerch}>
-              <Text style={styles.cellText}>
-                {reg.meshSelection?.name || "—"}
-              </Text>
+              {reg.merch && reg.merch.length > 0 ? (
+                reg.merch.map((m, i) => (
+                  <Text key={i} style={styles.cellText}>
+                    • {m.name} {m.quantity > 1 ? `(x${m.quantity})` : ""}
+                  </Text>
+                ))
+              ) : (
+                <Text style={styles.cellText}>
+                  {reg.meshSelection?.name || "—"}
+                </Text>
+              )}
             </View>
 
             <View style={styles.colVariant}>
-              <Text style={styles.cellText}>
-                {reg.meshSize || "—"}{" "}
-                {reg.meshColor ? `/ ${reg.meshColor}` : ""}
-              </Text>
+              {reg.merch && reg.merch.length > 0 ? (
+                reg.merch.map((m, i) => (
+                  <Text key={i} style={styles.cellText}>
+                    {m.size || m.color
+                      ? `${m.size || ""} ${m.color ? `/ ${m.color}` : ""}`
+                      : "—"}
+                  </Text>
+                ))
+              ) : (
+                <Text style={styles.cellText}>
+                  {reg.meshSize || "—"}{" "}
+                  {reg.meshColor ? `/ ${reg.meshColor}` : ""}
+                </Text>
+              )}
             </View>
 
             <View style={styles.colInscription}>
-              <Text style={styles.inscriptionText}>
-                {reg.meshInscriptions ? `"${reg.meshInscriptions}"` : "—"}
-              </Text>
+              {reg.merch && reg.merch.length > 0 ? (
+                reg.merch.map((m, i) => (
+                  <Text key={i} style={styles.inscriptionText}>
+                    {m.inscriptions ? `"${m.inscriptions}"` : "—"}
+                  </Text>
+                ))
+              ) : (
+                <Text style={styles.inscriptionText}>
+                  {reg.meshInscriptions ? `"${reg.meshInscriptions}"` : "—"}
+                </Text>
+              )}
             </View>
 
             <View style={styles.colAmount}>

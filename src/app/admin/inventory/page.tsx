@@ -145,8 +145,41 @@ export default async function AdminInventoryPage() {
   );
 
   for (const reg of registrations) {
-    // 1. Process Mesh Selections
-    if (reg.meshSelection) {
+    // 1. Process New Multi-Merch Array
+    if (reg.merch && reg.merch.length > 0) {
+      for (const item of reg.merch) {
+        const id = toId(item.productId);
+        const stat = statMap.get(id);
+        if (stat) {
+          const qty = item.quantity || 1;
+          const prod = products.find((p) => p._id.toString() === id);
+          stat.count += qty;
+          stat.revenue += (prod?.price ?? 0) * qty;
+
+          const colorName = getColorLabel(item.color ?? "", meshColors);
+          const sizeName = item.size ?? "Standard";
+          const key = `${colorName}|${sizeName}`;
+
+          const existing = stat.colorSizes!.find(
+            (cs) => `${cs.color}|${cs.size}` === key,
+          );
+
+          if (existing) {
+            existing.qty += qty;
+            if (item.inscriptions) existing.inscriptions.push(item.inscriptions);
+          } else {
+            stat.colorSizes!.push({
+              color: colorName,
+              size: sizeName,
+              qty,
+              hex: item.color,
+              inscriptions: item.inscriptions ? [item.inscriptions] : [],
+            });
+          }
+        }
+      }
+    } else if (reg.meshSelection) {
+      // 2. Legacy Fallback: Process Single Mesh Selection
       const id = toId(reg.meshSelection);
       const stat = statMap.get(id);
       if (stat) {
@@ -181,7 +214,7 @@ export default async function AdminInventoryPage() {
       }
     }
 
-    // 2. Accumulate Food/Drinks
+    // 3. Accumulate Food/Drinks
     for (const foodId of reg.foodSelections ?? []) {
       const stat = statMap.get(toId(foodId));
       if (stat) stat.count += 1;

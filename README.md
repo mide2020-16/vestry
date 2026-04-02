@@ -32,25 +32,11 @@ _Watch the full end-to-end registration and checkout flow._
 
 ## 🚀 Features
 
-Vestry is designed to handle complex event ticketing, merchandise add-ons, and dynamic pricing with absolute ease.
-
-### 🧑‍💻 User Experience
-
-- **Smart Registration:** Seamlessly purchase "Single" or "Couple" event tickets.
-- **Customizable Merchandise:** Select merch (mesh) colors, sizes, and even write custom inscriptions! Choose exact mesh quantities independently of your ticket type.
-- **Add-on Perks:** Browse and select event food and drink packages during checkout.
-- **Beautiful UI:** A visually stunning, fully responsive interface powered by Tailwind CSS designed to wow users across Desktop and Mobile.
-- **Dual Payment Options:**
-  - **Paystack Checkout:** Fast online payments seamlessly calculating processing fees to ensure exact payouts.
-  - **Manual Bank Transfer:** A smooth alternative allowing users to upload transaction receipts straight to the admin using UploadThing.
-
-### 🛡️ Admin Superpowers
-
-- **Analytics Dashboard:** Real-time metrics tracking total revenue, ticket distribution, and payment statuses.
-- **Inventory Tracking:** Instantly see quantities of shirts, sizes, colors, and food item requirements.
+- **Inventory Tracking:** Instantly see quantities of shirts, sizes, colors, and specific customer inscriptions for every merchandise order.
+- **Dynamic Payment Toggles:** Enable or disable Paystack or Bank Transfer options on the fly from the admin panel to manage payment gateway preferences.
 - **Receipt Verification:** One-click approval functionality to verify manual bank transfers.
-- **Dynamic System Settings:** Change event prices, registration deadlines, available merch sizes/colors, and global bank details on the fly.
-- **Data Export:** Generate clean PDF/CSV rosters of all paid attendees.
+- **Dynamic System Settings:** Change event prices, registration deadlines, available merch sizes/colors, and global bank details from a single dashboard.
+- **Data Export:** Generate master registry PDF/CSV lists of all paid attendees including their merchandise variants.
 - **Mobile-Responsive App Bar:** Manage your event seamlessly on the go via a native-feeling Bottom Tab Bar.
 
 ---
@@ -106,19 +92,36 @@ Create a `.env.local` file in the root of your project:
 
 ```env
 # MongoDB Connection String
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/vestry
+MONGODB_URI='mongodb+srv://<user>:<password>@cluster.mongodb.net/vestry?appName=Cluster0'
 
-# NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_super_secret_string
+# Admin Roles & Permissions
+ALLOWED_ADMIN_EMAILS='admin@example.com,manager@example.com'
 
-# Paystack API Keys
-PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxxxx
-PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxx
+# Email (SMTP) Configuration for Notifications
+ADMIN_EMAIL='your-email@gmail.com'
+ADMIN_PASS='your-app-specific-password'
+ADMIN_RECEIVER_EMAIL='notifications-receiver@example.com'
+SMTP_USER='your-email@gmail.com'
+SMTP_PASS='your-app-specific-password'
 
-# UploadThing API Keys
-UPLOADTHING_SECRET=sk_live_xxxxxxxxxx
-UPLOADTHING_APP_ID=xxxxxxxxxx
+# Paystack API Keys (Managed in Admin UI too)
+PAYSTACK_PUBLIC_KEY='pk_test_xxxxxxxx'
+PAYSTACK_SECRET_KEY='sk_test_xxxxxxxx'
+
+# NextAuth / Next.js Configuration
+AUTH_SECRET='your_generated_auth_secret'
+NEXTAUTH_URL='http://localhost:3000'
+
+# Google OAuth (For Admin Login)
+GOOGLE_CLIENT_ID='xxxxxxxx.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET='GOCSPX-xxxxxxxx'
+
+# Push Notifications (Web Push)
+VAPID_PUBLIC_KEY='BC_xxxxxxxx'
+VAPID_PRIVATE_KEY='xxxxxxxx'
+
+# File Uploads (Manual Transfer Receipts)
+UPLOADTHING_TOKEN='your_uploadthing_v7_token'
 ```
 
 > **Pro Tip:** All payment prices and bank transfer account details are managed dynamically via the Admin Settings UI, not environment variables!

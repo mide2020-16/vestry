@@ -6,10 +6,17 @@ export interface Registration {
   partnerName?: string;
   paystackReference: string;
   totalAmount: number;
-  meshSelection?: { name: string; price: number } | null;
-  meshSize: string | null;
-  meshColor: string | null;
+  meshSelection?: { name: string }; 
+  meshColor?: string;
+  meshSize?: string; 
   meshInscriptions?: string;
+  merch?: {
+    productId: { name: string; price: number };
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
   foodSelections?: { name: string }[];
   drinkSelection?: { name: string } | null;
   paymentMethod?: "paystack" | "transfer";

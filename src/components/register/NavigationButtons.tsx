@@ -21,7 +21,7 @@ export default function NavigationButtons({
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 py-4 rounded-2xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all"
+          className="flex-1 py-4 rounded-2xl border border-border text-foreground font-bold hover:bg-muted transition-all active:scale-[0.98]"
         >
           ← Back
         </button>

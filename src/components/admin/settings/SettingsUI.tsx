@@ -17,10 +17,10 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-neutral-300">
+      <label className="block text-sm font-bold text-foreground/80 lowercase tracking-tight">
         {label}
       </label>
-      {hint && <p className="text-xs text-neutral-500">{hint}</p>}
+      {hint && <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-60 leading-tight">{hint}</p>}
       {children}
     </div>
   );
@@ -29,12 +29,12 @@ export function Field({
 /* ── Input class helper ──────────────────────────────────────────────────── */
 
 export const inputCls = (accent: "amber" | "emerald" = "amber") =>
-  `w-full bg-black/40 border border-neutral-700 rounded-lg px-4 py-3 text-white font-mono text-sm
-   focus:outline-none focus:ring-2 transition-colors
+  `w-full bg-muted/20 border border-border rounded-xl px-4 py-3 text-foreground font-mono text-sm
+   focus:outline-none focus:ring-4 transition-all duration-300
    ${
      accent === "amber"
-       ? "focus:ring-amber-500/50 focus:border-amber-500"
-       : "focus:ring-emerald-500/50 focus:border-emerald-500"
+       ? "focus:ring-amber-500/10 focus:border-amber-500"
+       : "focus:ring-emerald-500/10 focus:border-emerald-500"
    }`;
 
 /* ── Spinner ─────────────────────────────────────────────────────────────── */
@@ -85,7 +85,7 @@ export function LogoField({
 
   return (
     <div className="flex items-center gap-4">
-      <div className="relative w-16 h-16 rounded-full border border-neutral-700 bg-black/40 overflow-hidden shrink-0 flex items-center justify-center">
+      <div className="relative w-20 h-20 rounded-2xl border border-border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center shadow-inner group/logo">
         {logoUrl ? (
           <>
             <Image
@@ -93,19 +93,19 @@ export function LogoField({
               alt="Logo preview"
               fill
               sizes="80px"
-              className="object-cover"
+              className="object-contain p-2"
             />
             <button
               type="button"
               aria-label="Remove logo"
               onClick={() => onChange("")}
-              className="absolute top-0 right-0 bg-red-500/80 rounded-full p-0.5 hover:bg-red-500 transition-colors"
+              className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity"
             >
-              <X size={10} />
+              <X size={20} className="text-white" />
             </button>
           </>
         ) : (
-          <Upload size={20} className="text-neutral-600" />
+          <Upload size={24} className="text-muted-foreground/30" />
         )}
       </div>
 
@@ -121,16 +121,16 @@ export function LogoField({
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="px-4 py-2 text-sm border border-neutral-700 rounded-lg text-neutral-300 hover:bg-white/5 transition-colors"
+          className="px-4 py-2 text-xs font-bold uppercase tracking-widest border border-border rounded-xl text-foreground hover:bg-muted transition-all"
         >
-          {logoUrl ? "Change image" : "Upload image"}
+          {logoUrl ? "Update Branding" : "Upload Logo"}
         </button>
         <input
           type="url"
           value={logoUrl.startsWith("data:") ? "" : logoUrl}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="…or paste an image URL"
-          className="w-full bg-black/40 border border-neutral-700 rounded-lg px-3 py-2 text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-colors"
+          placeholder="…or paste image URL"
+          className="w-full bg-muted/20 border border-border rounded-xl px-3 py-2 text-foreground text-[10px] font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
         />
       </div>
     </div>
@@ -154,10 +154,39 @@ export function SecretInput(
         type="button"
         aria-label={show ? "Hide secret key" : "Show secret key"}
         onClick={() => setShow((s) => !s)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
       >
-        {show ? <EyeOff size={16} /> : <Eye size={16} />}
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
       </button>
     </div>
+  );
+}
+
+/* ── Toggle Switch ────────────────────────────────────────────────────────── */
+
+export function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (val: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center justify-between cursor-pointer group bg-card p-4 rounded-xl border border-border/50 hover:border-amber-500/30 transition-all">
+      <span className="text-sm font-bold text-foreground/80 group-hover:text-foreground transition-colors">
+        {label}
+      </span>
+      <div className="relative inline-flex items-center">
+        <input
+          type="checkbox"
+          className="sr-only peer"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-muted-foreground/40 after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 peer-checked:after:bg-white" />
+      </div>
+    </label>
   );
 }

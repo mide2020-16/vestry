@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import { Geist } from "next/font/google";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,7 +58,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} antialiased`}>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ThemeToggle />
+          {children}
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

@@ -13,6 +13,7 @@ export default async function AdminDashboardPage() {
 
   const raw = await Registration.find()
     .populate("meshSelection", "name")
+    .populate("merch.productId", "name")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -28,6 +29,13 @@ export default async function AdminDashboardPage() {
     meshColor: r.meshColor ?? null,
     meshSize: r.meshSize ?? null,
     meshInscriptions: r.meshInscriptions ?? null,
+    merch: (r.merch ?? []).map((m: any) => ({
+      name: m.productId?.name ?? "Unknown",
+      quantity: m.quantity,
+      color: m.color,
+      size: m.size,
+      inscriptions: m.inscriptions,
+    })),
     // Serialize ObjectId arrays → string arrays
     foodSelections: (r.foodSelections ?? []).map((id: unknown) =>
       typeof id === "object" && id !== null && "toString" in id
@@ -76,6 +84,7 @@ export default async function AdminDashboardPage() {
     meshSize: r.meshSize ?? undefined,
     meshColor: r.meshColor ?? undefined,
     meshInscriptions: r.meshInscriptions ?? undefined,
+    merch: r.merch,
     totalAmount: r.totalAmount,
   }));
 

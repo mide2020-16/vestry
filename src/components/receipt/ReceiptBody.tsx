@@ -26,68 +26,43 @@ export function ReceiptBody({
       <Row label="Email" value={registration.email} />
       <Row label="Ticket type" value={registration.ticketType} badge />
 
-      {registration.meshSelection && (
+      {registration.merch && registration.merch.length > 0 && (
         <View style={{ marginBottom: 8 }}>
-          <Row label="Merch" value={registration.meshSelection.name} />
-
-          {(registration.meshColor || registration.meshSize) && (
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 2,
-                justifyContent: "flex-end",
-              }}
-            >
-              {registration.meshColor && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginRight: 10,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: 3.5, // Perfect circle for PDF
-                      backgroundColor: registration.meshColor,
-                      marginRight: 4,
-                      border: "0.5pt solid #EEEEEE", // Hairline border for visibility
-                    }}
-                  />
-                  <Text style={{ fontSize: 9, color: "#666666" }}>
-                    Color Selected
-                  </Text>
+          <Text style={[styles.sectionLabel, { marginTop: 10 }]}>Merch Details</Text>
+          {registration.merch.map((item, index) => (
+            <View key={index} style={{ marginBottom: 12, borderBottom: index < registration.merch!.length - 1 ? "0.5pt solid #EEEEEE" : "none", paddingBottom: 8 }}>
+              <Row 
+                label={item.productId?.name || "Merch Item"} 
+                value={item.quantity > 1 ? `Qty: ${item.quantity}` : ""} 
+              />
+              
+              {(item.color || item.size) && (
+                <View style={{ flexDirection: "row", marginTop: 2, justifyContent: "flex-end" }}>
+                  {item.color && (
+                    <View style={{ flexDirection: "row", alignItems: "center", marginRight: 10 }}>
+                      <View style={{
+                        width: 7, height: 7, borderRadius: 3.5,
+                        backgroundColor: item.color, marginRight: 4,
+                        border: "0.5pt solid #EEEEEE"
+                      }} />
+                      <Text style={{ fontSize: 9, color: "#666666" }}>Color</Text>
+                    </View>
+                  )}
+                  {item.size && (
+                    <View style={{ paddingHorizontal: 4, paddingVertical: 1, backgroundColor: "#F5F5F5", borderRadius: 2 }}>
+                      <Text style={{ fontSize: 9, color: "#444444", fontWeight: "bold" }}>Size: {item.size}</Text>
+                    </View>
+                  )}
                 </View>
               )}
 
-              {registration.meshSize && (
-                <View
-                  style={{
-                    paddingHorizontal: 4,
-                    paddingVertical: 1,
-                    backgroundColor: "#F5F5F5",
-                    borderRadius: 2,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 9,
-                      color: "#444444",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Size: {registration.meshSize}
-                  </Text>
+              {item.inscriptions && (
+                <View style={{ marginTop: 4 }}>
+                  <Row label="Inscription" value={`"${item.inscriptions}"`} />
                 </View>
               )}
             </View>
-          )}
-
-          {registration.meshInscriptions && (
-            <Row label="Inscription" value={`"${registration.meshInscriptions}"`} />
-          )}
+          ))}
         </View>
       )}
 

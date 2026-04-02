@@ -5,6 +5,16 @@ import { isValidObjectId, Error as MongooseError } from "mongoose";
 import dbConnect from "@/lib/dbConnect";
 import Product from "@/models/Product";
 import { auth } from "@/auth";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
+
+// Helper to extract file key from UploadThing URL
+function extractFileKey(url?: string): string | null {
+  if (!url || !url.includes("utfs.io/f/")) return null;
+  const parts = url.split("/");
+  return parts[parts.length - 1] || null;
+}
 
 // Define the shape of your expected response data for better DX
 interface ApiResponse<T = any> {
@@ -88,10 +98,31 @@ export async function DELETE(_: Request, { params }: { params: Params }) {
 
   try {
     await dbConnect();
-    const product = await Product.findByIdAndDelete(id).lean();
-
+    
+    // Find the product first to get asset URLs
+    const product = await Product.findById(id).lean();
     if (!product) return errorRes("Product not found", 404);
-    return jsonRes({ success: true, message: "Product deleted" }, 200);
+
+    // Delete associated UploadThing assets
+    const keysToDelete: string[] = [];
+    const imageKey = extractFileKey(product.image_url);
+    const modelKey = extractFileKey(product.modelUrl);
+
+    if (imageKey) keysToDelete.push(imageKey);
+    if (modelKey) keysToDelete.push(modelKey);
+
+    if (keysToDelete.length > 0) {
+      try {
+        await utapi.deleteFiles(keysToDelete);
+      } catch (err) {
+        console.error("Failed to delete assets from UploadThing:", err);
+        // We continue anyway so the product is at least removed from DB
+      }
+    }
+
+    await Product.findByIdAndDelete(id);
+
+    return jsonRes({ success: true, message: "Product deleted and assets purged" }, 200);
   } catch (error) {
     return errorRes("Internal server error", 500);
   }

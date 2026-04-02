@@ -7,6 +7,7 @@ import {
   Field,
   LogoField,
   SecretInput,
+  Toggle,
   Spinner,
   inputCls,
 } from "@/components/admin/settings/SettingsUI";
@@ -40,6 +41,8 @@ interface SettingsForm {
   bankName: string;
   accountName: string;
   accountNumber: string;
+  paystackEnabled: boolean;
+  bankTransferEnabled: boolean;
 }
 
 const DEFAULTS: SettingsForm = {
@@ -57,6 +60,8 @@ const DEFAULTS: SettingsForm = {
   bankName: "",
   accountName: "",
   accountNumber: "",
+  paystackEnabled: true,
+  bankTransferEnabled: true,
 };
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
@@ -97,6 +102,8 @@ export default function AdminSettingsPage() {
             bankName: data.data.bankName ?? "",
             accountName: data.data.accountName ?? "",
             accountNumber: data.data.accountNumber ?? "",
+            paystackEnabled: data.data.paystackEnabled === undefined ? true : data.data.paystackEnabled,
+            bankTransferEnabled: data.data.bankTransferEnabled === undefined ? true : data.data.bankTransferEnabled,
           });
         }
       } catch (err) {
@@ -195,7 +202,7 @@ export default function AdminSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-3 text-neutral-400 py-10">
+      <div className="flex items-center gap-3 text-muted-foreground py-10">
         <Spinner />
         Loading configuration...
       </div>
@@ -204,8 +211,8 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="max-w-3xl">
-      <h2 className="text-3xl font-bold text-white mb-2">System Settings</h2>
-      <p className="text-neutral-400 mb-8 border-b border-neutral-800 pb-4">
+      <h2 className="text-3xl font-black text-foreground mb-2">System Settings</h2>
+      <p className="text-muted-foreground mb-8 border-b border-border pb-4">
         Configure global pricing, event tenure details, and payment gateway
         keys.
       </p>
@@ -233,8 +240,35 @@ export default function AdminSettingsPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-8 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-lg p-6 md:p-8"
+        className="space-y-8 bg-card border border-border rounded-3xl shadow-2xl p-6 md:p-10 relative overflow-hidden"
       >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/3 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        {/* Payment Options Configuration */}
+        <section className="space-y-5">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full" />
+            <h3 className="text-lg font-black text-foreground uppercase tracking-wider">
+              Payment Gateway
+            </h3>
+          </div>
+          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-60">
+            Activate or deactivate the available payment methods for users.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-muted/20 p-5 rounded-2xl border border-border/50">
+            <Toggle
+              label="Enable Online Payment (Paystack)"
+              checked={form.paystackEnabled}
+              onChange={(val) => setForm((prev) => ({ ...prev, paystackEnabled: val }))}
+            />
+            <Toggle
+              label="Enable Manual Bank Transfer"
+              checked={form.bankTransferEnabled}
+              onChange={(val) => setForm((prev) => ({ ...prev, bankTransferEnabled: val }))}
+            />
+          </div>
+        </section>
+
         {/* Event Configuration */}
         <section className="space-y-5">
           <h3 className="text-xl font-bold text-amber-500 border-b border-neutral-800 pb-2">
@@ -280,10 +314,13 @@ export default function AdminSettingsPage() {
         </section>
 
         {/* Merch Customization */}
-        <section className="space-y-5 pt-6 border-t border-neutral-800">
-          <h3 className="text-xl font-bold text-amber-500 border-b border-neutral-800 pb-2">
-            Merch Settings (Colors & Sizes)
-          </h3>
+        <section className="space-y-6 pt-8 border-t border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full" />
+            <h3 className="text-lg font-black text-foreground uppercase tracking-wider">
+              Merch Inventory
+            </h3>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Colors */}
@@ -319,25 +356,25 @@ export default function AdminSettingsPage() {
 
               <div className="flex flex-wrap gap-2">
                 {form.meshColors.length === 0 && (
-                  <span className="text-xs text-neutral-600">
+                  <span className="text-xs text-muted-foreground">
                     No colors added.
                   </span>
                 )}
                 {form.meshColors.map((c, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-2 bg-neutral-800 px-3 py-1.5 rounded-full border border-neutral-700"
+                    className="flex items-center gap-2 bg-muted px-4 py-2 rounded-xl border border-border shadow-sm group"
                   >
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="w-3.5 h-3.5 rounded-full border border-foreground/10"
                       style={{ backgroundColor: c.value }}
                     />
-                    <span className="text-xs text-neutral-300">{c.label}</span>
+                    <span className="text-xs font-bold text-foreground/80">{c.label}</span>
                     <button
                       title="remove color"
                       type="button"
                       onClick={() => removeColor(i)}
-                      className="text-red-400 hover:text-red-300 ml-1"
+                      className="text-red-400 hover:text-red-600 ml-1"
                     >
                       <X size={12} />
                     </button>
@@ -546,11 +583,11 @@ export default function AdminSettingsPage() {
         </section>
 
         {/* Submit */}
-        <div className="pt-4 flex justify-end border-t border-neutral-800">
+        <div className="pt-8 flex justify-end border-t border-border/50">
           <button
             type="submit"
             disabled={isSaving}
-            className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-10 py-4 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 transition-all flex items-center gap-3 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed shadow-xl shadow-amber-500/10 active:scale-[0.98]"
           >
             {isSaving ? (
               <>

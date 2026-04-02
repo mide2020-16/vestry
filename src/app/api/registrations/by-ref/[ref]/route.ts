@@ -20,6 +20,7 @@ export async function GET(_: Request, { params }: { params: Params }) {
 
     const registration = await Registration.findOne({ paystackReference: ref })
       .populate("meshSelection", "name price")
+      .populate("merch.productId", "name price")
       .populate("foodSelections", "name")
       .populate("drinkSelection", "name")
       .lean();

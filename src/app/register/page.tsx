@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const eventName = r.settings?.tenureName ?? "Vestry Event";
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-white px-4 py-10">
+    <main className="min-h-screen bg-background text-foreground px-4 py-10 transition-colors duration-300">
       <StickyLogo logoUrl={r.settings?.logoUrl} />
 
       <div className="max-w-xl mx-auto">
@@ -27,7 +27,7 @@ export default function RegisterPage() {
           <div className="w-full mb-2">
             <OutlineTitle text={eventName.toUpperCase()} />
           </div>
-          <p className="text-white/40 text-sm -mt-1">Register your spot</p>
+          <p className="text-muted-foreground text-sm -mt-1">Register your spot</p>
         </div>
 
         <StepIndicator current={r.step} />
@@ -51,19 +51,10 @@ export default function RegisterPage() {
         {r.step === 2 && (
           <Step2Mesh
             meshes={r.meshes}
-            selectedmeshId={r.selectedMeshId}
-            setSelectedmeshId={r.setSelectedMeshId}
-            selectedmesh={r.selectedMesh}
+            selectedMerch={r.selectedMerch}
+            setSelectedMerch={r.setSelectedMerch}
             meshColors={r.meshColors}
-            meshColor={r.meshColor}
-            setmeshColor={r.setMeshColor}
             meshSizes={r.meshSizes}
-            meshSize={r.meshSize}
-            setMeshSize={r.setMeshSize}
-            meshQuantity={r.meshQuantity}
-            setMeshQuantity={r.setMeshQuantity}
-            meshInscriptions={r.meshInscriptions}
-            setmeshInscriptions={r.setmeshInscriptions}
             ticketType={r.ticketType}
             meshPrice={r.meshPrice}
           />
@@ -87,11 +78,8 @@ export default function RegisterPage() {
             ticketType={r.ticketType}
             ticketPrice={r.ticketPrice}
             partnerName={r.partnerName}
-            selectedmesh={r.selectedMesh}
-            meshPrice={r.meshPrice}
-            meshColor={r.meshColor}
-            meshSize={r.meshSize}
-            meshInscriptions={r.meshInscriptions}
+            selectedMerch={r.selectedMerch}
+            meshes={r.meshes}
             foods={r.foods}
             selectedFoodIds={r.selectedFoodIds}
             drinks={r.drinks}

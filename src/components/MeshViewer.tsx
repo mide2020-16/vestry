@@ -95,38 +95,47 @@ interface MeshViewerProps {
 }
 
 export default function MeshViewer({
-  modelUrl = "/models/shirt.glb",
+  modelUrl,
   color = "#ffffff",
 }: MeshViewerProps) {
-  useGLTF.preload(modelUrl);
+  // Pre-load if model exists
+  if (modelUrl) {
+    useGLTF.preload(modelUrl);
+  }
 
   return (
     <div className="w-full h-105 rounded-2xl overflow-hidden bg-black/30 border border-white/10">
-      <Canvas shadows camera={{ fov: 40, near: 0.01, far: 100 }}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[3, 5, 3]} intensity={1.4} castShadow />
-        <directionalLight position={[-3, 2, -3]} intensity={0.4} />
+      {!modelUrl ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <p className="text-neutral-500 text-xs font-mono">No model content</p>
+        </div>
+      ) : (
+        <Canvas shadows camera={{ fov: 40, near: 0.01, far: 100 }}>
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[3, 5, 3]} intensity={1.4} castShadow />
+          <directionalLight position={[-3, 2, -3]} intensity={0.4} />
 
-        <Suspense fallback={<LoadingBox color={color} />}>
-          <Model url={modelUrl} color={color} />
-          <Environment preset="city" />
-          <ContactShadows
-            position={[0, -1.2, 0]}
-            opacity={0.3}
-            blur={3}
-            far={3}
+          <Suspense fallback={<LoadingBox color={color} />}>
+            <Model url={modelUrl} color={color} />
+            <Environment preset="city" />
+            <ContactShadows
+              position={[0, -1.2, 0]}
+              opacity={0.3}
+              blur={3}
+              far={3}
+            />
+          </Suspense>
+
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            autoRotate
+            autoRotateSpeed={1.5}
+            minPolarAngle={Math.PI / 4}
+            maxPolarAngle={Math.PI / 1.8}
           />
-        </Suspense>
-
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          autoRotate
-          autoRotateSpeed={1.5}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={Math.PI / 1.8}
-        />
-      </Canvas>
+        </Canvas>
+      )}
     </div>
   );
 }

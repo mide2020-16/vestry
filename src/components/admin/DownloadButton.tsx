@@ -15,6 +15,13 @@ export interface RegistrationForPDF {
   meshSize?: string;
   meshColor?: string;
   meshInscriptions?: string;
+  merch?: {
+    name: string;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }[];
   totalAmount: number;
 }
 

@@ -33,13 +33,21 @@ function CheckoutContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "transfer">("paystack");
+  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "transfer">("transfer");
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     buildOrder(searchParams, session)
-      .then(setOrder)
+      .then((newOrder) => {
+        setOrder(newOrder);
+        // Auto-select the first available method
+        if (newOrder.paystackEnabled) {
+          setPaymentMethod("paystack");
+        } else if (newOrder.bankTransferEnabled) {
+          setPaymentMethod("transfer");
+        }
+      })
       .catch((err: unknown) => {
         const detail = err instanceof Error ? ` (${err.message})` : "";
         setError(
@@ -63,11 +71,13 @@ function CheckoutContent() {
           email: order.email,
           ticketType: order.ticketType,
           partnerName: order.partnerName,
-          meshSelection: order.mesh?._id,
-          meshSize: order.meshSize,
-          meshColor: order.meshColor,
-          meshQuantity: order.meshQuantity,
-          meshInscriptions: order.meshInscription,
+          merch: order.merch.map((m) => ({
+            productId: m.product._id,
+            quantity: m.quantity,
+            color: m.color,
+            size: m.size,
+            inscriptions: m.inscriptions,
+          })),
           foodSelections: order.foods.map((f) => f._id),
           drinkSelection: order.drink?._id,
           totalAmount: order.grandTotal,
