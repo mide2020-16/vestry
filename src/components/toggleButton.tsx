@@ -16,12 +16,12 @@ export function Toggle({ label = "Show details", children }: ToggleProps) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-700 bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-accent transition-colors"
       >
         {open ? `Hide ${label.replace("Show ", "")}` : label}
         <ChevronDown
           size={14}
-          className={`text-neutral-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`text-muted-foreground transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
 

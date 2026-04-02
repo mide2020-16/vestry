@@ -15,14 +15,14 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #fafaf9;
   --foreground: #09090b;
   --card: #ffffff;
   --card-foreground: #09090b;
-  --border: #e4e4e7;
-  --muted: #f4f4f5;
+  --border: #e2e2e2;
+  --muted: #f2f2f1;
   --muted-foreground: #71717a;
-  --accent: #f4f4f5;
+  --accent: #f2f2f1;
   --accent-foreground: #18181b;
 }
 

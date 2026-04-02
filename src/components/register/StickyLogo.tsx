@@ -26,7 +26,7 @@ export default function StickyLogo({ logoUrl }: StickyLogoProps) {
           : "opacity-0 -translate-y-3 pointer-events-none"
       }`}
     >
-      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 shadow-lg bg-neutral-900">
+      <div className="w-10 h-10 rounded-full overflow-hidden border border-border shadow-lg bg-card">
         <Image
           src={logoUrl}
           alt="Church logo"

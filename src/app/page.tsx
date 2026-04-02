@@ -51,7 +51,7 @@ export const viewport: Viewport = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors">
       {/* Layered ambient glows */}
       <div className="absolute inset-0 pointer-events-none -z-10">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/8 rounded-full blur-[140px]" />
@@ -103,7 +103,7 @@ export default function Home() {
         </div>
 
         {/* Subtitle */}
-        <p className="text-base md:text-lg text-neutral-400 leading-relaxed max-w-md mx-auto">
+        <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
           Secure your ticket 🎟️, select your merch allocation 🗺️, and customize
           your dining experience 🍽️ — all in one place.
         </p>
@@ -112,7 +112,7 @@ export default function Home() {
         <div className="pt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
             href="/register"
-            className="vestry-primary-btn group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-2xl text-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 overflow-hidden"
+            className="vestry-primary-btn group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold rounded-2xl text-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 overflow-hidden"
           >
             <span className="absolute inset-0 translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-linear-to-r from-transparent via-white/20 to-transparent skew-x-12" />
             <span className="relative flex items-center gap-2">
@@ -122,14 +122,14 @@ export default function Home() {
 
           <Link
             href="/admin"
-            className="px-8 py-4 bg-neutral-900/80 backdrop-blur-sm border border-neutral-700/60 hover:border-amber-500/30 hover:bg-neutral-800/80 text-neutral-300 hover:text-white font-medium rounded-2xl text-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95"
+            className="px-8 py-4 bg-card/80 backdrop-blur-sm border border-border hover:border-amber-500/30 hover:bg-accent text-muted-foreground hover:text-foreground font-medium rounded-2xl text-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95"
           >
             🔐 Admin Portal
           </Link>
         </div>
 
         {/* Footer note */}
-        <p className="text-neutral-600 text-xs pt-6 tracking-wide mb-4">
+        <p className="text-muted-foreground/40 text-xs pt-6 tracking-wide mb-4">
           Need help? Reach out to your cell leader or parish coordinator.
         </p>
       </div>

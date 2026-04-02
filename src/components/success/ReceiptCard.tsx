@@ -11,7 +11,7 @@ function ReceiptRow({
 }) {
   return (
     <div className="flex justify-between items-start gap-4 py-2">
-      <span className="text-neutral-500 text-sm shrink-0">{label}</span>
+      <span className="text-muted-foreground text-sm shrink-0">{label}</span>
       <div className="text-right">{children}</div>
     </div>
   );
@@ -20,9 +20,9 @@ function ReceiptRow({
 function TearLine() {
   return (
     <div className="flex items-center">
-      <div className="w-5 h-5 rounded-full bg-neutral-950 -ml-2.5 shrink-0" />
-      <div className="flex-1 border-t-2 border-dashed border-neutral-800 mx-1" />
-      <div className="w-5 h-5 rounded-full bg-neutral-950 -mr-2.5 shrink-0" />
+      <div className="w-5 h-5 rounded-full bg-background -ml-2.5 shrink-0" />
+      <div className="flex-1 border-t-2 border-dashed border-border mx-1" />
+      <div className="w-5 h-5 rounded-full bg-background -mr-2.5 shrink-0" />
     </div>
   );
 }
@@ -48,7 +48,7 @@ export function ReceiptCard({
   )?.label;
 
   return (
-    <div className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl mt-8">
+    <div className="w-full bg-card border border-border rounded-3xl overflow-hidden shadow-2xl mt-8 transition-colors">
       {/* Header */}
       <div className="bg-linear-to-r from-amber-400 to-amber-500 px-6 py-4">
         <div className="flex items-start justify-between gap-3">

@@ -69,34 +69,29 @@ export default function Step2Mesh({
   }, [selectedMerch, activeProductId]);
 
   const handleMerchToggle = (productId: string) => {
-    setSelectedMerch((prev) => {
-      const exists = prev.find((p) => p.productId === productId);
-      if (exists) {
-        const filtered = prev.filter((p) => p.productId !== productId);
-        // If we deselected the active item, switch focus
-        if (activeProductId === productId) {
-          setActiveProductId(filtered[0]?.productId || null);
-        }
-        return filtered;
+    const exists = selectedMerch.find((p) => p.productId === productId);
+    if (exists) {
+      const filtered = selectedMerch.filter((p) => p.productId !== productId);
+      setSelectedMerch(filtered);
+      if (activeProductId === productId) {
+        setActiveProductId(filtered[0]?.productId || null);
       }
-      
+    } else {
       const product = meshes.find((m) => m._id === productId);
-      if (!product) return prev;
-      
-      // Auto-focus the new selection
+      if (!product) return;
       setActiveProductId(productId);
-      
-      return [
+      setSelectedMerch((prev) => [
         ...prev,
         {
-          productId: productId,
+          productId,
           quantity: 1,
           color: meshColors[0]?.value,
           size: meshSizes[0],
         },
-      ];
-    });
+      ]);
+    }
   };
+
 
   const updateMerch = (productId: string, updates: Partial<Props["selectedMerch"][0]>) => {
     setSelectedMerch((prev) =>
@@ -153,7 +148,7 @@ export default function Step2Mesh({
               type="button"
               title={isCollapsed ? "Expand" : "Minimize"}
               onClick={(e) => toggleCollapse(item.productId, e)}
-              className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all"
             >
               {isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
             </button>
@@ -199,17 +194,17 @@ export default function Step2Mesh({
               sizes={meshSizes}
             />
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">
+              <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                 Quantity
               </span>
-              <div className="flex flex-row items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-1 w-max">
+              <div className="flex flex-row items-center gap-2 bg-muted border border-border rounded-xl p-1 w-max">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     updateMerch(item.productId, { quantity: Math.max(1, item.quantity - 1) });
                   }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-white"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-card hover:bg-accent transition-colors text-foreground"
                 >
                   -
                 </button>
@@ -222,7 +217,7 @@ export default function Step2Mesh({
                     e.stopPropagation();
                     updateMerch(item.productId, { quantity: item.quantity + 1 });
                   }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-white"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-card hover:bg-accent transition-colors text-foreground"
                 >
                   +
                 </button>
@@ -276,7 +271,7 @@ export default function Step2Mesh({
               </div>
             )}
 
-            <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+            <div className="absolute top-4 left-4 bg-black/40 dark:bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
               <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
                 {activeProduct.modelUrl ? "3D Interactive Preview" : "Static Preview"}
               </p>
@@ -288,10 +283,10 @@ export default function Step2Mesh({
       {/* 1. Header & Selection Grid */}
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <span className="text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">
+          <span className="text-amber-600 dark:text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">
             Available Merchandise
           </span>
-          <div className="flex-1 h-px bg-white/5" />
+          <div className="flex-1 h-px bg-border/50" />
         </div>
         
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -314,10 +309,10 @@ export default function Step2Mesh({
       {selectedMerch.length > 0 && (
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <span className="text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">
+            <span className="text-amber-600 dark:text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">
               Customize Selections ({selectedMerch.length})
             </span>
-            <div className="flex-1 h-px bg-white/5" />
+            <div className="flex-1 h-px bg-border/50" />
           </div>
 
           <div className="flex flex-col gap-6">

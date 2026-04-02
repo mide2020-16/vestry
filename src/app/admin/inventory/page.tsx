@@ -59,7 +59,7 @@ function InventoryTable({
   }[];
 }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-lg p-6 relative overflow-hidden h-full">
+    <div className="bg-card border border-border rounded-2xl shadow-lg p-6 relative overflow-hidden h-full transition-colors">
       <div
         className={`absolute top-0 right-0 w-32 h-32 ${glowColor} rounded-full blur-[50px] pointer-events-none`}
       />
@@ -70,8 +70,8 @@ function InventoryTable({
         {title}
       </h3>
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-neutral-400">
-          <thead className="text-xs uppercase bg-black/40 text-neutral-500">
+        <table className="w-full text-left text-sm text-muted-foreground">
+          <thead className="text-xs uppercase bg-muted/50 text-muted-foreground">
             <tr>
               {columns.map((col, i) => (
                 <th

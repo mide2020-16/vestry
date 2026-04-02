@@ -5,8 +5,8 @@ import { signOut } from "next-auth/react";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-10 shadow-2xl text-center relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-card border border-border rounded-3xl p-10 shadow-2xl text-center relative overflow-hidden transition-colors">
         {/* Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -27,8 +27,8 @@ export default function UnauthorizedPage() {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
-        <p className="text-neutral-400 text-sm leading-relaxed mb-8">
+        <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
+        <p className="text-muted-foreground text-sm leading-relaxed mb-8">
           Your Google account is not authorised to access the Vestry admin
           panel. If you believe this is a mistake, contact the event organiser.
         </p>
@@ -36,14 +36,14 @@ export default function UnauthorizedPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/"
-            className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold transition-all text-center block"
+            className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold transition-all text-center block"
           >
             Go to Event Page
           </Link>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
-            className="w-full py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-medium transition-all"
+            className="w-full py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-medium transition-all border border-border"
           >
             Sign in with a different account
           </button>

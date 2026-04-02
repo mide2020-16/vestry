@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
@@ -36,6 +37,7 @@ interface RegistrationBody {
   }[];
   paymentMethod?: unknown;
   paymentReceiptUrl?: unknown;
+  existingRef?: string;
 }
 
 // (Functions moved to src/lib/checkout.ts)
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
       merch,
       paymentMethod,
       paymentReceiptUrl,
+      existingRef,
     } = body;
 
     const settings = await Settings.findOne().lean() as any;
@@ -127,9 +130,11 @@ export async function POST(request: Request) {
       ? baseTotal + calculatePaystackFee(baseTotal) 
       : baseTotal;
 
-    const paystackReference = `VESTRY-${nanoid(10).toUpperCase()}`;
+    const paystackReference = existingRef && typeof existingRef === "string" 
+      ? existingRef 
+      : `VESTRY-${nanoid(10).toUpperCase()}`;
 
-    const registration = await Registration.create({
+    const regData = {
       name,
       email,
       ticketType,
@@ -138,16 +143,35 @@ export async function POST(request: Request) {
       meshQuantity: Number(meshQuantity) || 1,
       meshColor,
       meshSize,
-      meshInscriptions, // Saved to DB
+      meshInscriptions,
       foodSelections,
       drinkSelection,
       merch,
       totalAmount,
       paystackReference,
       paymentStatus: false,
+      status: "pending", // Reset status to pending when updating/creating
+      declineReason: undefined, // Clear any previous decline reason
       paymentMethod: paymentMethod === "transfer" ? "transfer" : "paystack",
       paymentReceiptUrl: typeof paymentReceiptUrl === "string" ? paymentReceiptUrl : undefined,
-    });
+    };
+
+    let registration;
+    if (existingRef && typeof existingRef === "string") {
+      registration = await Registration.findOneAndUpdate(
+        { paystackReference: existingRef },
+        regData,
+        { new: true }
+      );
+      if (!registration) {
+        return NextResponse.json(
+          { success: false, error: "Existing registration not found" },
+          { status: 404 }
+        );
+      }
+    } else {
+      registration = await Registration.create(regData);
+    }
 
     if (registration.paymentMethod === "transfer") {
       // Don't await email, let it run in background so response is furious fast

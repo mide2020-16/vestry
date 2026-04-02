@@ -4,6 +4,9 @@ import { useState } from "react";
 import { OrderData } from "@/types/checkout.types";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck } from "lucide-react";
+import { formatNaira } from "@/lib/utils/format";
+import { Interactive } from "@/components/ui/Boop";
+import Image from "next/image";
 
 interface OrderSummaryProps {
   order: OrderData;
@@ -31,7 +34,7 @@ function CopyButton({ value }: { value: string }) {
       className="ml-2 p-1.5 rounded-lg text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 transition-all"
       title="Copy"
     >
-      {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+      {copied ? <Interactive><Check size={14} className="text-emerald-500" /></Interactive> : <Interactive><Copy size={14} /></Interactive>}
     </button>
   );
 }
@@ -72,7 +75,7 @@ export function OrderSummary({
       <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="flex items-center gap-3 mb-2">
-        <ReceiptText className="text-amber-500" size={24} />
+        <Interactive><ReceiptText className="text-amber-500" size={24} /></Interactive>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">Order Summary</h1>
       </div>
       <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 border-b border-border pb-4">
@@ -106,13 +109,13 @@ export function OrderSummary({
             <span className="text-xl">🎟</span>
             <span className="text-foreground font-semibold">{order.ticketType === "single" ? "Single Ticket" : "Couple Ticket"}</span>
           </div>
-          <span className="text-foreground font-bold tabular-nums">₦{order.ticketPrice.toLocaleString()}</span>
+          <span className="text-foreground font-bold tabular-nums">{formatNaira(order.ticketPrice)}</span>
         </div>
 
         <div className="space-y-3">
           {order.merch.map((item, idx) => (
             <div key={`${item.product._id}-${idx}`} className="flex flex-col md:flex-row md:justify-between md:items-start text-sm p-4 rounded-xl bg-muted/20 gap-3 border border-border/50 hover:bg-muted/40 transition-colors group">
-              <div className="flex flex-col flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">👕</span>
                   <span className="text-foreground font-bold">{item.product.name}</span>
@@ -120,8 +123,8 @@ export function OrderSummary({
                 {(item.color || item.size) && (
                   <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-muted-foreground">
                     {item.color && (
-                      <div className="flex items-center gap-1.5 bg-background px-2.5 py-1 rounded-lg border border-border">
-                        <span className="w-2.5 h-2.5 rounded-full border border-foreground/10" style={{ backgroundColor: item.color }} />
+                      <div className="flex items-center gap-1.5 bg-card px-2.5 py-1 rounded-lg border border-border shadow-sm">
+                        <div className="w-2.5 h-2.5 rounded-full border border-foreground/10" style={{ backgroundColor: item.color }} />
                         <span className="uppercase tracking-widest font-black text-[9px]">Color</span>
                       </div>
                     )}
@@ -138,12 +141,12 @@ export function OrderSummary({
                   </div>
                 )}
               </div>
-              <div className="flex justify-between items-center md:flex-col md:items-end mt-2 md:mt-0 border-t md:border-0 border-border/50 pt-2 md:pt-0">
+              <div className="flex justify-between items-center md:flex-col md:items-end mt-2 md:mt-0 border-t md:border-0 border-border pt-2 md:pt-0">
                 <span className="text-muted-foreground text-[10px] md:mb-1 font-medium">
-                  ₦{item.product.price.toLocaleString()} × {item.quantity}
+                  {formatNaira(item.product.price)} × {item.quantity}
                 </span>
                 <span className="font-mono text-foreground text-base font-bold bg-muted/50 md:bg-transparent px-2 md:px-0 py-1 md:py-0 rounded-lg">
-                  ₦{(item.product.price * item.quantity).toLocaleString()}
+                  {formatNaira(item.product.price * item.quantity)}
                 </span>
               </div>
             </div>
@@ -151,7 +154,7 @@ export function OrderSummary({
         </div>
 
         {hasFoodDrink && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 transition-colors">
+          <div className="p-4 rounded-xl bg-emerald-500/3 border border-emerald-500/10 transition-colors">
             <span className="text-[10px] text-emerald-600 dark:text-emerald-500 uppercase font-black tracking-[0.2em] block mb-3">
               Included Food &amp; Drinks
             </span>
@@ -175,9 +178,9 @@ export function OrderSummary({
         <div className="flex justify-between items-center py-5 border-t border-border">
           <span className="text-lg font-black text-foreground uppercase tracking-tight">Grand Total</span>
           <div className="text-right">
-            <span className="text-3xl font-black text-amber-500 tabular-nums tracking-tighter transition-all">₦{order.grandTotal.toLocaleString()}</span>
+            <span className="text-3xl font-black text-amber-500 tabular-nums tracking-tighter transition-all">{formatNaira(order.grandTotal)}</span>
             {paymentMethod === "paystack" && order.paystackFee > 0 && (
-              <p className="text-[10px] text-muted-foreground mt-1 font-medium">Includes ₦{order.paystackFee} processing fee</p>
+              <p className="text-[10px] text-muted-foreground mt-1 font-medium">Includes {formatNaira(order.paystackFee)} processing fee</p>
             )}
           </div>
         </div>
@@ -205,14 +208,14 @@ export function OrderSummary({
                   className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all duration-300 relative group/pay ${
                     paymentMethod === "paystack" 
                       ? "border-amber-500 bg-amber-500/10 shadow-xl scale-[1.02]" 
-                      : "border-border bg-muted/30 hover:border-border/60 text-muted-foreground hover:bg-muted/50"
+                      : "border-border bg-muted/30 hover:border-border/60 text-muted-foreground hover:bg-card"
                   }`}
                 >
-                  <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"}`}>
-                    <Smartphone size={24} />
+                  <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500 text-amber-950" : "bg-muted text-muted-foreground"}`}>
+                    <Interactive><Smartphone size={24} /></Interactive>
                   </div>
                   <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${paymentMethod === "paystack" ? "text-amber-600 dark:text-amber-500" : ""}`}>Online Payment</span>
-                  {paymentMethod === "paystack" && <div className="absolute top-2 right-2"><ShieldCheck size={16} className="text-amber-500" /></div>}
+                  {paymentMethod === "paystack" && <div className="absolute top-2 right-2"><Interactive><ShieldCheck size={16} className="text-amber-500" /></Interactive></div>}
                 </button>
               )}
 
@@ -223,14 +226,14 @@ export function OrderSummary({
                   className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all duration-300 relative group/transfer ${
                     paymentMethod === "transfer" 
                       ? "border-emerald-500 bg-emerald-500/10 shadow-xl scale-[1.02]" 
-                      : "border-border bg-muted/30 hover:border-border/60 text-muted-foreground hover:bg-muted/50"
+                      : "border-border bg-muted/30 hover:border-border/60 text-muted-foreground hover:bg-card"
                   }`}
                 >
-                  <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "transfer" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}>
-                    <Landmark size={24} />
+                  <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "transfer" ? "bg-emerald-500 text-emerald-950" : "bg-muted text-muted-foreground"}`}>
+                    <Interactive><Landmark size={24} /></Interactive>
                   </div>
                   <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${paymentMethod === "transfer" ? "text-emerald-600 dark:text-emerald-500" : ""}`}>Bank Transfer</span>
-                  {paymentMethod === "transfer" && <div className="absolute top-2 right-2"><ShieldCheck size={16} className="text-emerald-500" /></div>}
+                  {paymentMethod === "transfer" && <div className="absolute top-2 right-2"><Interactive><ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-500" /></Interactive></div>}
                 </button>
               )}
             </>
@@ -246,11 +249,11 @@ export function OrderSummary({
             <span className="text-[10px] text-muted-foreground/60 uppercase font-bold">Transfer exact amount</span>
           </div>
 
-          <div className="space-y-1.5 rounded-xl overflow-hidden border border-border bg-background/50">
+          <div className="space-y-1.5 rounded-xl overflow-hidden border border-border bg-muted/50">
             {bankRows.map(({ label, value, mono, amber }, i) => (
               <div
                 key={label}
-                className={`flex items-center justify-between px-4 py-3.5 ${i % 2 === 0 ? "bg-muted/20" : "bg-transparent"}`}
+                className={`flex items-center justify-between px-4 py-3.5 ${i % 2 === 0 ? "bg-card/50" : "bg-transparent"}`}
               >
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">{label}</span>
                 <div className="flex items-center gap-1">
@@ -274,7 +277,7 @@ export function OrderSummary({
             {receiptUrl ? (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm p-4 rounded-xl flex justify-between items-center shadow-inner">
                 <div className="flex items-center gap-2 font-semibold">
-                  <Check size={18} />
+                  <Interactive><Check size={18} /></Interactive>
                   <span>Receipt Uploaded</span>
                 </div>
                 <button 
@@ -285,11 +288,11 @@ export function OrderSummary({
                   className="p-2 hover:bg-emerald-500/20 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400 focus:outline-none"
                   title="Remove Receipt"
                 >
-                  <Trash2 size={16} />
+                  <Interactive><Trash2 size={16} /></Interactive>
                 </button>
               </div>
             ) : (
-              <div className="bg-background/40 rounded-xl border-2 border-dashed border-border p-2 focus-within:border-amber-500/50 transition-colors">
+              <div className="bg-muted rounded-xl border-2 border-dashed border-border p-2 focus-within:border-amber-500/50 transition-colors">
                 <UploadDropzone
                   endpoint="receiptUploader"
                   onClientUploadComplete={(res) => {
@@ -299,8 +302,8 @@ export function OrderSummary({
                     alert(`Error uploading receipt: ${error.message}`);
                   }}
                   appearance={{
-                    button: "bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-[10px] tracking-widest px-6 py-2 mt-4 transition-all rounded-lg",
-                    label: "text-amber-600 dark:text-amber-500 font-bold hover:text-amber-400 hover:scale-105 transition-all",
+                    button: "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black uppercase text-[10px] tracking-widest px-6 py-2 mt-4 transition-all rounded-lg",
+                    label: "text-amber-600 dark:text-amber-500 font-bold hover:text-amber-400 hover:scale-105 transition-all text-sm",
                     container: "p-6",
                     allowedContent: "text-[10px] text-muted-foreground uppercase opacity-40 font-black mt-2",
                   }}
@@ -317,18 +320,18 @@ export function OrderSummary({
         onClick={onPay}
         disabled={isPaying || (paymentMethod === "transfer" && !receiptUrl) || (!order.paystackEnabled && !order.bankTransferEnabled)}
         className="w-full bg-linear-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed
-          text-black font-black uppercase tracking-widest text-base py-5 rounded-2xl shadow-xl
+          text-amber-950 font-black uppercase tracking-widest text-base py-5 rounded-2xl shadow-xl
           hover:shadow-amber-500/20 transition-all active:scale-[0.98] outline-none"
       >
         {isPaying
           ? "Processing Transaction..."
           : paymentMethod === "paystack"
-            ? `Pay ₦${order.grandTotal.toLocaleString()}`
+            ? `Pay ${formatNaira(order.grandTotal)}`
             : `Complete Registration`}
       </button>
 
       <div className="mt-6 flex items-center justify-center gap-4 opacity-30 grayscale saturate-0 pointer-events-none">
-        <img src="/paystack-logo.png" alt="Secure by Paystack" className="h-4 dark:invert" />
+        <Image fill src="/logo/paystack.png" alt="Secure by Paystack" className="h-4 dark:invert" />
         <span className="w-1 h-1 bg-muted-foreground rounded-full" />
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Secure Checkout</p>
       </div>
@@ -359,8 +362,8 @@ function CopyAllButton({ bankDetails }: { bankDetails: OrderData["bankDetails"] 
       }`}
     >
       {copied
-        ? <><Check size={14} className="text-emerald-500" /> <span>Copied to Clipboard</span></>
-        : <><Copy size={14} /> Copy All Bank Details</>}
+        ? <><Interactive><Check size={14} className="text-emerald-500" /></Interactive> <span>Copied to Clipboard</span></>
+        : <><Interactive><Copy size={14} /></Interactive> Copy All Bank Details</>}
     </button>
   );
 }

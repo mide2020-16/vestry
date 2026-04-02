@@ -18,6 +18,56 @@ export async function buildOrder(
   searchParams: URLSearchParams,
   session: { name?: string; email?: string } | null,
 ): Promise<OrderData> {
+  // 1. Check for existing registration reference (for retries)
+  const ref = searchParams.get("ref");
+
+  if (ref) {
+    try {
+      const regRes = await fetch(`/api/registrations/by-ref/${ref}`);
+      if (regRes.ok) {
+        const { data: reg } = await regRes.json();
+        const settingsRes = await fetch("/api/settings").then((r) => r.json()).catch(() => null);
+
+        return {
+          name: reg.name,
+          email: reg.email,
+          ticketType: reg.ticketType,
+          partnerName: reg.partnerName,
+          merch: reg.merch.map((m: any) => ({
+            product: { 
+              _id: m.productId?._id || m.productId, 
+              name: m.productId?.name || "Merch", 
+              price: m.productId?.price || 0,
+              category: "mesh"
+            },
+            quantity: m.quantity,
+            color: m.color,
+            size: m.size,
+            inscriptions: m.inscriptions
+          })),
+          foods: reg.foodSelections || [],
+          drink: reg.drinkSelection || null,
+          ticketPrice: reg.totalAmount - (reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0)), // Best guess
+          meshTotal: reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0),
+          baseTotal: reg.totalAmount, // This is already calculated in DB
+          paystackFee: calculatePaystackFee(reg.totalAmount),
+          grandTotal: reg.totalAmount + calculatePaystackFee(reg.totalAmount),
+          existingRef: ref,
+          bankDetails: settingsRes?.data ? {
+            bankName: settingsRes.data.bankName,
+            accountName: settingsRes.data.accountName,
+            accountNumber: settingsRes.data.accountNumber,
+          } : undefined,
+          paystackEnabled: settingsRes?.data?.paystackEnabled ?? true,
+          bankTransferEnabled: settingsRes?.data?.bankTransferEnabled ?? true,
+        };
+      }
+    } catch (err) {
+      console.warn("Failed to restore registration from reference:", err);
+      // Fall back to params if ref fetch fails
+    }
+  }
+
   const ticketType = (searchParams.get("ticketType") ?? "single") as TicketType;
   const partnerName = searchParams.get("partnerName") ?? undefined;
   const foodIds = searchParams.getAll("foodId");

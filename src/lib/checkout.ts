@@ -15,8 +15,10 @@ export function calculatePaystackFee(baseAmount: number): number {
   } else {
     fee = ((baseAmount + 100) * 0.015) / (1 - 0.015) + 100;
   }
+  // Round to 2 decimal places to avoid floating point issues (e.g. 3 decimal points)
+  const roundedFee = Math.round(fee * 100) / 100;
   // Cap at 2000
-  return Math.min(fee, 2000);
+  return Math.min(roundedFee, 2000);
 }
 
 /**

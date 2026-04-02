@@ -2,13 +2,13 @@ import { signIn } from "@/auth";
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden transition-colors">
       {/* Architectural background lines */}
       <div
         className="absolute inset-0 pointer-events-none select-none"
         aria-hidden
       >
-        <div className="absolute top-0 left-1/4 w-px h-full bg-white/4" />
+        <div className="absolute top-0 left-1/4 w-px h-full bg-foreground/4" />
         <div className="absolute top-0 left-2/4 w-px h-full bg-white/4" />
         <div className="absolute top-0 left-3/4 w-px h-full bg-white/4" />
         <div className="absolute top-1/3 left-0 w-full h-px bg-white/4" />
@@ -28,23 +28,23 @@ export default function AdminLoginPage() {
             Admin Portal
           </p>
           <h1
-            className="text-white font-black uppercase leading-none tracking-[0.15em] rounded-xl"
+            className="text-foreground font-black uppercase leading-none tracking-[0.15em] rounded-xl"
             style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)" }}
           >
             Vestry
           </h1>
-          <p className="text-neutral-600 text-sm mt-3 leading-relaxed">
+          <p className="text-muted-foreground/50 text-sm mt-3 leading-relaxed">
             Restricted access. Authorized personnel only.
           </p>
         </div>
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex-1 h-px bg-neutral-800" />
-          <span className="text-neutral-700 text-xs tracking-widest uppercase">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-muted-foreground/40 text-xs tracking-widest uppercase">
             Authenticate
           </span>
-          <div className="flex-1 h-px bg-neutral-800" />
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Sign in form */}
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
         >
           <button
             type="submit"
-            className="group w-full relative overflow-hidden border border-neutral-800 hover:border-amber-400/50 bg-neutral-900 hover:bg-neutral-800/80 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
+            className="group w-full relative overflow-hidden border border-border hover:border-amber-400/50 bg-card hover:bg-accent text-foreground font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
           >
             {/* Hover glow sweep */}
             <span className="absolute inset-0 bg-linear-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -87,8 +87,8 @@ export default function AdminLoginPage() {
 
         {/* Bottom rule + footnote */}
         <div className="mt-10">
-          <div className="h-px bg-linear-to-r from-transparent via-neutral-800 to-transparent mb-6" />
-          <p className="text-neutral-700 text-xs text-center tracking-wide">
+          <div className="h-px bg-linear-to-r from-transparent via-border to-transparent mb-6" />
+          <p className="text-muted-foreground/40 text-xs text-center tracking-wide">
             Only pre-authorized accounts may proceed.
           </p>
         </div>

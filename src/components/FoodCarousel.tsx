@@ -68,16 +68,16 @@ export default function FoodCarousel({
       {/* Header */}
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
-          <span className="text-amber-400/80 text-[13px] font-semibold uppercase tracking-[0.25em]">
-            Choose {label}
+          <span className="text-amber-600 dark:text-amber-400/80 text-[13px] font-semibold uppercase tracking-[0.25em]">
+            Food & Drinks
           </span>
-          <div className="h-px bg-white/10 w-10" />
+          <div className="flex-1 h-px bg-border/50" />
         </div>
         <span
           className={`text-xs px-2.5 py-1 rounded-full font-medium ${
             selectedIds.length >= maxSelections
-              ? "text-amber-400 bg-amber-400/10 border border-amber-400/20"
-              : "text-white/40 bg-white/5 border border-white/10"
+              ? "text-amber-600 dark:text-amber-400 bg-amber-400/10 border border-amber-500/20 shadow-sm"
+              : "text-muted-foreground/60 bg-muted/50 border border-border"
           }`}
         >
           {selectedIds.length}/{maxSelections}
@@ -92,8 +92,8 @@ export default function FoodCarousel({
         style={{ height: TRACK_H }}
       >
         {/* Edge fades */}
-        <div className="absolute inset-y-0 left-0 w-16 z-20 pointer-events-none bg-linear-to-r from-neutral-950 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-16 z-20 pointer-events-none bg-linear-to-l from-neutral-950 to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-16 z-20 pointer-events-none bg-linear-to-r from-background via-background/20 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-16 z-20 pointer-events-none bg-linear-to-l from-background via-background/20 to-transparent" />
 
         {trackWidth > 0 &&
           available.map((item, index) => {
@@ -128,13 +128,13 @@ export default function FoodCarousel({
                 onClick={handleClick}
               >
                 <div
-                  className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-white/5
+                  className={`w-full rounded-2xl overflow-hidden border-2 transition-colors duration-200 bg-card
                   ${
                     isSelected && isCenter
                       ? "border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
                       : isCenter
-                        ? "border-white/20"
-                        : "border-white/10"
+                        ? "border-border shadow-lg"
+                        : "border-border/40"
                   }`}
                 >
                   {/* Image */}
@@ -161,12 +161,12 @@ export default function FoodCarousel({
                     style={{ height: INFO_H }}
                   >
                     <p
-                      className={`text-sm font-semibold truncate ${isCenter ? "text-white" : "text-white/60"}`}
+                      className={`text-sm font-semibold truncate ${isCenter ? "text-foreground" : "text-muted-foreground/60"}`}
                     >
                       {item.name}
                     </p>
                     <p
-                      className={`text-xs mt-0.5 ${isCenter ? "text-amber-400" : "text-amber-400/40"}`}
+                      className={`text-xs mt-0.5 ${isCenter ? "text-amber-500" : "text-amber-500/40"}`}
                     >
                       ₦{item.price.toLocaleString()}
                     </p>
@@ -177,7 +177,7 @@ export default function FoodCarousel({
                 {isCenter && (
                   <p
                     className={`text-center text-[10px] mt-1.5 transition-colors ${
-                      isSelected ? "text-amber-400/60" : "text-white/30"
+                      isSelected ? "text-amber-500/60" : "text-muted-foreground/30"
                     }`}
                   >
                     {isSelected
@@ -198,7 +198,7 @@ export default function FoodCarousel({
           type="button"
           onClick={() => goTo(activeIndex - 1)}
           disabled={activeIndex === 0}
-          className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+          className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-sm"
         >
           ‹
         </button>
@@ -211,7 +211,7 @@ export default function FoodCarousel({
               key={item._id.toString()}
               onClick={() => goTo(i)}
               className={`h-1.5 rounded-full transition-all duration-200
-                ${i === activeIndex ? "bg-amber-400 w-4" : "bg-white/25 w-1.5"}`}
+                ${i === activeIndex ? "bg-amber-400 w-4 shadow-[0_0_8px_rgba(251,191,36,0.5)]" : "bg-muted-foreground/25 w-1.5"}`}
             />
           ))}
         </div>
@@ -220,7 +220,7 @@ export default function FoodCarousel({
           type="button"
           onClick={() => goTo(activeIndex + 1)}
           disabled={activeIndex === available.length - 1}
-          className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+          className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-sm"
         >
           ›
         </button>

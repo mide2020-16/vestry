@@ -34,6 +34,7 @@ export interface OrderData {
   paystackFee: number;
   grandTotal: number;
 
+  existingRef?: string;
   bankDetails?: {
     bankName: string;
     accountName: string;

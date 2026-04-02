@@ -13,10 +13,10 @@ import { ConfirmModal } from "@/components/checkout/ConfirmModal";
 
 function LoadingScreen({ message = "Loading..." }: { message?: string }) {
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="animate-spin h-10 w-10 text-amber-400" />
-        <p className="text-neutral-400 text-sm">{message}</p>
+        <Loader2 className="animate-spin h-10 w-10 text-amber-500" />
+        <p className="text-muted-foreground text-sm font-medium">{message}</p>
       </div>
     </div>
   );
@@ -84,6 +84,7 @@ function CheckoutContent() {
           paymentMethod,
           paymentReceiptUrl: receiptUrl,
           paymentStatus: false,
+          existingRef: order.existingRef,
         }),
       });
 
@@ -138,13 +139,13 @@ function CheckoutContent() {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error ?? "Order not found."}</p>
+          <p className="text-red-500 dark:text-red-400 mb-4 font-semibold">{error ?? "Order not found."}</p>
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-amber-400 underline text-sm"
+            className="text-amber-600 dark:text-amber-400 underline text-sm font-bold"
           >
             ← Go back
           </button>
@@ -154,7 +155,7 @@ function CheckoutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 pt-20">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-20 transition-colors">
       <OrderSummary
         order={order}
         onPay={() => setIsModalOpen(true)}

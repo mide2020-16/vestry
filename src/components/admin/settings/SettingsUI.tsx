@@ -17,7 +17,7 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-bold text-foreground/80 lowercase tracking-tight">
+      <label className="block text-sm font-bold text-foreground/80 uppercase tracking-tight">
         {label}
       </label>
       {hint && <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-60 leading-tight">{hint}</p>}

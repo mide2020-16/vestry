@@ -28,7 +28,7 @@ export default function GridCard({
         ${
           isSelected
             ? "border-amber-400 bg-amber-400/10 shadow-[0_0_16px_rgba(251,191,36,0.12)]"
-            : "border-white/10 bg-white/5 hover:border-white/20"
+            : "border-border bg-card hover:border-border/60 shadow-sm"
         }`}
     >
       {/* Deselect hint shown when selected */}
@@ -37,7 +37,7 @@ export default function GridCard({
           ✕ deselect
         </span>
       )}
-      <div className="relative w-full h-28 rounded-xl mb-2.5 overflow-hidden bg-white/5">
+      <div className="relative w-full h-28 rounded-xl mb-2.5 overflow-hidden bg-muted/50 border border-border/50">
         <Image
           src={mesh.image_url}
           alt={mesh.name}
@@ -52,11 +52,11 @@ export default function GridCard({
         )}
       </div>
       <p
-        className={`font-semibold text-sm leading-tight ${isSelected ? "text-amber-400" : "text-white"}`}
+        className={`font-semibold text-sm leading-tight ${isSelected ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}
       >
         {mesh.name}
       </p>
-      <p className="text-xs mt-0.5 text-white/40">
+      <p className="text-xs mt-0.5 text-muted-foreground/60">
         ₦{itemPrice(mesh).toLocaleString()}
       </p>
     </button>

@@ -47,8 +47,8 @@ function FloatingInput({
         htmlFor={name}
         className={`absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
           lifted
-            ? "top-2 text-[10px] text-amber-400/70 font-medium tracking-wide"
-            : "top-1/2 -translate-y-1/2 text-sm text-white/30"
+            ? "top-2 text-[10px] text-amber-500 dark:text-amber-400/70 font-medium tracking-wide"
+            : "top-1/2 -translate-y-1/2 text-sm text-muted-foreground/60"
         }`}
       >
         {label}
@@ -63,12 +63,12 @@ function FloatingInput({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className={`w-full bg-white/5 border rounded-xl px-4 pt-6 pb-2 text-white text-sm
+        className={`w-full bg-card border rounded-xl px-4 pt-6 pb-2 text-foreground text-sm
           focus:outline-none transition-all duration-200
           ${
             focused
-              ? "border-amber-400/60 bg-amber-400/5 shadow-[0_0_0_3px_rgba(251,191,36,0.06)]"
-              : "border-white/10 hover:border-white/20"
+              ? "border-amber-500/50 bg-amber-500/5 shadow-[0_0_0_3px_rgba(251,191,36,0.06)]"
+              : "border-border hover:border-border/60"
           }`}
       />
     </div>
@@ -107,12 +107,12 @@ function TicketCard({
         <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
       )}
       <p
-        className={`font-bold capitalize text-base ${isSelected ? "text-amber-400" : "text-white/80"}`}
+        className={`font-bold capitalize text-base ${isSelected ? "text-amber-600 dark:text-amber-400" : "text-foreground/80"}`}
       >
         {type}
       </p>
       <p
-        className={`text-sm mt-0.5 ${isSelected ? "text-amber-400/60" : "text-white/35"}`}
+        className={`text-sm mt-0.5 ${isSelected ? "text-amber-500/60 dark:text-amber-400/60" : "text-muted-foreground/60"}`}
       >
         ₦{price?.toLocaleString() ?? "—"}
       </p>
@@ -149,10 +149,10 @@ export default function Step1Details({
     <div className="flex flex-col gap-5">
       {/* Section label */}
       <div className="flex items-center gap-6">
-        <span className="text-amber-400/80 text-[15px] font-semibold uppercase tracking-[0.3em]">
+        <span className="text-amber-600 dark:text-amber-400/80 text-[15px] font-semibold uppercase tracking-[0.3em]">
           Your Details
         </span>
-        <div className="flex-1 h-px bg-white/10" />
+        <div className="flex-1 h-px bg-border/50" />
       </div>
 
       {/* Attendee fields */}
@@ -174,7 +174,7 @@ export default function Step1Details({
 
       {/* Ticket type */}
       <div>
-        <p className="text-amber-400/80 text-[10px] font-semibold uppercase tracking-[0.2em] mb-3">
+        <p className="text-amber-600 dark:text-amber-400/80 text-[10px] font-semibold uppercase tracking-[0.2em] mb-3">
           Ticket Type
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -203,16 +203,16 @@ export default function Step1Details({
       )}
 
       {/* Subtotal */}
-      <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3.5 border border-white/10">
+      <div className="flex justify-between items-center bg-card rounded-xl px-4 py-3.5 border border-border">
         <div>
-          <span className="text-white/40 text-xs uppercase tracking-wide">
+          <span className="text-muted-foreground text-xs uppercase tracking-wide">
             Subtotal
           </span>
-          <p className="text-white/25 text-[10px] mt-0.5 capitalize">
+          <p className="text-muted-foreground/60 text-[10px] mt-0.5 capitalize">
             {ticketType} ticket
           </p>
         </div>
-        <span className="text-amber-400 font-bold text-lg">
+        <span className="text-amber-600 dark:text-amber-400 font-bold text-lg">
           ₦{ticketPrice.toLocaleString()}
         </span>
       </div>

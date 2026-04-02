@@ -11,15 +11,15 @@ export default async function AdminLayout({
 
   return (
     // h-screen + overflow-hidden prevents the whole page from scrolling
-    <div className="h-screen w-full bg-neutral-950 flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-background flex flex-col md:flex-row overflow-hidden transition-colors">
       {/* Sidebar - Fixed width on desktop */}
       <AdminSidebar email={session?.user?.email ?? null} />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Optional: Mobile Header (since sidebar is usually hidden on small screens) */}
-        <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-950/50 backdrop-blur-md">
-          <span className="text-white font-bold tracking-widest uppercase text-sm">
+        <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-border bg-background/50 backdrop-blur-md">
+          <span className="text-foreground font-black tracking-[0.2em] uppercase text-sm">
             Vestry Admin
           </span>
           {/* You can add a mobile menu trigger here if your Sidebar component doesn't have one */}

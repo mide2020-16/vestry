@@ -25,6 +25,8 @@ export interface IRegistration extends Document {
     inscriptions?: string;
   }[];
   paymentStatus: boolean;
+  status: "pending" | "success" | "declined";
+  declineReason?: string;
   paymentMethod: "paystack" | "transfer";
   paymentReceiptUrl?: string;
   paystackReference?: string;
@@ -59,12 +61,18 @@ const RegistrationSchema: Schema = new Schema(
       },
     ],
     paymentStatus: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ["pending", "success", "declined"],
+      default: "pending",
+    },
     paymentMethod: {
       type: String,
       enum: ["paystack", "transfer"],
       default: "paystack",
     },
     paymentReceiptUrl: { type: String },
+    declineReason: { type: String },
     paystackReference: { type: String, unique: true, sparse: true },
     totalAmount: { type: Number, required: true, default: 0 },
   },

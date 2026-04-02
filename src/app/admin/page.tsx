@@ -127,13 +127,13 @@ export default async function AdminDashboardPage() {
         <StatCard label="Payment Status" accentColor="bg-purple-500/5 border-purple-500/10">
           <SplitStat
             left={{ value: successfulPayments, label: "Paid", className: "text-emerald-400" }}
-            right={{ value: pendingPayments, label: "Pending", className: "text-neutral-400" }}
+            right={{ value: pendingPayments, label: "Pending", className: "text-muted-foreground" }}
           />
         </StatCard>
       </div>
 
       {/* Table */}
-      <div className="bg-neutral-900/40 border border-neutral-800 rounded-3xl p-1 md:p-6">
+      <div className="bg-card/40 border border-border rounded-3xl p-1 md:p-6 transition-colors">
         <RecentRegistrations registrations={registrations} />
       </div>
     </div>

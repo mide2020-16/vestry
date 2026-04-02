@@ -36,12 +36,12 @@ interface ReviewRowProps {
 
 function ReviewRow({ label, value, amber = false }: ReviewRowProps) {
   return (
-    <div className="flex justify-between items-center px-4 py-3 rounded-xl border border-white/10 bg-white/5">
-      <span className="text-white/50 text-xs font-medium uppercase tracking-wider">
+    <div className="flex justify-between items-center px-4 py-3 rounded-xl border border-border bg-card shadow-sm">
+      <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
         {label}
       </span>
       <span
-        className={`text-sm font-bold ${amber ? "text-amber-400" : "text-white"}`}
+        className={`text-sm font-bold ${amber ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}
       >
         {value}
       </span>
@@ -53,7 +53,7 @@ function ReviewRow({ label, value, amber = false }: ReviewRowProps) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-white/30 text-[10px] uppercase font-black tracking-[0.2em] px-1 mb-1">
+    <p className="text-muted-foreground/40 text-[10px] uppercase font-black tracking-[0.2em] px-1 mb-1">
       {children}
     </p>
   );
@@ -65,7 +65,7 @@ function FoodRow({ item }: { item: Product }) {
   return (
     <div className="flex items-center gap-3 py-1">
       {item.image_url && (
-        <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-white/10 bg-black">
+        <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-border bg-muted">
           <Image
             src={item.image_url}
             alt={item.name}
@@ -76,8 +76,8 @@ function FoodRow({ item }: { item: Product }) {
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-white text-xs font-semibold truncate">{item.name}</p>
-        <p className="text-white/30 text-[10px] uppercase font-bold">
+        <p className="text-foreground text-xs font-semibold truncate">{item.name}</p>
+        <p className="text-muted-foreground/40 text-[10px] uppercase font-bold">
           Complimentary
         </p>
       </div>
@@ -115,10 +115,10 @@ export default function Step4Review({
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <span className="text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em]">
+        <span className="text-amber-600 dark:text-amber-400/90 text-[11px] font-black uppercase tracking-[0.3em]">
           Final Review
         </span>
-        <div className="flex-1 h-px bg-white/5" />
+        <div className="flex-1 h-px bg-border/50" />
       </div>
 
       {/* Guest Details */}
@@ -154,27 +154,27 @@ export default function Step4Review({
               // For now, let's assume we can find them or we need to pass the full product objects.
               
               return (
-                <div key={idx} className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-white/10 bg-white/3">
+                <div key={idx} className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-border bg-card shadow-sm">
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-bold truncate">
+                    <p className="text-foreground text-sm font-bold truncate">
                       {product?.name || `Item #${idx + 1}`} {item.quantity > 1 ? `(x${item.quantity})` : ""}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2 mt-1.5">
                       {item.color && (
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted border border-border/50">
                           <div
-                            className="w-2 h-2 rounded-full"
+                            className="w-2 h-2 rounded-full border border-foreground/10"
                             style={{ backgroundColor: item.color }}
                           />
-                          <span className="text-[9px] uppercase font-bold text-white/40">
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground/60">
                             Color
                           </span>
                         </div>
                       )}
 
                       {item.size && (
-                        <span className="text-[9px] font-black bg-white/10 text-white/70 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                        <span className="text-[9px] font-black bg-muted text-muted-foreground px-2 py-0.5 rounded-md uppercase tracking-tighter border border-border/50">
                           Size {item.size}
                         </span>
                       )}
@@ -197,7 +197,7 @@ export default function Step4Review({
       {hasFoodDrink && (
         <div className="space-y-2">
           <SectionLabel>Complimentary Dining</SectionLabel>
-          <div className="bg-white/2 px-4 py-3 rounded-2xl border border-white/5 flex flex-col gap-2">
+          <div className="bg-muted px-4 py-3 rounded-2xl border border-border/50 flex flex-col gap-2">
             {selectedFoods.map((food) => (
               <FoodRow key={food._id} item={food} />
             ))}
@@ -209,17 +209,17 @@ export default function Step4Review({
       {/* Totals Section */}
       <div className="relative group mt-2">
         <div className="absolute -inset-0.5 bg-linear-to-r from-amber-500 to-amber-700 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-        <div className="relative flex justify-between items-center bg-neutral-900 border border-amber-500/30 px-6 py-5 rounded-2xl">
+        <div className="relative flex justify-between items-center bg-card border border-amber-500/30 px-6 py-5 rounded-2xl shadow-xl">
           <div className="space-y-0.5">
-            <p className="text-white/30 text-[10px] uppercase font-black tracking-widest">
+            <p className="text-muted-foreground/60 text-[10px] uppercase font-black tracking-widest">
               Total Payable
             </p>
-            <p className="text-neutral-500 text-[10px] italic">
+            <p className="text-muted-foreground/40 text-[10px] italic">
               VAT and processing included
             </p>
           </div>
           <div className="text-right">
-            <span className="text-amber-400 text-3xl font-black tracking-tighter tabular-nums">
+            <span className="text-amber-600 dark:text-amber-400 text-3xl font-black tracking-tighter tabular-nums">
               ₦{grandTotal.toLocaleString()}
             </span>
           </div>

@@ -43,13 +43,13 @@ export default function AdminSidebar({ email }: Props) {
 
   if (!isMounted) {
     return (
-      <div className="w-18 h-screen bg-neutral-900 border-r border-neutral-800 shrink-0" />
+      <div className="w-18 h-screen bg-card border-r border-border shrink-0" />
     );
   }
 
   return (
     <aside
-      className={`hidden md:flex flex-col bg-neutral-900 border-r border-neutral-800 sticky top-0 h-screen shrink-0 transition-all duration-500 ease-in-out
+      className={`hidden md:flex flex-col bg-card border-r border-border sticky top-0 h-screen shrink-0 transition-all duration-500 ease-in-out
         ${collapsed ? "w-18" : "w-72"}`}
     >
       <div className="flex flex-col h-full py-8 gap-8 overflow-hidden">
@@ -60,10 +60,10 @@ export default function AdminSidebar({ email }: Props) {
         >
           {!collapsed && (
             <div>
-              <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase leading-none">
+              <h1 className="text-lg font-black text-foreground tracking-[0.2em] uppercase leading-none">
                 Vestry
               </h1>
-              <p className="text-[10px] text-neutral-500 mt-1 uppercase tracking-widest font-bold">
+              <p className="text-[10px] text-muted-foreground/60 mt-1 uppercase tracking-widest font-black">
                 Admin Panel
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function AdminSidebar({ email }: Props) {
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
-            className=" mr-2 p-2 rounded-xl text-neutral-500 hover:text-white hover:bg-white/10 transition-all duration-300 active:scale-95 shrink-0"
+            className=" mr-2 p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-300 active:scale-95 shrink-0 border border-transparent hover:border-border"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
@@ -85,7 +85,7 @@ export default function AdminSidebar({ email }: Props) {
 
         {/* Divider */}
         <div
-          className={`h-px bg-white/5 transition-all duration-500 ${collapsed ? "mx-4" : "mx-6"}`}
+          className={`h-px bg-border/50 transition-all duration-500 ${collapsed ? "mx-4" : "mx-6"}`}
         />
 
         {/* Nav */}
@@ -110,11 +110,11 @@ export default function AdminSidebar({ email }: Props) {
           className={`mt-auto transition-all duration-500 ${collapsed ? "flex flex-col items-center px-0" : "px-4"}`}
         >
           {!collapsed && email && (
-            <div className="mb-4 px-4 py-3 bg-white/5 rounded-2xl border border-white/8">
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-0.5">
+            <div className="mb-4 px-4 py-3 bg-muted/50 rounded-2xl border border-border shadow-sm">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-black mb-0.5">
                 Signed in as
               </p>
-              <p className="text-neutral-300 text-xs truncate font-medium">
+              <p className="text-foreground text-xs truncate font-bold">
                 {email}
               </p>
             </div>
@@ -123,13 +123,13 @@ export default function AdminSidebar({ email }: Props) {
           <Link
             href="/api/auth/signout"
             title={collapsed ? "Sign Out" : undefined}
-            className={`flex items-center gap-4 rounded-2xl bg-red-500/5 text-red-400
-              hover:bg-red-500/15 hover:text-red-300 transition-all duration-500 font-medium
+            className={`flex items-center gap-4 rounded-2xl bg-red-600/5 text-red-600 dark:bg-red-500/5 dark:text-red-400
+              hover:bg-red-600/10 hover:text-red-700 dark:hover:bg-red-500/15 dark:hover:text-red-300 transition-all duration-500 font-bold border border-red-500/10 hover:border-red-500/30
               ${collapsed ? "justify-center w-11 h-11" : "px-4 py-3.5 w-full"}`}
           >
             <LogOut size={20} className="shrink-0" />
             {!collapsed && (
-              <span className="overflow-hidden w-auto opacity-100 transition-all duration-500 whitespace-nowrap">
+              <span className="overflow-hidden w-auto opacity-100 transition-all duration-500 whitespace-nowrap uppercase text-[11px] tracking-widest">
                 Sign Out
               </span>
             )}

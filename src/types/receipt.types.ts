@@ -1,4 +1,6 @@
 export interface Registration {
+  declineReason: string;
+  status: string;
   _id: string;
   name: string;
   email: string;
