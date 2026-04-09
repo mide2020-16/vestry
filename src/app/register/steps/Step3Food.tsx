@@ -15,7 +15,7 @@ interface Props {
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
-const MAX_FOOD_SELECTIONS = 2;
+const MAX_FOOD_SELECTIONS = 1;
 const MAX_DRINK_SELECTIONS = 1;
 
 /* ── Step 3 ─────────────────────────────────────────────────────────────── */

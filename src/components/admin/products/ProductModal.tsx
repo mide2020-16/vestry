@@ -263,7 +263,7 @@ export function ProductModal({
             onClick={onClose}
             className="flex-1 py-3.5 sm:py-3 bg-secondary hover:bg-secondary/80 text-foreground font-medium rounded-xl transition-colors border border-border"
           >
-            Cancel
+            CANCEL
           </button>
           <button
             type="submit"

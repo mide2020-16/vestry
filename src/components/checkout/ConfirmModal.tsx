@@ -34,7 +34,10 @@ export function ConfirmModal({
               <strong className="text-amber-600 dark:text-amber-400">
                 Do not refresh or close the page
               </strong>{" "}
-              while processing your payment.
+              while processing your payment. {" "}
+              <strong className="text-amber-600 dark:text-amber-400 animate-pulse">
+                Ensure you click on &apos;Enable Push Notifications&apos; to get email notification
+              </strong>
             </>
           )}
         </p>
@@ -46,7 +49,7 @@ export function ConfirmModal({
             disabled={isPaying}
             className="flex-1 py-3 px-4 bg-secondary hover:bg-secondary/80 text-foreground font-bold rounded-xl transition-all disabled:opacity-50 border border-border"
           >
-            Cancel
+            CANCEL
           </button>
           <button
             type="button"

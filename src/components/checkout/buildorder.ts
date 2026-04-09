@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { calculatePaystackFee } from "@/lib/checkout";
 
 import { TicketType } from "@/app/register/useRegister";
@@ -18,7 +19,6 @@ export async function buildOrder(
   searchParams: URLSearchParams,
   session: { name?: string; email?: string } | null,
 ): Promise<OrderData> {
-  // 1. Check for existing registration reference (for retries)
   const ref = searchParams.get("ref");
 
   if (ref) {

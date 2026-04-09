@@ -17,14 +17,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Vestry",
+    title: "Vestry | MFMCF FUNAAB",
   },
   icons: {
     icon: "/logo/logo.png",
     apple: "/logo/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Vestry",
+    title: "Vestry | MFMCF FUNAAB",
     description:
       "Secure your ticket, select your merch allocation, and customize your dining experience.",
     siteName: "Vestry Event",
@@ -34,13 +34,13 @@ export const metadata: Metadata = {
         url: "/logo/logo.png", // should be a 1200×630 social preview image
         width: 1200,
         height: 630,
-        alt: "Vestry — Official Registration Portal",
+        alt: "Vestry | MFMCF FUNAAB — Official Registration Portal",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vestry",
+    title: "Vestry | MFMCF FUNAAB",
     description:
       "Secure your ticket, select your merch allocation, and customize your dining experience.",
     images: ["/logo/logo.png"],
