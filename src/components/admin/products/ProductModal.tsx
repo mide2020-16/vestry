@@ -10,6 +10,7 @@ import {
 import { FileUploadInput } from "./FileUploadInput";
 import type { ProductForm } from "@/types/product.types";
 import Image from "next/image";
+import { AnimatedCheck, AnimatedDecline } from "@/components/ui/Boop";
 
 interface ProductModalProps {
   isEditing: boolean;
@@ -74,7 +75,9 @@ export function ProductModal({
             onClick={onClose}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all"
           >
-            <X size={18} />
+            <AnimatedDecline>
+              <X size={18} />
+            </AnimatedDecline>
           </button>
         </div>
 
@@ -221,7 +224,9 @@ export function ProductModal({
                         onClick={() => removeInscription(i)}
                         className="text-red-400 hover:text-red-300 transition-colors"
                       >
-                        <X size={11} />
+                        <AnimatedDecline>
+                          <X size={11} />
+                        </AnimatedDecline>
                       </button>
                     </span>
                   ))
@@ -276,7 +281,9 @@ export function ProductModal({
               "Saving…"
             ) : (
               <>
+              <AnimatedCheck>
                 <Check size={16} /> Save
+              </AnimatedCheck>
               </>
             )}
           </button>

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { RegistrationPDF } from "./RegistrationPDF";
 import { FileText, Loader2 } from "lucide-react";
+import { AnimatedSpinner } from "../ui/Boop";
 
 export interface RegistrationForPDF {
   _id: string;
@@ -43,7 +44,7 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
         disabled
         className="flex items-center gap-2 bg-neutral-800 text-neutral-500 px-6 py-3 rounded-xl font-bold text-sm border border-neutral-700 opacity-50"
       >
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <AnimatedSpinner size={14} />
         Initializing...
       </button>
     );
@@ -59,7 +60,7 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
       {({ loading, error }) => (
         <>
           {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <AnimatedSpinner size={14} />
           ) : (
             <FileText className="h-4 w-4" />
           )}

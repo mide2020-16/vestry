@@ -11,6 +11,7 @@ import {
   Spinner,
   inputCls,
 } from "@/components/admin/settings/SettingsUI";
+import { AnimatedCheck, AnimatedDecline } from "@/components/ui/Boop";
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
@@ -233,7 +234,9 @@ export default function AdminSettingsPage() {
             aria-label="Dismiss"
             onClick={() => setMessage(null)}
           >
-            <X size={14} />
+            <AnimatedDecline>
+              <X size={14} />
+            </AnimatedDecline>
           </button>
         </div>
       )}
@@ -376,7 +379,9 @@ export default function AdminSettingsPage() {
                       onClick={() => removeColor(i)}
                       className="text-red-400 hover:text-red-600 ml-1"
                     >
-                      <X size={12} />
+                      <AnimatedDecline>
+                        <X size={12} />
+                      </AnimatedDecline>
                     </button>
                   </div>
                 ))}
@@ -428,7 +433,9 @@ export default function AdminSettingsPage() {
                       onClick={() => removeSize(i)}
                       className="text-red-400 hover:text-red-300 ml-1"
                     >
-                      <X size={12} />
+                      <AnimatedDecline>
+                        <X size={12} />
+                      </AnimatedDecline>
                     </button>
                   </span>
                 ))}
@@ -595,7 +602,9 @@ export default function AdminSettingsPage() {
               </>
             ) : (
               <>
+              <AnimatedCheck>
                 <Check size={16} /> Save Configuration
+              </AnimatedCheck>
               </>
             )}
           </button>

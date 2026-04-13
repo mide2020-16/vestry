@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Eye, EyeOff, Upload, X } from "lucide-react";
+import { AnimatedDecline } from "@/components/ui/Boop";
 
 /* ── Field wrapper ───────────────────────────────────────────────────────── */
 
@@ -101,7 +102,9 @@ export function LogoField({
               onClick={() => onChange("")}
               className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity"
             >
-              <X size={20} className="text-white" />
+              <AnimatedDecline>
+                <X size={20} className="text-white" />
+              </AnimatedDecline>
             </button>
           </>
         ) : (

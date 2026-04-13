@@ -1,5 +1,4 @@
-// app/admin/page.tsx  (server component)
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
 import { StatCard, SplitStat } from "@/components/admin/StatCard";
@@ -17,12 +16,15 @@ export default async function AdminDashboardPage() {
     .sort({ createdAt: -1 })
     .lean();
 
-  // Fully serialize — convert every ObjectId / Date to a plain string
   const registrations = raw.map((r) => ({
     _id: r._id.toString(),
     name: r.name,
     email: r.email,
     ticketType: r.ticketType,
+    // ── status fields ──────────────────────────────────────────────────────
+    status: r.status ?? "pending",
+    declineReason: r.declineReason ?? null,
+    // ── mesh ───────────────────────────────────────────────────────────────
     meshSelection: r.meshSelection
       ? { name: (r.meshSelection as unknown as { name: string }).name }
       : null,
@@ -36,20 +38,33 @@ export default async function AdminDashboardPage() {
       size: m.size,
       inscriptions: m.inscriptions,
     })),
-    // Serialize ObjectId arrays → string arrays
     foodSelections: (r.foodSelections ?? []).map((id: unknown) =>
       typeof id === "object" && id !== null && "toString" in id
         ? (id as { toString(): string }).toString()
         : String(id)
     ),
-    drinkSelection: r.drinkSelection
-      ? r.drinkSelection.toString()
-      : null,
+    drinkSelection: r.drinkSelection ? r.drinkSelection.toString() : null,
+    // ── payment ────────────────────────────────────────────────────────────
     paymentStatus: r.paymentStatus,
     paymentMethod: r.paymentMethod ?? null,
     paymentReceiptUrl: r.paymentReceiptUrl ?? null,
     paystackReference: r.paystackReference ?? null,
     totalAmount: r.totalAmount ?? 0,
+    // ── AI verification ────────────────────────────────────────────────────
+    aiVerificationResult: r.aiVerificationResult
+      ? {
+          verified: r.aiVerificationResult.verified,
+          confidence: r.aiVerificationResult.confidence,
+          extractedAmount: r.aiVerificationResult.extractedAmount ?? null,
+          extractedBank: r.aiVerificationResult.extractedBank ?? null,
+          extractedAccountName: r.aiVerificationResult.extractedAccountName ?? null,
+          reason: r.aiVerificationResult.reason ?? null,
+          verifiedAt: r.aiVerificationResult.verifiedAt
+            ? r.aiVerificationResult.verifiedAt.toISOString()
+            : null,
+        }
+      : null,
+    // ── timestamps ─────────────────────────────────────────────────────────
     createdAt: r.createdAt ? r.createdAt.toISOString() : null,
     updatedAt: r.updatedAt ? r.updatedAt.toISOString() : null,
   }));
@@ -71,7 +86,6 @@ export default async function AdminDashboardPage() {
 
   const singleTickets = registrations.filter((r) => r.ticketType === "single").length;
   const coupleTickets = registrations.filter((r) => r.ticketType === "couple").length;
-
   const successfulPayments = paidRegistrations.length;
   const pendingPayments = registrations.length - successfulPayments;
 
@@ -90,7 +104,6 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-10 pb-20">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
@@ -103,27 +116,23 @@ export default async function AdminDashboardPage() {
         <DownloadButton registrations={registrationsForPDF} />
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard label="Total Revenue" accentColor="bg-amber-500/5 border-amber-500/10">
           <p className="text-2xl md:text-3xl font-black text-amber-500">
             ₦{totalRevenue.toLocaleString()}
           </p>
         </StatCard>
-
         <StatCard label="Total Attendees" accentColor="bg-emerald-500/5 border-emerald-500/10">
           <p className="text-2xl md:text-3xl font-black text-emerald-400">
             {totalAttendees}
           </p>
         </StatCard>
-
         <StatCard label="Ticket Types" accentColor="bg-blue-500/5 border-blue-500/10">
           <SplitStat
             left={{ value: singleTickets, label: "Singles" }}
             right={{ value: coupleTickets, label: "Couples" }}
           />
         </StatCard>
-
         <StatCard label="Payment Status" accentColor="bg-purple-500/5 border-purple-500/10">
           <SplitStat
             left={{ value: successfulPayments, label: "Paid", className: "text-emerald-400" }}
@@ -132,7 +141,6 @@ export default async function AdminDashboardPage() {
         </StatCard>
       </div>
 
-      {/* Table */}
       <div className="bg-card/40 border border-border rounded-3xl p-1 md:p-6 transition-colors">
         <RecentRegistrations registrations={registrations} />
       </div>

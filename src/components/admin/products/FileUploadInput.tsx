@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Upload, X, Loader2 } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
+import { AnimatedDecline, AnimatedSpinner } from "@/components/ui/Boop";
 
 interface FileUploadInputProps {
   kind: "image" | "model";
@@ -103,7 +104,9 @@ export function FileUploadInput({
             onClick={() => onChange("")}
             className="p-3 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 border border-neutral-700 rounded-lg transition-all"
           >
-            <X size={15} />
+            <AnimatedDecline>
+              <X size={15} />
+            </AnimatedDecline>
           </button>
         )}
       </div>
@@ -125,7 +128,7 @@ export function FileUploadInput({
         >
           {isUploading ? (
             <>
-              <Loader2 size={13} className="animate-spin" /> Uploading…
+              <AnimatedSpinner size={14} /> Uploading…
             </>
           ) : (
             <>
@@ -138,7 +141,9 @@ export function FileUploadInput({
 
       {uploadError && (
         <p className="text-xs text-red-400 flex items-center gap-1">
-          <X size={11} /> {uploadError}
+          <AnimatedDecline>
+          <X size={11} />
+          </AnimatedDecline> {uploadError}
         </p>
       )}
     </div>

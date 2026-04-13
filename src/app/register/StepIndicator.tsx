@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Check } from "lucide-react";
+import { AnimatedCheck } from "@/components/ui/Boop";
 
 const LABELS = ["Details", "Merch", "Food & Drink", "Review"];
 
@@ -41,7 +42,7 @@ export default function StepIndicator({ current }: StepIndicatorProps) {
                     : "bg-muted text-muted-foreground ring-transparent border border-border"
                 }`}
               >
-                {state === "done" ? <Check size={18} strokeWidth={3} /> : step}
+                {state === "done" ? <AnimatedCheck><Check size={18} strokeWidth={3} /></AnimatedCheck> : step}
               </div>
               <span className={`text-[10px] uppercase font-black tracking-widest transition-colors duration-300 ${
                 state === "active" ? "text-amber-600 dark:text-amber-500" : "text-muted-foreground/50"

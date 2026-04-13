@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { AnimatedChevron } from "./ui/Boop";
 
 interface ToggleProps {
   label?: string;
@@ -19,10 +20,13 @@ export function Toggle({ label = "Show details", children }: ToggleProps) {
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-accent transition-colors"
       >
         {open ? `Hide ${label.replace("Show ", "")}` : label}
+        <AnimatedChevron direction="down">
         <ChevronDown
           size={14}
           className={`text-muted-foreground transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
+
+        </AnimatedChevron>
       </button>
 
       <div

@@ -1,4 +1,5 @@
 import { Loader2, AlertTriangle } from "lucide-react";
+import { AnimatedAlert, AnimatedSpinner } from "../ui/Boop";
 
 interface ConfirmModalProps {
   isPaying: boolean;
@@ -17,7 +18,9 @@ export function ConfirmModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md transition-all duration-300">
       <div className="bg-card border border-border rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+        <AnimatedAlert>
           <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-500" />
+        </AnimatedAlert>
         </div>
 
         <h3 className="text-2xl font-bold text-foreground mb-2 tracking-tight">Important Notice</h3>
@@ -58,7 +61,7 @@ export function ConfirmModal({
             className="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-amber-950 font-black uppercase text-[11px] tracking-widest rounded-xl flex justify-center items-center transition-all disabled:opacity-50 shadow-lg shadow-amber-500/15"
           >
             {isPaying ? (
-              <Loader2 className="animate-spin h-5 w-5 text-amber-950" />
+              <AnimatedSpinner size={14} />
             ) : (
               paymentMethod === "transfer" ? "Submit for Approval" : "Continue to Pay"
             )}

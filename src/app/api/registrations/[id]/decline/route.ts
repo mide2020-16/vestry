@@ -48,6 +48,7 @@ export async function PATCH(
     reg.paymentStatus = false;
     reg.paymentReceiptUrl = undefined; // Force a re-upload
     reg.declineReason = reason.trim();
+    reg.aiVerificationResult = undefined;
     await reg.save();
 
     // 3. Notify user

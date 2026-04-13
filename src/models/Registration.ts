@@ -30,7 +30,17 @@ export interface IRegistration extends Document {
   paymentMethod: "paystack" | "transfer";
   paymentReceiptUrl?: string;
   paystackReference?: string;
-  totalAmount: number;
+  totalAmount: number;aiVerificationResult?: {
+    verified: boolean;
+    confidence: "high" | "medium" | "low";
+    extractedAmount?: number;
+    extractedBank?: string;
+    extractedAccountName?: string;
+    reason?: string;
+    verifiedAt?: Date;
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const RegistrationSchema: Schema = new Schema(
@@ -75,6 +85,15 @@ const RegistrationSchema: Schema = new Schema(
     declineReason: { type: String },
     paystackReference: { type: String, unique: true, sparse: true },
     totalAmount: { type: Number, required: true, default: 0 },
+    aiVerificationResult: {
+      verified: { type: Boolean },
+      confidence: { type: String, enum: ["high", "medium", "low"] },
+      extractedAmount: { type: Number },
+      extractedBank: { type: String },
+      extractedAccountName: { type: String },
+      reason: { type: String },
+      verifiedAt: { type: Date },
+    },
   },
   { timestamps: true, index: { createdAt: -1 } },
 );

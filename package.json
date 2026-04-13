@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@paystack/inline-js": "^2.22.8",
     "@react-pdf/renderer": "^4.3.2",
     "@react-three/drei": "^10.7.7",

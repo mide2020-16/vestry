@@ -10,6 +10,7 @@ import { ReceiptCard } from "@/components/success/ReceiptCard";
 import { PushPermissionButton } from "@/components/success/PushPermissionButton";
 import QRCode from "qrcode";
 import type { Registration } from "@/types/receipt.types";
+import { AnimatedAlert, AnimatedCheck, AnimatedDecline, AnimatedSpinner } from "@/components/ui/Boop";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -83,7 +84,7 @@ function SuccessContent() {
   if (isLoading)
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-        <Loader2 className="animate-spin h-9 w-9 text-emerald-500" />
+        <AnimatedSpinner size={14} />
         <p className="text-muted-foreground text-sm font-medium">Confirming your payment…</p>
       </div>
     );
@@ -92,7 +93,9 @@ function SuccessContent() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 p-6">
         <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
-          <XCircle className="w-8 h-8 text-red-400" />
+          <AnimatedDecline>
+            <XCircle className="w-8 h-8 text-red-400" />
+          </AnimatedDecline>
         </div>
         <div className="text-center">
           <p className="text-foreground font-bold">Something went wrong</p>
@@ -125,7 +128,9 @@ function SuccessContent() {
           {registration.status === "declined" ? (
              <>
                <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border-2 border-red-500/30 shadow-[0_0_32px_rgba(239,68,68,0.1)]">
+               <AnimatedAlert>
                  <AlertTriangle className="w-8 h-8 text-red-500" />
+               </AnimatedAlert>
                </div>
                <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
                  Payment <span className="text-red-500">Rejected</span>
@@ -143,7 +148,7 @@ function SuccessContent() {
           ) : (registration.paymentMethod === "transfer" && !registration.paymentStatus) ? (
             <>
               <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center border-2 border-amber-500/30 shadow-[0_0_32px_rgba(245,158,11,0.1)]">
-                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <AnimatedSpinner size={14} />
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
                 Pending <span className="text-amber-500">Approval</span> ⏳
@@ -155,7 +160,7 @@ function SuccessContent() {
           ) : (
             <>
               <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center border-2 border-emerald-500/30 shadow-[0_0_32px_rgba(16,185,129,0.1)]">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                <AnimatedCheck><CheckCircle2 className="w-8 h-8 text-emerald-500" /></AnimatedCheck>
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
                 You&apos;re <span className="text-emerald-500">In!</span> 🎉
@@ -226,7 +231,7 @@ function SuccessContent() {
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="animate-spin w-4 h-4" /> Generating…
+                        <AnimatedSpinner size={14} /> Generating…
                       </>
                     ) : (
                       <>
@@ -261,7 +266,7 @@ export default function SuccessPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-background flex items-center justify-center">
-          <Loader2 className="animate-spin h-7 w-7 text-emerald-500" />
+          <AnimatedSpinner size={14} className="animate-spin h-7 w-7 text-emerald-500" />
         </div>
       }
     >

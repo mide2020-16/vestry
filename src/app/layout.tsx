@@ -11,6 +11,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://vestry-beta.vercel.app'),
   title: "Vestry | MFMCF FUNAAB",
   description: "Register for the Vestry Event",
   manifest: "/manifest.webmanifest",

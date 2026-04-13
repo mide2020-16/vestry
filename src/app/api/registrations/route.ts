@@ -150,8 +150,8 @@ export async function POST(request: Request) {
       totalAmount,
       paystackReference,
       paymentStatus: false,
-      status: "pending", // Reset status to pending when updating/creating
-      declineReason: undefined, // Clear any previous decline reason
+      status: "pending",
+      declineReason: undefined, 
       paymentMethod: paymentMethod === "transfer" ? "transfer" : "paystack",
       paymentReceiptUrl: typeof paymentReceiptUrl === "string" ? paymentReceiptUrl : undefined,
     };
@@ -173,9 +173,25 @@ export async function POST(request: Request) {
       registration = await Registration.create(regData);
     }
 
-    if (registration.paymentMethod === "transfer") {
-      // Don't await email, let it run in background so response is furious fast
+if (registration.paymentMethod === "transfer") {
       sendAdminTransferNotification(registration).catch(console.error);
+
+      if (registration.paymentReceiptUrl) {
+        // Works both locally (APP_URL=http://localhost:3000) and on Vercel
+        const appUrl =
+          process.env.APP_URL ||
+          process.env.NEXT_PUBLIC_APP_URL ||
+          "https://localhost:3000";
+
+        fetch(
+          `${appUrl}/api/registrations/${registration._id}/approve`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ trigger: "ai" }),
+          }
+        ).catch((err) => console.error("[ai-verify] Trigger failed:", err));
+      }
     }
 
     return NextResponse.json(

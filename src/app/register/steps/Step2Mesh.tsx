@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import dynamic from "next/dynamic";
@@ -10,6 +11,7 @@ import SizePicker from "@/components/register/steps/step2/SizePicker";
 import GridCard from "@/components/register/steps/step2/GridCard";
 import SidebarList from "@/components/register/steps/step2/SidebarList";
 import InscriptionPicker from "@/components/register/steps/step2/InscriptionPicker";
+import { AnimatedChevron } from "@/components/ui/Boop";
 
 const MeshViewer = dynamic(() => import("@/components/MeshViewer"), {
   ssr: false,
@@ -150,7 +152,14 @@ export default function Step2Mesh({
               onClick={(e) => toggleCollapse(item.productId, e)}
               className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all"
             >
-              {isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+              {isCollapsed ? 
+              <AnimatedChevron direction="down">
+                <ChevronDown size={18} />
+              </AnimatedChevron>
+              : 
+              <AnimatedChevron direction='up'>
+                <ChevronUp size={18} />
+              </AnimatedChevron>}
             </button>
           </div>
         </div>

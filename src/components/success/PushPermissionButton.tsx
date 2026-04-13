@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { subscribeUser } from "@/app/actions";
 import { Bell, BellRing, Loader2 } from "lucide-react";
+import { AnimatedSpinner } from "../ui/Boop";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -77,7 +78,7 @@ export function PushPermissionButton() {
       }`}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+        <AnimatedSpinner size={14} />
       ) : isSubscribed ? (
         <BellRing className="w-4 h-4" />
       ) : (
