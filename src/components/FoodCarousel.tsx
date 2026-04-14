@@ -198,6 +198,7 @@ export default function FoodCarousel({
       {/* Prev / Next + dots */}
       <div className="flex items-center gap-4 -mt-1">
         <button
+          title='left'
           type="button"
           onClick={() => goTo(activeIndex - 1)}
           disabled={activeIndex === 0}
@@ -222,6 +223,7 @@ export default function FoodCarousel({
         </div>
 
         <button
+          title='right'
           type="button"
           onClick={() => goTo(activeIndex + 1)}
           disabled={activeIndex === available.length - 1}

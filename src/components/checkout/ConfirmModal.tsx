@@ -1,4 +1,4 @@
-import { Loader2, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { AnimatedAlert, AnimatedSpinner } from "../ui/Boop";
 
 interface ConfirmModalProps {
@@ -37,10 +37,7 @@ export function ConfirmModal({
               <strong className="text-amber-600 dark:text-amber-400">
                 Do not refresh or close the page
               </strong>{" "}
-              while processing your payment. {" "}
-              <strong className="text-amber-600 dark:text-amber-400 animate-pulse">
-                Ensure you click on &apos;Enable Push Notifications&apos; to get email notification
-              </strong>
+              while processing your payment.
             </>
           )}
         </p>

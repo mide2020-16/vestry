@@ -5,7 +5,7 @@ import { OrderData } from "@/types/checkout.types";
 import { useUploadThing } from "@/lib/uploadthing";
 import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck, Upload, Loader2 } from "lucide-react";
 import { formatNaira } from "@/lib/utils/format";
-import { Interactive, AnimatedUpload, AnimatedSpinner, AnimatedCopy, AnimatedTrash, AnimatedSmartphone, AnimatedLandmark, AnimatedCheck } from "@/components/ui/Boop";
+import { Interactive, AnimatedUpload, AnimatedSpinner, AnimatedCopy, AnimatedTrash, AnimatedSmartphone, AnimatedLandmark, AnimatedCheck, AnimatedFileText } from "@/components/ui/Boop";
 import Image from "next/image";
 
 interface OrderSummaryProps {
@@ -331,7 +331,7 @@ export function OrderSummary({
           <h2 className="text-foreground font-bold uppercase tracking-widest text-[11px]">Payment Method</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="payment-selection">
           {(!order.paystackEnabled && !order.bankTransferEnabled) ? (
             <div className="col-span-full bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-3 animate-pulse">
               <Smartphone size={20} />
@@ -412,7 +412,9 @@ export function OrderSummary({
               <div className="w-1 h-1 bg-amber-500 rounded-full" />
               Upload Payment Receipt
             </h3>
-            <ReceiptUploader receiptUrl={receiptUrl} setReceiptUrl={setReceiptUrl} />
+            <div data-tour="receipt-uploader">
+        <ReceiptUploader receiptUrl={receiptUrl} setReceiptUrl={setReceiptUrl} />
+      </div>
             <p className="text-[10px] text-muted-foreground mt-4 italic text-center">Your order will be confirmed after admin verification.</p>
           </div>
         </div>

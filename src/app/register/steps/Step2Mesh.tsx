@@ -237,11 +237,13 @@ export default function Step2Mesh({
                 </button>
               </div>
             </div>
-            <InscriptionPicker
-              inscriptions={product.inscriptions || []}
-              selected={item.inscriptions || null}
-              onSelect={(i) => updateMerch(item.productId, { inscriptions: i })}
-            />
+            <div data-tour="inscriptions">
+              <InscriptionPicker
+                inscriptions={product.inscriptions || []}
+                selected={item.inscriptions || null}
+                onSelect={(i) => updateMerch(item.productId, { inscriptions: i })}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -303,7 +305,7 @@ export default function Step2Mesh({
           <div className="flex-1 h-px bg-border/50" />
         </div>
         
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tour="mesh-customization">
           {meshes.map((m) => {
             const isSelected = selectedMerch.some((item) => item.productId === m._id);
             return (

@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
       <div className="max-w-xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-2 flex flex-col items-center">
+        <div className="text-center mb-2 flex flex-col items-center" data-tour="welcome">
           <div className="w-full mb-2">
             <OutlineTitle text={eventName.toUpperCase()} />
           </div>

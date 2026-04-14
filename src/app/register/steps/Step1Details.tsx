@@ -177,7 +177,7 @@ export default function Step1Details({
         <p className="text-amber-600 dark:text-amber-400/80 text-[10px] font-semibold uppercase tracking-[0.2em] mb-3">
           Ticket Type
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" data-tour="ticket-type">
           {(["single", "couple"] as const).map((type) => (
             <TicketCard
               key={type}

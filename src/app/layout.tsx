@@ -3,6 +3,8 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationAutoPrompt } from "@/components/NotificationAutoPrompt";
+import { TourProvider } from "@/components/providers/TourProvider";
+import { AppTour, TourHelpButton } from "@/components/ui/AppTour";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -68,9 +70,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ThemeToggle />
-          {children}
-          <NotificationAutoPrompt />
+          <TourProvider>
+            <ThemeToggle />
+            {children}
+            <AppTour />
+            <TourHelpButton />
+            <NotificationAutoPrompt />
+          </TourProvider>
         </ThemeProvider>
         <Analytics />
       </body>
