@@ -65,9 +65,7 @@ export function PushNotificationManager() {
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          VAPID_KEY,
-        ) as Uint8Array<ArrayBuffer>,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_KEY) as BufferSource,
       });
       setSubscription(sub);
       await subscribeUser(JSON.parse(JSON.stringify(sub)));
