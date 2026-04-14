@@ -34,10 +34,10 @@ async function verifyWithPaystack(reference: string) {
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
 
     const registration = await Registration.findById(id);
