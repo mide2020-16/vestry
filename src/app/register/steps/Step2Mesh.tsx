@@ -305,7 +305,7 @@ export default function Step2Mesh({
           <div className="flex-1 h-px bg-border/50" />
         </div>
         
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tour="mesh-customization">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tour="merch-customization">
           {meshes.map((m) => {
             const isSelected = selectedMerch.some((item) => item.productId === m._id);
             return (
