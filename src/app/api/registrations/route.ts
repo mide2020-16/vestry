@@ -116,7 +116,14 @@ export async function POST(request: Request) {
     }
     if (!isValidTicketType(registrationTicketType)) {
       return NextResponse.json(
-        { success: false, error: 'Ticket type must be "single" or "couple"' },
+        { success: false, error: 'Ticket type must be "single", "couple" or "none"' },
+        { status: 400 },
+      );
+    }
+    
+    if (registrationTicketType === 'couple' && (!partnerName || typeof partnerName !== 'string' || !partnerName.trim())) {
+      return NextResponse.json(
+        { success: false, error: "Partner name is required for couple tickets" },
         { status: 400 },
       );
     }
@@ -183,14 +190,31 @@ if (registration.paymentMethod === "transfer") {
           process.env.NEXT_PUBLIC_APP_URL ||
           "https://localhost:3000";
 
-        fetch(
-          `${appUrl}/api/registrations/${registration._id}/approve`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ trigger: "ai" }),
-          }
-        ).catch((err) => console.error("[ai-verify] Trigger failed:", err));
+        // Delay AI trigger by 3s to avoid rapid rate-limit hits when
+        // multiple registrations arrive at the same time
+        console.log(`[ai-trigger] Scheduling AI verification for ${registration._id} in 3 seconds...`);
+        setTimeout(() => {
+          console.log(`[ai-trigger] Firing AI verification for ${registration._id}`);
+          fetch(
+            `${appUrl}/api/registrations/${registration._id}/approve`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ trigger: "ai" }),
+            }
+          )
+            .then(async (res) => {
+              const data = await res.json().catch(() => ({}));
+              console.log(`[ai-trigger] AI verification response for ${registration._id}:`, {
+                status: res.status,
+                autoApproved: data.autoApproved ?? "N/A",
+                message: data.message ?? data.error ?? "No message",
+              });
+            })
+            .catch((err) => {
+              console.error(`[ai-trigger] AI verification failed for ${registration._id}:`, err.message);
+            });
+        }, 3000);
       }
     }
 

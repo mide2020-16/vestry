@@ -54,11 +54,11 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors">
       {/* Layered ambient glows */}
       <div className="absolute inset-0 pointer-events-none -z-10">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/8 rounded-full blur-[140px]" />
-        <div className="absolute top-1/3 left-1/3 w-75 h-75 bg-amber-400/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/3 right-1/3 w-62 h-62 bg-orange-600/5 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/5 dark:bg-amber-500/8 rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 left-1/3 w-75 h-75 bg-amber-400/3 dark:bg-amber-400/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/3 right-1/3 w-62 h-62 bg-orange-600/3 dark:bg-orange-600/5 rounded-full blur-[100px]" />
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]"
           style={{
             backgroundImage: `linear-gradient(rgba(251,191,36,0.5) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(251,191,36,0.5) 1px, transparent 1px)`,
@@ -80,8 +80,7 @@ export default function Home() {
         <h1
           className="text-6xl md:text-8xl font-black text-transparent leading-none tracking-tighter"
           style={{
-            backgroundImage:
-              "linear-gradient(135deg, #fef3c7 0%, #fbbf24 40%, #d97706 80%, #92400e 100%)",
+            backgroundImage: "var(--hero-gradient)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}

@@ -109,12 +109,12 @@ function TicketCard({
       <p
         className={`font-bold capitalize text-base ${isSelected ? "text-amber-600 dark:text-amber-400" : "text-foreground/80"}`}
       >
-        {type}
+        {type === "none" ? "No Ticket" : type}
       </p>
       <p
         className={`text-sm mt-0.5 ${isSelected ? "text-amber-500/60 dark:text-amber-400/60" : "text-muted-foreground/60"}`}
       >
-        ₦{price?.toLocaleString() ?? "—"}
+        {type === "none" ? "Excluded" : `₦${price?.toLocaleString() ?? "—"}`}
       </p>
       {type === "couple" && savings && savings > 0 && (
         <span className="mt-2 inline-block text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
@@ -185,7 +185,7 @@ export default function Step1Details({
               price={type === "couple" ? couplePrice : singlePrice}
               savings={savings}
               isSelected={ticketType === type}
-              onSelect={() => setTicketType(type)}
+              onSelect={() => setTicketType(ticketType === type ? "none" : type)}
             />
           ))}
         </div>

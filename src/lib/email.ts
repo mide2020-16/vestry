@@ -116,3 +116,44 @@ export const sendUserDeclineNotification = async (registration: any) => {
     console.error("Failed to send decline email:", err);
   }
 };
+
+export const sendUserAbandonedNotification = async (registration: any) => {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn("SMTP credentials missing. User notification skipped.");
+    return;
+  }
+  
+  const retryUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/register`;
+
+  const mailOptions = {
+    from: `"Vestry Events" <${process.env.SMTP_USER}>`,
+    to: registration.email,
+    subject: `Your Registration: Incomplete Transaction 🏮`,
+    html: `
+      <h2>Transaction Discontinued</h2>
+      <p>Hello ${registration.name},</p>
+      <p>We noticed an incomplete registration attempt for the Vestry Event under your email.</p>
+      
+      <div style="margin: 16px 0; padding: 16px; background-color: #F3F4F6; border-left: 4px solid #6B7280; color: #374151; border-radius: 8px;">
+        <strong>Status:</strong> Abandoned / Discontinued Midway<br />
+        <strong>Payment Method:</strong> ${registration.paymentMethod === "paystack" ? "Online Payment (Paystack)" : "Bank Transfer"}
+      </div>
+
+      <p>This usually happens if the payment window was closed before completion, the transaction timed out, or there was a momentary network interruption.</p>
+      
+      <p><strong>To ensure your spot is secured,</strong> we have cleared this pending attempt so you can try again fresh. Your early registration is important to us!</p>
+      
+      <a href="${retryUrl}" style="display:inline-block;padding:12px 24px;background-color:#F59E0B;color:#000;text-decoration:none;font-weight:bold;border-radius:8px;margin-top:10px;">Start New Registration</a>
+      <br /><br />
+      <p>If you encounter any issues, please reach out to our support team.</p>
+      <hr />
+      <p style="font-size: 12px; color: #666;">Vestry Automatic Notifications</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("Failed to send abandoned notification email:", err);
+  }
+};

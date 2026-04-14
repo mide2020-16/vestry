@@ -14,6 +14,7 @@ import {
   PanelRightIcon,
 } from "lucide-react";
 import { NavItem } from "../../components/admin/NavItem";
+import { Interactive, AnimatedChevron } from "@/components/ui/Boop";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -76,9 +77,13 @@ export default function AdminSidebar({ email }: Props) {
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
-              <PanelRightIcon size={20} />
+              <AnimatedChevron direction="right">
+                <PanelRightIcon size={20} />
+              </AnimatedChevron>
             ) : (
-              <PanelLeftIcon size={20} />
+              <AnimatedChevron direction="left">
+                <PanelLeftIcon size={20} />
+              </AnimatedChevron>
             )}
           </button>
         </header>
@@ -127,7 +132,9 @@ export default function AdminSidebar({ email }: Props) {
               hover:bg-red-600/10 hover:text-red-700 dark:hover:bg-red-500/15 dark:hover:text-red-300 transition-all duration-500 font-bold border border-red-500/10 hover:border-red-500/30
               ${collapsed ? "justify-center w-11 h-11" : "px-4 py-3.5 w-full"}`}
           >
-            <LogOut size={20} className="shrink-0" />
+            <Interactive>
+              <LogOut size={20} className="shrink-0" />
+            </Interactive>
             {!collapsed && (
               <span className="overflow-hidden w-auto opacity-100 transition-all duration-500 whitespace-nowrap uppercase text-[11px] tracking-widest">
                 Sign Out

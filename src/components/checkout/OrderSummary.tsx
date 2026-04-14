@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { OrderData } from "@/types/checkout.types";
-import { UploadDropzone } from "@/lib/uploadthing";
-import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck } from "lucide-react";
+import { useUploadThing } from "@/lib/uploadthing";
+import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck, Upload, Loader2 } from "lucide-react";
 import { formatNaira } from "@/lib/utils/format";
-import { Interactive } from "@/components/ui/Boop";
+import { Interactive, AnimatedUpload, AnimatedSpinner, AnimatedCopy, AnimatedTrash, AnimatedSmartphone, AnimatedLandmark, AnimatedCheck } from "@/components/ui/Boop";
 import Image from "next/image";
 
 interface OrderSummaryProps {
@@ -34,8 +34,142 @@ function CopyButton({ value }: { value: string }) {
       className="ml-2 p-1.5 rounded-lg text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 transition-all"
       title="Copy"
     >
-      {copied ? <Interactive><Check size={14} className="text-emerald-500" /></Interactive> : <Interactive><Copy size={14} /></Interactive>}
+      {copied ? <Interactive><Check size={14} className="text-emerald-500" /></Interactive> : <AnimatedCopy><Copy size={14} /></AnimatedCopy>}
     </button>
+  );
+}
+
+/* ── Auto-upload receipt component ─────────────────────────────────────── */
+
+function ReceiptUploader({
+  receiptUrl,
+  setReceiptUrl,
+}: {
+  receiptUrl: string | null;
+  setReceiptUrl: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const { startUpload } = useUploadThing("receiptUploader", {
+    onUploadBegin(fileName) {
+      console.log("[Receipt] upload begin:", fileName);
+    },
+    onUploadProgress(progress) {
+      console.log("[Receipt] progress:", progress, "%");
+    },
+    onClientUploadComplete(res) {
+      console.log("[Receipt] client upload complete:", res);
+    },
+    onUploadError(err) {
+      console.error("[Receipt] upload error:", {
+        message: err.message,
+        code: err.code,
+        data: err.data,
+      });
+    },
+  });
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log("[Receipt] file selected:", {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    });
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const res = await startUpload([file]);
+      if (!res?.[0]?.url) {
+        throw new Error("Upload failed, please try again");
+      }
+      console.log("[Receipt] success, url:", res[0].url);
+      setReceiptUrl(res[0].url);
+    } catch (err) {
+      console.error("[Receipt] caught error:", err);
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  if (receiptUrl) {
+    return (
+      <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm p-4 rounded-xl flex justify-between items-center shadow-inner">
+        <div className="flex items-center gap-2 font-semibold">
+          <Interactive><Check size={18} /></Interactive>
+          <span>Receipt Uploaded</span>
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setReceiptUrl("");
+          }}
+          className="p-2 hover:bg-emerald-500/20 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400 focus:outline-none"
+          title="Remove Receipt"
+        >
+          <AnimatedTrash><Trash2 size={16} /></AnimatedTrash>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={handleFile}
+      />
+      <button
+        type="button"
+        disabled={isUploading}
+        onClick={() => fileRef.current?.click()}
+        className="w-full flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed border-border hover:border-amber-500/50 bg-muted/30 hover:bg-amber-500/5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+      >
+        {isUploading ? (
+          <>
+            <AnimatedSpinner size={24} className="text-amber-500" />
+            <span className="text-sm font-bold text-amber-500">Uploading…</span>
+            <span className="text-[10px] text-muted-foreground">Please wait</span>
+          </>
+        ) : (
+          <>
+            <AnimatedUpload>
+              <Upload size={24} className="text-amber-500 group-hover:text-amber-400 transition-colors" />
+            </AnimatedUpload>
+            <span className="text-sm font-bold text-amber-600 dark:text-amber-500 group-hover:text-amber-400 transition-colors">
+              Click to upload receipt
+            </span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
+              JPG, PNG, PDF — max 4 MB
+            </span>
+          </>
+        )}
+      </button>
+
+      {uploadError && (
+        <div className="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+          <p className="text-xs text-red-400 font-medium">{uploadError}</p>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="text-xs font-bold text-red-400 hover:text-red-300 underline ml-2 shrink-0"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -75,7 +209,7 @@ export function OrderSummary({
       <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="flex items-center gap-3 mb-2">
-        <Interactive><ReceiptText className="text-amber-500" size={24} /></Interactive>
+        <AnimatedFileText><ReceiptText className="text-amber-500" size={24} /></AnimatedFileText>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">Order Summary</h1>
       </div>
       <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 border-b border-border pb-4">
@@ -106,7 +240,9 @@ export function OrderSummary({
 
         <div className="flex justify-between items-center text-sm p-4 rounded-xl bg-muted/50 border border-border shadow-sm">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🎟</span>
+            <Interactive>
+              <span className="text-xl">🎟</span>
+            </Interactive>
             <span className="text-foreground font-semibold">{order.ticketType === "single" ? "Single Ticket" : "Couple Ticket"}</span>
           </div>
           <span className="text-foreground font-bold tabular-nums">{formatNaira(order.ticketPrice)}</span>
@@ -117,7 +253,9 @@ export function OrderSummary({
             <div key={`${item.product._id}-${idx}`} className="flex flex-col md:flex-row md:justify-between md:items-start text-sm p-4 rounded-xl bg-muted/20 gap-3 border border-border/50 hover:bg-muted/40 transition-colors group">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">👕</span>
+                  <Interactive>
+                    <span className="text-lg">👕</span>
+                  </Interactive>
                   <span className="text-foreground font-bold">{item.product.name}</span>
                 </div>
                 {(item.color || item.size) && (
@@ -212,10 +350,10 @@ export function OrderSummary({
                   }`}
                 >
                   <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "paystack" ? "bg-amber-500 text-amber-950" : "bg-muted text-muted-foreground"}`}>
-                    <Interactive><Smartphone size={24} /></Interactive>
+                    <AnimatedSmartphone><Smartphone size={24} /></AnimatedSmartphone>
                   </div>
                   <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${paymentMethod === "paystack" ? "text-amber-600 dark:text-amber-500" : ""}`}>Online Payment</span>
-                  {paymentMethod === "paystack" && <div className="absolute top-2 right-2"><Interactive><ShieldCheck size={16} className="text-amber-500" /></Interactive></div>}
+                  {paymentMethod === "paystack" && <div className="absolute top-2 right-2"><AnimatedCheck><ShieldCheck size={16} className="text-amber-500" /></AnimatedCheck></div>}
                 </button>
               )}
 
@@ -230,10 +368,10 @@ export function OrderSummary({
                   }`}
                 >
                   <div className={`p-3 rounded-xl mb-3 transition-colors ${paymentMethod === "transfer" ? "bg-emerald-500 text-emerald-950" : "bg-muted text-muted-foreground"}`}>
-                    <Interactive><Landmark size={24} /></Interactive>
+                    <AnimatedLandmark><Landmark size={24} /></AnimatedLandmark>
                   </div>
                   <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${paymentMethod === "transfer" ? "text-emerald-600 dark:text-emerald-500" : ""}`}>Bank Transfer</span>
-                  {paymentMethod === "transfer" && <div className="absolute top-2 right-2"><Interactive><ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-500" /></Interactive></div>}
+                  {paymentMethod === "transfer" && <div className="absolute top-2 right-2"><AnimatedCheck><ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-500" /></AnimatedCheck></div>}
                 </button>
               )}
             </>
@@ -274,42 +412,7 @@ export function OrderSummary({
               <div className="w-1 h-1 bg-amber-500 rounded-full" />
               Upload Payment Receipt
             </h3>
-            {receiptUrl ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm p-4 rounded-xl flex justify-between items-center shadow-inner">
-                <div className="flex items-center gap-2 font-semibold">
-                  <Interactive><Check size={18} /></Interactive>
-                  <span>Receipt Uploaded</span>
-                </div>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setReceiptUrl("");
-                  }} 
-                  className="p-2 hover:bg-emerald-500/20 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400 focus:outline-none"
-                  title="Remove Receipt"
-                >
-                  <Interactive><Trash2 size={16} /></Interactive>
-                </button>
-              </div>
-            ) : (
-              <div className="bg-muted rounded-xl border-2 border-dashed border-border p-2 focus-within:border-amber-500/50 transition-colors">
-                <UploadDropzone
-                  endpoint="receiptUploader"
-                  onClientUploadComplete={(res) => {
-                    if (res && res.length > 0) setReceiptUrl(res[0].url);
-                  }}
-                  onUploadError={(error: Error) => {
-                    alert(`Error uploading receipt: ${error.message}`);
-                  }}
-                  appearance={{
-                    button: "bg-amber-500 hover:bg-amber-600 text-amber-950 font-black uppercase text-[10px] tracking-widest px-6 py-2 mt-4 transition-all rounded-lg",
-                    label: "text-amber-600 dark:text-amber-500 font-bold hover:text-amber-400 hover:scale-105 transition-all text-sm",
-                    container: "p-6",
-                    allowedContent: "text-[10px] text-muted-foreground uppercase opacity-40 font-black mt-2",
-                  }}
-                />
-              </div>
-            )}
+            <ReceiptUploader receiptUrl={receiptUrl} setReceiptUrl={setReceiptUrl} />
             <p className="text-[10px] text-muted-foreground mt-4 italic text-center">Your order will be confirmed after admin verification.</p>
           </div>
         </div>
@@ -330,8 +433,8 @@ export function OrderSummary({
             : `Complete Registration`}
       </button>
 
-      <div className="mt-6 flex items-center justify-center gap-4 opacity-30 grayscale saturate-0 pointer-events-none">
-        <Image fill src="/logo/paystack.png" alt="Secure by Paystack" className="h-4 dark:invert" />
+      <div className="mt-6 flex items-center justify-center gap-4 opacity-30 grayscale saturate-0 pointer-events-none relative h-4">
+        <Image width={80} height={16} src="/logo/paystack.png" alt="Secure by Paystack" className="h-4 w-auto dark:invert" />
         <span className="w-1 h-1 bg-muted-foreground rounded-full" />
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Secure Checkout</p>
       </div>
@@ -363,7 +466,7 @@ function CopyAllButton({ bankDetails }: { bankDetails: OrderData["bankDetails"] 
     >
       {copied
         ? <><Interactive><Check size={14} className="text-emerald-500" /></Interactive> <span>Copied to Clipboard</span></>
-        : <><Interactive><Copy size={14} /></Interactive> Copy All Bank Details</>}
+        : <><AnimatedCopy><Copy size={14} /></AnimatedCopy> Copy All Bank Details</>}
     </button>
   );
 }

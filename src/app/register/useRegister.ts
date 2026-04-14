@@ -27,7 +27,7 @@ export interface Settings {
   meshSizes: string[];
 }
 
-export type TicketType = "single" | "couple";
+export type TicketType = "single" | "couple" | "none";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -206,10 +206,13 @@ export function useRegister() {
   );
 
   const isCouple = ticketType === "couple";
+  const isNone = ticketType === "none";
   const ticketPrice = settings
-    ? isCouple
-      ? settings.couplePrice
-      : settings.singlePrice
+    ? isNone
+      ? 0
+      : isCouple
+        ? settings.couplePrice
+        : settings.singlePrice
     : 0;
 
   const meshPrice = useMemo(() => {
@@ -227,7 +230,7 @@ export function useRegister() {
         return (
           !!name.trim() &&
           !!email.trim() &&
-          (ticketType === "single" || !!partnerName.trim())
+          (ticketType !== "couple" || !!partnerName.trim())
         );
       case 2:
         if (selectedMerch.length === 0) return true;
@@ -284,10 +287,22 @@ export function useRegister() {
 
   const handleNext = () => {
     if (step === 1) saveSession({ name, email });
-    if (step < TOTAL_STEPS) setStep((s) => s + 1);
+    const isNone = ticketType === "none";
+    if (step === 2 && isNone) {
+      setStep(4);
+    } else if (step < TOTAL_STEPS) {
+      setStep((s) => s + 1);
+    }
   };
 
-  const handleBack = () => setStep((s) => Math.max(1, s - 1));
+  const handleBack = () => {
+    const isNone = ticketType === "none";
+    if (step === 4 && isNone) {
+      setStep(2);
+    } else {
+      setStep((s) => Math.max(1, s - 1));
+    }
+  };
 
   const handleSubmit = () => {
     const params = buildCheckoutParams({

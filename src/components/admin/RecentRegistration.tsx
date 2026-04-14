@@ -5,13 +5,25 @@ import { useState } from "react";
 import {
   AlertCircle,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Trash2,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AnimatedAlert, AnimatedCheck, AnimatedChevron, AnimatedDecline, AnimatedExternalLink, AnimatedSpinner } from "../ui/Boop";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  AnimatedAlert, 
+  AnimatedCheck, 
+  AnimatedChevron, 
+  AnimatedDecline, 
+  AnimatedExternalLink, 
+  AnimatedSpinner, 
+  Interactive,
+  AnimatedTrash
+} from "../ui/Boop";
 
 interface Registration {
   _id: { toString(): string };
@@ -88,14 +100,115 @@ function formatDate(iso: string | null | undefined): string {
   }).format(new Date(iso));
 }
 
+function AIVerificationBadge({
+  result,
+  status,
+}: {
+  result: Registration["aiVerificationResult"];
+  status?: string;
+}) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  if (!result || status === "declined") return null;
+
+  const isVerified = result.verified;
+
+  return (
+    <div
+      className="relative flex items-center cursor-help"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+      onClick={() => setShowTooltip(!showTooltip)}
+    >
+      <div className={isVerified ? "text-emerald-500" : "text-red-500"}>
+        <AnimatedAlert>
+          {isVerified ? (
+            <CheckCircle2 className="w-4 h-4" />
+          ) : (
+            <AlertCircle className="w-4 h-4" />
+          )}
+        </AnimatedAlert>
+      </div>
+
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 w-64 p-4 rounded-2xl bg-card border border-border shadow-2xl backdrop-blur-xl"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              {isVerified ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-red-500" />
+              )}
+              <span
+                className={`text-[10px] font-black uppercase tracking-widest ${
+                  isVerified ? "text-emerald-500" : "text-red-500"
+                }`}
+              >
+                AI Verification {isVerified ? "Success" : "Failed"}
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed italic">
+              {result.reason ||
+                (isVerified
+                  ? "All payment criteria met and verified by Gemini AI."
+                  : "Unknown verification error.")}
+            </p>
+            {/* Arrow */}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2 h-2 bg-card border-r border-b border-border rotate-45" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function RecentRegistrations({
   registrations: initialRegistrations,
 }: RecentRegistrationsProps) {
   const [registrations, setRegistrations] = useState(initialRegistrations);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [decliningId, setDecliningId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const router = useRouter();
+
+  const handleDelete = async (id: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to remove this registration? The user will be notified via email about the incomplete transaction."
+      )
+    )
+      return;
+
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/registrations/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (data.success) {
+        setRegistrations((prev) => {
+          const next = prev.filter((r) => r._id.toString() !== id);
+          // If we just deleted the last item on the current page, and we're not on the first page, move back
+          const newTotalPages = Math.ceil(next.length / PAGE_SIZE);
+          if (page >= newTotalPages && page > 0) {
+            setPage(newTotalPages - 1);
+          }
+          return next;
+        });
+        router.refresh();
+      } else {
+        alert(data.error || "Failed to remove registration");
+      }
+    } catch (err) {
+      alert("Error removing registration");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const totalPages = Math.ceil(registrations.length / PAGE_SIZE);
   const start = page * PAGE_SIZE;
@@ -264,7 +377,15 @@ export function RecentRegistrations({
                       </td>
 
                       {/* Ticket type */}
-                      <td className="px-6 py-4 capitalize">{reg.ticketType}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-xs transition-colors ${
+                          reg.ticketType === "none"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/20"
+                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                        }`}>
+                          {reg.ticketType === "none" ? "🛍️ Merch Only" : reg.ticketType}
+                        </span>
+                      </td>
 
                       {/* Amount */}
                       <td className="px-6 py-4 font-mono">
@@ -319,19 +440,11 @@ export function RecentRegistrations({
                             )}
                           </div>
 
-                          {/* AI verification failure reason */}
-                          {reg.aiVerificationResult &&
-                            !reg.aiVerificationResult.verified &&
-                            reg.status !== "declined" && (
-                              <div className="flex items-start gap-1 text-[10px] text-amber-500/80 max-w-[200px]">
-                                <AnimatedAlert>
-                                  <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
-                                </AnimatedAlert>
-                                <span className="italic leading-tight">
-                                  AI: {reg.aiVerificationResult.reason}
-                                </span>
-                              </div>
-                            )}
+                          {/* Compact AI verification badge */}
+                          <AIVerificationBadge 
+                            result={reg.aiVerificationResult} 
+                            status={reg.status} 
+                          />
 
                           {/* Approve / Decline buttons */}
                           {isPendingTransfer && (
@@ -368,6 +481,24 @@ export function RecentRegistrations({
                               </button>
                             </div>
                           )}
+
+                          {reg.status === "pending" && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(id)}
+                              disabled={deletingId === id}
+                              className="p-1.5 text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all ml-auto"
+                              title="Remove abandoned registration"
+                            >
+                              {deletingId === id ? (
+                                <AnimatedSpinner size={14} />
+                              ) : (
+                                <AnimatedTrash>
+                                  <Trash2 size={16} />
+                                </AnimatedTrash>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -386,8 +517,9 @@ export function RecentRegistrations({
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <AnimatedChevron direction="left">
-                  <ChevronLeft size={16} /> Previous
+                  <ChevronLeft size={16} />
                 </AnimatedChevron>
+                Previous
               </button>
 
               <div className="flex items-center gap-1.5">

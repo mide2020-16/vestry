@@ -11,7 +11,7 @@ import SizePicker from "@/components/register/steps/step2/SizePicker";
 import GridCard from "@/components/register/steps/step2/GridCard";
 import SidebarList from "@/components/register/steps/step2/SidebarList";
 import InscriptionPicker from "@/components/register/steps/step2/InscriptionPicker";
-import { AnimatedChevron } from "@/components/ui/Boop";
+import { Interactive, AnimatedChevron, AnimatedTrash } from "@/components/ui/Boop";
 
 const MeshViewer = dynamic(() => import("@/components/MeshViewer"), {
   ssr: false,
@@ -144,7 +144,9 @@ export default function Step2Mesh({
               }}
               className="p-2 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
             >
-              <Trash2 size={16} />
+              <AnimatedTrash>
+                <Trash2 size={16} />
+              </AnimatedTrash>
             </button>
             <button
               type="button"
@@ -187,7 +189,10 @@ export default function Step2Mesh({
               </div>
             )}
             <div className="ml-auto flex items-center gap-1 text-[9px] text-muted-foreground uppercase tracking-widest font-black group-hover/config:text-amber-500/50 transition-colors">
-              <Maximize2 size={10} /> Click to expand
+              <Interactive>
+                <Maximize2 size={10} /> 
+              </Interactive>
+              Click to expand
             </div>
           </div>
         ) : (

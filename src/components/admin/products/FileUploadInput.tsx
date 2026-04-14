@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, RefreshCw } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
-import { AnimatedDecline, AnimatedSpinner } from "@/components/ui/Boop";
+import { AnimatedDecline, AnimatedSpinner, AnimatedUpload } from "@/components/ui/Boop";
 
 interface FileUploadInputProps {
   kind: "image" | "model";
@@ -70,18 +70,24 @@ export function FileUploadInput({
 
       if (!res?.[0]?.url) {
         console.error("[UploadThing] no URL in response:", res);
-        throw new Error("Upload failed, please try again");
+        throw new Error("Upload failed — no URL returned. Please try again.");
       }
 
       console.log("[UploadThing] success, url:", res[0].url);
       onChange(res[0].url);
     } catch (err) {
       console.error("[UploadThing] caught error:", err);
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      setUploadError(msg);
     } finally {
       setIsUploading(false);
       e.target.value = "";
     }
+  };
+
+  const handleRetry = () => {
+    setUploadError(null);
+    fileRef.current?.click();
   };
 
   return (
@@ -132,7 +138,7 @@ export function FileUploadInput({
             </>
           ) : (
             <>
-              <Upload size={13} /> Upload file
+              <AnimatedUpload><Upload size={13} /></AnimatedUpload> Upload file
             </>
           )}
         </button>
@@ -140,11 +146,21 @@ export function FileUploadInput({
       </div>
 
       {uploadError && (
-        <p className="text-xs text-red-400 flex items-center gap-1">
-          <AnimatedDecline>
-          <X size={11} />
-          </AnimatedDecline> {uploadError}
-        </p>
+        <div className="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+          <p className="text-xs text-red-400 flex items-center gap-1">
+            <AnimatedDecline>
+              <X size={11} />
+            </AnimatedDecline>
+            {uploadError}
+          </p>
+          <button
+            type="button"
+            onClick={handleRetry}
+            className="flex items-center gap-1 text-xs font-bold text-red-400 hover:text-red-300 ml-3 shrink-0"
+          >
+            <RefreshCw size={11} /> Retry
+          </button>
+        </div>
       )}
     </div>
   );

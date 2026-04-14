@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { ProductCategory } from "@/constants/ProductCategory";
 import { Product } from "@/app/register/useRegister";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatedCheck, AnimatedChevron } from "@/components/ui/Boop";
 
 interface FoodCarouselProps {
   items: Product[];
@@ -149,7 +150,9 @@ export default function FoodCarousel({
                     {isSelected && isCenter && (
                       <div className="absolute inset-0 bg-amber-400/15 flex items-center justify-center">
                         <span className="bg-amber-400 text-black rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
-                          <CheckIcon />
+                          <AnimatedCheck>
+                            <CheckIcon className="w-4 h-4" />
+                          </AnimatedCheck>
                         </span>
                       </div>
                     )}
@@ -200,7 +203,9 @@ export default function FoodCarousel({
           disabled={activeIndex === 0}
           className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-sm"
         >
-          ‹
+          <AnimatedChevron direction="left">
+            <ChevronLeft size={16} />
+          </AnimatedChevron>
         </button>
 
         <div className="flex gap-1.5">
@@ -222,7 +227,9 @@ export default function FoodCarousel({
           disabled={activeIndex === available.length - 1}
           className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-sm"
         >
-          ›
+          <AnimatedChevron direction="right">
+            <ChevronRight size={16} />
+          </AnimatedChevron>
         </button>
       </div>
     </div>

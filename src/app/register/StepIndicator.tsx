@@ -4,8 +4,6 @@ import React from "react";
 import { Check } from "lucide-react";
 import { AnimatedCheck } from "@/components/ui/Boop";
 
-const LABELS = ["Details", "Merch", "Food & Drink", "Review"];
-
 type StepState = "done" | "active" | "upcoming";
 
 function getStepState(step: number, current: number): StepState {
@@ -16,21 +14,37 @@ function getStepState(step: number, current: number): StepState {
 
 interface StepIndicatorProps {
   current: number;
+  ticketType: string;
 }
 
-export default function StepIndicator({ current }: StepIndicatorProps) {
+export default function StepIndicator({ current, ticketType }: StepIndicatorProps) {
+  const isNone = ticketType === "none";
+  
+  const steps = isNone
+    ? [
+        { label: "Details", index: 1 },
+        { label: "Merch", index: 2 },
+        { label: "Review", index: 4 },
+      ]
+    : [
+        { label: "Details", index: 1 },
+        { label: "Merch", index: 2 },
+        { label: "Food", index: 3 },
+        { label: "Review", index: 4 },
+      ];
+
   return (
     <nav
       aria-label="Registration steps"
       className="flex items-center justify-center gap-2 mb-12"
     >
-      {LABELS.map((label, i) => {
-        const step = i + 1;
-        const state = getStepState(step, current);
-        const isLast = i === LABELS.length - 1;
+      {steps.map((s, i) => {
+        const stepNumber = i + 1;
+        const state = getStepState(s.index, current);
+        const isLast = i === steps.length - 1;
 
         return (
-          <React.Fragment key={step}>
+          <React.Fragment key={s.index}>
             <div className="flex flex-col items-center gap-2 relative group">
               <div
                 aria-current={state === "active" ? "step" : undefined}
@@ -42,20 +56,32 @@ export default function StepIndicator({ current }: StepIndicatorProps) {
                     : "bg-muted text-muted-foreground ring-transparent border border-border"
                 }`}
               >
-                {state === "done" ? <AnimatedCheck><Check size={18} strokeWidth={3} /></AnimatedCheck> : step}
+                {state === "done" ? (
+                  <AnimatedCheck>
+                    <Check size={18} strokeWidth={3} />
+                  </AnimatedCheck>
+                ) : (
+                  stepNumber
+                )}
               </div>
-              <span className={`text-[10px] uppercase font-black tracking-widest transition-colors duration-300 ${
-                state === "active" ? "text-amber-600 dark:text-amber-500" : "text-muted-foreground/50"
-              }`}>
-                {label}
+              <span
+                className={`text-[10px] uppercase font-black tracking-widest transition-colors duration-300 ${
+                  state === "active"
+                    ? "text-amber-600 dark:text-amber-500"
+                    : "text-muted-foreground/50"
+                }`}
+              >
+                {s.label}
               </span>
             </div>
 
             {!isLast && (
               <div className="flex items-center px-2 pb-6">
-                <div className={`h-1 rounded-full transition-all duration-1000 ${
-                  state === "done" ? "w-10 bg-emerald-500" : "w-6 bg-border/50"
-                }`} />
+                <div
+                  className={`h-1 rounded-full transition-all duration-1000 ${
+                    state === "done" ? "w-10 bg-emerald-500" : "w-6 bg-border/50"
+                  }`}
+                />
               </div>
             )}
           </React.Fragment>

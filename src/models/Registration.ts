@@ -3,6 +3,7 @@ import "./Product";
 export enum TicketType {
   SINGLE = "single",
   COUPLE = "couple",
+  NONE = "none",
 }
 
 export interface IRegistration extends Document {

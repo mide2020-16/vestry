@@ -20,7 +20,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return output;
 }
 
-const VAPID_KEY = process.env.VAPID_PUBLIC_KEY;
+const VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

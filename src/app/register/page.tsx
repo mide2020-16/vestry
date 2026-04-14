@@ -30,7 +30,7 @@ export default function RegisterPage() {
           <p className="text-muted-foreground text-sm -mt-1">Register your spot</p>
         </div>
 
-        <StepIndicator current={r.step} />
+        <StepIndicator current={r.step} ticketType={r.ticketType} />
 
         {r.step === 1 && (
           <Step1Details

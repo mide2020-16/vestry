@@ -109,7 +109,12 @@ export default function Step4Review({
   const selectedDrink = drinks.find((d) => d._id === selectedDrinkId) ?? null;
   const hasFoodDrink = selectedFoods.length > 0 || selectedDrink !== null;
 
-  const ticketLabel = ticketType === "couple" ? "Couple Pass" : "Single Pass";
+  const ticketLabel = 
+    ticketType === "couple" 
+      ? "Couple Pass" 
+      : ticketType === "none" 
+        ? "No Ticket (Merch Only)" 
+        : "Single Pass";
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

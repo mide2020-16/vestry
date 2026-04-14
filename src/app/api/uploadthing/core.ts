@@ -6,10 +6,10 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   productImage: f({ image: { maxFileSize: "32MB", maxFileCount: 1 } })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       console.log("[UploadThing] middleware hit for productImage");
       try {
-        const session = await auth(req as any);
+        const session = await auth();
         console.log("[UploadThing] session:", session ? "found" : "null");
         if (!session) throw new Error("Unauthorized");
         return {};
@@ -24,10 +24,10 @@ export const ourFileRouter = {
     }),
 
   productModel: f({ blob: { maxFileSize: "1GB", maxFileCount: 1 } })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       console.log("[UploadThing] middleware hit for productModel");
       try {
-        const session = await auth(req as any);
+        const session = await auth();
         console.log("[UploadThing] session:", session ? "found" : "null");
         if (!session) throw new Error("Unauthorized");
         return {};

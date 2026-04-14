@@ -9,17 +9,19 @@ import dbConnect from "@/lib/dbConnect";
  * be called in server environments (API Routes, Server Actions, Server Components).
  */
 export async function calculateRegistrationTotal(
-  ticketType: "single" | "couple",
+  ticketType: "single" | "couple" | "none",
   merch: { productId: string; quantity: number }[] = []
 ): Promise<number> {
   await dbConnect();
 
   const settings = (await Settings.findOne().lean()) as any || {
-    couplePrice: 50000,
-    singlePrice: 30000,
+    couplePrice: 2500,
+    singlePrice: 1500,
   };
 
-  const basePrice = ticketType === "couple" ? settings.couplePrice : settings.singlePrice;
+  const basePrice = ticketType === "none"
+    ? 0
+    : (ticketType === "couple" ? settings.couplePrice : settings.singlePrice);
 
   let merchTotal = 0;
   if (Array.isArray(merch)) {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type LucideIcon } from "lucide-react";
+import { Interactive } from "@/components/ui/Boop";
 
 interface NavItemProps {
   href: string;
@@ -26,11 +27,13 @@ export function NavItem({
         ${collapsed ? "justify-center w-11 h-11 mx-auto" : "px-4 py-3.5 w-full"}
         ${isActive ? "bg-accent text-foreground shadow-sm" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
     >
-      <Icon
-        size={20}
-        className={`shrink-0 transition-all duration-500
-          ${isActive ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground/60 group-hover:text-foreground"}`}
-      />
+      <Interactive>
+        <Icon
+          size={20}
+          className={`shrink-0 transition-all duration-500
+            ${isActive ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground/60 group-hover:text-foreground"}`}
+        />
+      </Interactive>
 
       {!collapsed && (
         <span className="overflow-hidden w-auto opacity-100 transition-all duration-500 ease-in-out whitespace-nowrap">

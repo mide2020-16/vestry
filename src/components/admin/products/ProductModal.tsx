@@ -10,7 +10,7 @@ import {
 import { FileUploadInput } from "./FileUploadInput";
 import type { ProductForm } from "@/types/product.types";
 import Image from "next/image";
-import { AnimatedCheck, AnimatedDecline } from "@/components/ui/Boop";
+import { AnimatedCheck, AnimatedDecline, AnimatedPlus } from "@/components/ui/Boop";
 
 interface ProductModalProps {
   isEditing: boolean;
@@ -53,7 +53,7 @@ export function ProductModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 dark:bg-black/80 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -173,7 +173,7 @@ export function ProductModal({
           {activeCategory === ProductCategory.mesh && (
             <div className="space-y-3 pt-3 border-t border-border">
               <div>
-                <label className="block text-sm font-medium text-amber-400">
+                <label className="block text-sm font-medium text-amber-500">
                   Inscriptions
                 </label>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -200,7 +200,7 @@ export function ProductModal({
                   onClick={addInscription}
                   className="bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-3 rounded-lg font-bold transition-colors flex items-center gap-1 shrink-0"
                 >
-                  <Plus size={16} />
+                  <AnimatedPlus><Plus size={16} /></AnimatedPlus>
                 </button>
               </div>
 
@@ -249,7 +249,7 @@ export function ProductModal({
               className={`w-10 h-6 rounded-full transition-all relative shrink-0 ${form.available ? "bg-emerald-500" : "bg-muted"}`}
             >
               <span
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${form.available ? "left-5" : "left-1"}`}
+                className={`absolute top-1 w-4 h-4 rounded-full bg-background transition-all shadow-sm ${form.available ? "left-5" : "left-1"}`}
               />
             </button>
             <span className="text-sm text-foreground/80">

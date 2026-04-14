@@ -70,22 +70,26 @@ export default async function AdminDashboardPage() {
   }));
 
   const isPaid = (r: (typeof registrations)[number]) =>
-    r.paymentStatus === true || (r.paymentStatus as unknown) === "success";
+    r.status === "success" || r.paymentStatus === true || (r.paymentStatus as unknown) === "success";
+
+  const isWithTicket = (r: (typeof registrations)[number]) =>
+    r.ticketType !== "none";
 
   const paidRegistrations = registrations.filter(isPaid);
+  const fullyRegistered = registrations.filter(r => isPaid(r) && isWithTicket(r));
 
   const totalRevenue = paidRegistrations.reduce(
     (sum, r) => sum + (r.totalAmount || 0),
     0
   );
 
-  const totalAttendees = registrations.reduce(
+  const totalAttendees = fullyRegistered.reduce(
     (sum, r) => sum + (r.ticketType === "couple" ? 2 : 1),
     0
   );
 
-  const singleTickets = registrations.filter((r) => r.ticketType === "single").length;
-  const coupleTickets = registrations.filter((r) => r.ticketType === "couple").length;
+  const singleTickets = fullyRegistered.filter((r) => r.ticketType === "single").length;
+  const coupleTickets = fullyRegistered.filter((r) => r.ticketType === "couple").length;
   const successfulPayments = paidRegistrations.length;
   const pendingPayments = registrations.length - successfulPayments;
 

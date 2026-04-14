@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationAutoPrompt } from "@/components/NotificationAutoPrompt";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
         >
           <ThemeToggle />
           {children}
+          <NotificationAutoPrompt />
         </ThemeProvider>
         <Analytics />
       </body>

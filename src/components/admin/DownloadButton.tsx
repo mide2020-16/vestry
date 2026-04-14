@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { RegistrationPDF } from "./RegistrationPDF";
 import { FileText, Loader2 } from "lucide-react";
-import { AnimatedSpinner } from "../ui/Boop";
+import { AnimatedSpinner, AnimatedFileText } from "../ui/Boop";
 
 export interface RegistrationForPDF {
   _id: string;
@@ -62,7 +62,9 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
           {loading ? (
             <AnimatedSpinner size={14} />
           ) : (
-            <FileText className="h-4 w-4" />
+            <AnimatedFileText>
+              <FileText className="h-4 w-4" />
+            </AnimatedFileText>
           )}
           <span>
             {error
