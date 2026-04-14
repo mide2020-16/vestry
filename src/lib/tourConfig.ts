@@ -26,8 +26,8 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     id: "mesh-lab",
-    target: '[data-tour="mesh-customization"]',
-    title: "The Mesh Lab",
+    target: '[data-tour="merch-customization"]',
+    title: "The Merch Lab",
     content: "Pick your favorite color and the perfect size. Our premium mesh shirts are designed for comfort and style.",
     position: "top",
     path: "/register", // Note: This will be active when Step2Mesh is visible
