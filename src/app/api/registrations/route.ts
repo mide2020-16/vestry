@@ -168,7 +168,7 @@ export async function POST(request: Request) {
       registration = await Registration.findOneAndUpdate(
         { paystackReference: existingRef },
         regData,
-        { new: true }
+        { returnDocument: 'after' }
       );
       if (!registration) {
         return NextResponse.json(

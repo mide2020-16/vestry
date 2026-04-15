@@ -74,7 +74,7 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     const product = await Product.findByIdAndUpdate(
       id,
       { $set: body },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     ).lean();
 
     if (!product) return errorRes("Product not found", 404);

@@ -394,7 +394,7 @@ async function approveRegistration(id: string) {
   const registration = await Registration.findByIdAndUpdate(
     id,
     { paymentStatus: true, status: "success" },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!registration) return null;
   aiLog("info", `Registration ${id} approved — sending email to ${registration.email}`);
