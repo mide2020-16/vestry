@@ -46,7 +46,7 @@ export async function PUT(request: Request) {
           bankTransferEnabled: body.bankTransferEnabled === true,
         } 
       },
-      { returnDocument: 'after', upsert: true, runValidators: true },
+      { new: true, upsert: true, runValidators: true },
     ).lean();
 
     return NextResponse.json({ success: true, data: settings });
