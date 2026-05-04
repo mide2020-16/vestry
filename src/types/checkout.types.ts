@@ -1,4 +1,4 @@
-import { TicketType } from "@/app/register/useRegister";
+import { TicketType } from "@/app/event/[slug]/register/useRegister";
 
 export interface CheckoutProduct {
   _id: string;
@@ -25,7 +25,7 @@ export interface OrderData {
 
   // F&B Selections
   foods: CheckoutProduct[];
-  drink: CheckoutProduct | null;
+  drinks: CheckoutProduct[];
 
   // Financials
   ticketPrice: number;

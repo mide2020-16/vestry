@@ -1,4 +1,4 @@
-import { TOTAL_STEPS } from "@/app/register/useRegister";
+import { TOTAL_STEPS } from "@/app/event/[slug]/register/useRegister";
 
 interface NavigationButtonsProps {
   step: number;

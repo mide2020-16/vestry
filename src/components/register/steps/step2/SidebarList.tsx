@@ -1,6 +1,6 @@
 "use client";
 
-import { Product, TicketType } from "@/app/register/useRegister";
+import { Product, TicketType } from "@/app/event/[slug]/register/useRegister";
 import MiniCard from "./MiniCard";
 
 interface SidebarListProps {

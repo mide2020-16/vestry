@@ -2,8 +2,8 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Eye, EyeOff, Upload, X } from "lucide-react";
 import { AnimatedDecline } from "@/components/ui/Boop";
+import { Upload, X, Eye, EyeOff } from "lucide-react";
 
 /* ── Field wrapper ───────────────────────────────────────────────────────── */
 
@@ -40,30 +40,6 @@ export const inputCls = (accent: "amber" | "emerald" = "amber") =>
 
 /* ── Spinner ─────────────────────────────────────────────────────────────── */
 
-export function Spinner({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg
-      className={`animate-spin ${className}`}
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-        fill="none"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
 
 /* ── Logo upload / preview ───────────────────────────────────────────────── */
 
@@ -85,7 +61,7 @@ export function LogoField({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
       <div className="relative w-20 h-20 rounded-2xl border border-border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center shadow-inner group/logo">
         {logoUrl ? (
           <>
@@ -112,7 +88,7 @@ export function LogoField({
         )}
       </div>
 
-      <div className="flex-1 space-y-2">
+      <div className="flex-1 w-full space-y-2">
         <input
           ref={fileRef}
           type="file"

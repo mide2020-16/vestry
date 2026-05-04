@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
@@ -20,15 +21,15 @@ const TourContext = createContext<TourContextType | undefined>(undefined);
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const [isActive, setIsActive] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [hasSeenTour, setHasSeenTour] = useState(true); // Default to true until checked
+  const [hasSeenTour, setHasSeenTour] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
     const seen = localStorage.getItem("has-seen-vestry-tour");
     if (!seen) {
       setHasSeenTour(false);
-      // Auto-start tour on landing if never seen
-      if (pathname === "/register") {
+      // Auto-start on register or admin landing
+      if (pathname.endsWith("/register") || pathname === "/admin") {
         setIsActive(true);
       }
     }
@@ -59,21 +60,30 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentStepIndex]);
 
-  // Filter steps by current pathname
-  const visibleSteps = TOUR_STEPS.filter(
-    (step) => !step.path || step.path === pathname
-  );
-  
-  // Note: For multi-page tours, we might need more complex logic, 
-  // but for now we'll handle steps available on the current path.
   const currentStep = TOUR_STEPS[currentStepIndex] || null;
+
+  // Filter steps relevant to the current page to avoid showing wrong steps
+  const isCorrectPage = useCallback((step: TourStep) => {
+    if (!step.page) return true;
+    if (step.page === "register" && pathname.endsWith("/register")) return true;
+    if (step.page === "checkout" && pathname.endsWith("/checkout")) return true;
+    if (step.page === "admin-dashboard" && pathname === "/admin") return true;
+    if (step.page === "admin-events" && pathname === "/admin/events") return true;
+    if (step.page === "admin-users" && pathname === "/admin/users") return true;
+    if (step.page === "admin-settings" && pathname === "/admin/settings") return true;
+    return false;
+  }, [pathname]);
+
+  // If active step is not on this page, maybe we should auto-advance or just hide?
+  // For now, let's just ensure the current step is valid for the current page
+  const visibleStep = isActive && currentStep && isCorrectPage(currentStep) ? currentStep : null;
 
   return (
     <TourContext.Provider
       value={{
-        isActive,
+        isActive: isActive && !!visibleStep,
         currentStepIndex,
-        currentStep,
+        currentStep: visibleStep,
         startTour,
         stopTour,
         nextStep,

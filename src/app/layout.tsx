@@ -2,8 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { NotificationAutoPrompt } from "@/components/NotificationAutoPrompt";
+// import { NotificationAutoPrompt } from "@/components/NotificationAutoPrompt";
 import { TourProvider } from "@/components/providers/TourProvider";
+import { HistoryProvider } from "@/components/providers/HistoryProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { Suspense } from "react";
 import { AppTour, TourHelpButton } from "@/components/ui/AppTour";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
@@ -15,20 +18,20 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vestry-beta.vercel.app'),
-  title: "Vestry | MFMCF FUNAAB",
+  title: "Vestry Event",
   description: "Register for the Vestry Event",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Vestry | MFMCF FUNAAB",
+    title: "Vestry Event",
   },
   icons: {
     icon: "/logo/logo.png",
     apple: "/logo/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Vestry | MFMCF FUNAAB",
+    title: "Vestry",
     description:
       "Secure your ticket, select your merch allocation, and customize your dining experience.",
     siteName: "Vestry Event",
@@ -38,13 +41,13 @@ export const metadata: Metadata = {
         url: "/logo/logo.png", // should be a 1200×630 social preview image
         width: 1200,
         height: 630,
-        alt: "Vestry | MFMCF FUNAAB — Official Registration Portal",
+        alt: "Vestry — Official Registration Portal",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vestry | MFMCF FUNAAB",
+    title: "Vestry",
     description:
       "Secure your ticket, select your merch allocation, and customize your dining experience.",
     images: ["/logo/logo.png"],
@@ -70,13 +73,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TourProvider>
-            <ThemeToggle />
-            {children}
-            <AppTour />
-            <TourHelpButton />
-            <NotificationAutoPrompt />
-          </TourProvider>
+          <AuthProvider>
+            <TourProvider>
+              <HistoryProvider>
+                <ThemeToggle />
+                {children}
+                <AppTour />
+                <TourHelpButton />
+              </HistoryProvider>
+            </TourProvider>
+          </AuthProvider>
         </ThemeProvider>
         <Analytics />
       </body>

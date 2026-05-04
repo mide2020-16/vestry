@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { OrderData } from "@/types/checkout.types";
 import { useUploadThing } from "@/lib/uploadthing";
-import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck, Upload, Loader2 } from "lucide-react";
+import { Copy, Check, Trash2, Smartphone, Landmark, ReceiptText, ShieldCheck, Upload } from "lucide-react";
 import { formatNaira } from "@/lib/utils/format";
 import { Interactive, AnimatedUpload, AnimatedSpinner, AnimatedCopy, AnimatedTrash, AnimatedSmartphone, AnimatedLandmark, AnimatedCheck, AnimatedFileText } from "@/components/ui/Boop";
 import Image from "next/image";
@@ -195,7 +195,7 @@ export function OrderSummary({
     },
   ];
 
-  const hasFoodDrink = order.foods.length > 0 || order.drink !== null;
+  const hasFoodDrink = order.foods.length > 0 || order.drinks.length > 0;
 
   const bankRows = [
     { label: "Bank Name", value: order.bankDetails?.bankName ?? "" },
@@ -303,12 +303,12 @@ export function OrderSummary({
                   {food.name}
                 </li>
               ))}
-              {order.drink && (
-                <li className="text-[13px] text-foreground/80 flex items-center gap-2 font-medium">
+              {order.drinks.map((drink) => (
+                <li key={drink._id} className="text-[13px] text-foreground/80 flex items-center gap-2 font-medium">
                   <div className="w-1.5 h-1.5 bg-emerald-500/40 rounded-full" />
-                  {order.drink.name}
+                  {drink.name}
                 </li>
-              )}
+              ))}
             </ul>
           </div>
         )}

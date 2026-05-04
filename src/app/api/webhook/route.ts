@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
-import Settings from "@/models/Settings";
+import Event from "@/models/Event";
+import { sendUserApprovalNotification } from "@/lib/email";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -18,14 +19,7 @@ function isValidSignature(
   return hash === signature;
 }
 
-async function resolveSecretKey(): Promise<string> {
-  const settings = await Settings.findOne().lean();
-  return (
-    (settings as { paystackSecretKey?: string } | null)?.paystackSecretKey ??
-    process.env.PAYSTACK_SECRET_KEY ??
-    ""
-  );
-}
+// Deprecated: multi-tenant architecture now looks up secret keys per event.
 
 async function handleChargeSuccess(data: {
   reference: string;
@@ -39,19 +33,24 @@ async function handleChargeSuccess(data: {
     return;
   }
 
-  const registration = await Registration.findByIdAndUpdate(
-    registrationId,
-    { paymentStatus: true, paystackReference: reference },
-    { new: true },
-  );
-
-  if (!registration) {
+  const existingRegistration = await Registration.findById(registrationId);
+  if (!existingRegistration) {
     console.error(`Registration not found for ID: ${registrationId}`);
-  } else {
-    console.log(
-      `Registration ${registrationId} marked as paid (ref: ${reference})`,
-    );
+    return;
   }
+
+  if (existingRegistration.status === "success" || existingRegistration.paymentStatus === true) {
+    console.log(`Registration ${registrationId} is already marked as paid. Ignoring duplicate webhook.`);
+    return;
+  }
+
+  existingRegistration.paymentStatus = true;
+  existingRegistration.status = "success";
+  existingRegistration.paystackReference = reference;
+  await existingRegistration.save();
+
+  console.log(`Registration ${registrationId} marked as paid (ref: ${reference})`);
+  await sendUserApprovalNotification(existingRegistration).catch(console.error);
 }
 
 // ── route handler ──────────────────────────────────────────────────────────
@@ -63,12 +62,33 @@ export async function POST(request: Request) {
       Promise.resolve(request.headers.get("x-paystack-signature") ?? ""),
     ]);
 
-    // Validate signature before touching the DB
     await dbConnect();
-    const secretKey = await resolveSecretKey();
+    
+    // Parse the JSON without trusting it yet, just to find the registration ID for the multi-tenant key lookup
+    let eventPayload: any;
+    try {
+      eventPayload = JSON.parse(rawBody);
+    } catch (e) {
+      console.error("Invalid JSON payload");
+      return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+    }
+
+    const registrationId = eventPayload.data?.metadata?.registrationId;
+    let secretKey = process.env.PAYSTACK_SECRET_KEY ?? "";
+
+    // If we have a registrationId, look up the specific event's secret key
+    if (registrationId) {
+      const registration = await Registration.findById(registrationId).lean() as any;
+      if (registration && registration.eventId) {
+        const event = await Event.findById(registration.eventId).lean() as any;
+        if (event?.config?.paystackSecretKey) {
+          secretKey = event.config.paystackSecretKey;
+        }
+      }
+    }
 
     if (!secretKey) {
-      console.error("Paystack secret key is not configured");
+      console.error("Paystack secret key is not configured for this environment or event.");
       return NextResponse.json(
         { error: "Internal Server Error" },
         { status: 500 },
@@ -80,7 +100,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const event = JSON.parse(rawBody) as {
+    const event = eventPayload as {
       event: string;
       data: { reference: string; metadata?: { registrationId?: string } };
     };

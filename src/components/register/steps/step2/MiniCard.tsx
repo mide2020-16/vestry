@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Product, TicketType } from "@/app/register/useRegister";
+import { Product, TicketType } from "@/app/event/[slug]/register/useRegister";
 
 function itemPrice(mesh: Product) {
   return mesh.price;

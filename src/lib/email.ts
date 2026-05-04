@@ -1,23 +1,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import nodemailer from "nodemailer";
+import Event from "@/models/Event";
+import dbConnect from "@/lib/dbConnect";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+/**
+ * Creates a dynamic transporter based on event SMTP config or fallbacks to ENV
+ */
+const getTransporter = async (eventId?: string) => {
+  await dbConnect();
+  
+  let smtpConfig = {
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    from: {
+      name: "Vestry Notifications",
+      address: process.env.SMTP_USER || "",
+    }
+  };
+
+  if (eventId) {
+    const event = await Event.findById(eventId).lean() as any;
+    if (event?.config?.smtp?.host) {
+      smtpConfig = {
+        host: event.config.smtp.host,
+        port: event.config.smtp.port,
+        secure: event.config.smtp.port === 465,
+        auth: {
+          user: event.config.smtp.user,
+          pass: event.config.smtp.pass,
+        },
+        from: {
+          name: event.config.smtp.fromName || "Vestry Notifications",
+          address: event.config.smtp.fromEmail || event.config.smtp.user,
+        }
+      };
+    }
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: smtpConfig.host,
+    port: smtpConfig.port,
+    secure: smtpConfig.secure,
+    auth: smtpConfig.auth,
+  });
+
+  return { transporter, from: `"${smtpConfig.from.name}" <${smtpConfig.from.address}>` };
+};
 
 export const sendAdminTransferNotification = async (registration: any) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP credentials missing. Admin notification skipped.");
-    return;
-  }
+  const { transporter, from } = await getTransporter(registration.eventId);
   
   const mailOptions = {
-    from: `"Vestry Notifications" <${process.env.SMTP_USER}>`,
-    to: process.env.SMTP_USER, // Admin receives it on the same configured email
+    from,
+    to: from, // Admin receives it on the same configured email
     subject: `New Manual Transfer: ${registration.name}`,
     html: `
       <h2>New Manual Transfer Pending</h2>
@@ -38,21 +78,20 @@ export const sendAdminTransferNotification = async (registration: any) => {
 };
 
 export const sendUserApprovalNotification = async (registration: any) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP credentials missing. User notification skipped.");
-    return;
-  }
+  const { transporter, from } = await getTransporter(registration.eventId);
   
   const ticketUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/success?ref=${registration.paystackReference}`;
 
+  const paymentMethodText = registration.paymentMethod === 'paystack' ? 'online payment' : 'manual bank transfer';
+
   const mailOptions = {
-    from: `"Vestry Events" <${process.env.SMTP_USER}>`,
+    from,
     to: registration.email,
     subject: `Your Vestry Ticket is Approved! 🎉`,
     html: `
       <h2>Payment Verified 🎊</h2>
       <p>Hello ${registration.name},</p>
-      <p>Your manual bank transfer of <strong>₦${registration.totalAmount.toLocaleString()}</strong> has been reviewed and successfully approved by our team.</p>
+      <p>Your ${paymentMethodText} of <strong>₦${registration.totalAmount.toLocaleString()}</strong> has been successfully verified and approved.</p>
       <p>Your spot is fully secured!</p>
       <a href="${ticketUrl}" style="display:inline-block;padding:12px 24px;background-color:#F59E0B;color:#000;text-decoration:none;font-weight:bold;border-radius:8px;margin-top:10px;">Download Your Ticket</a>
       <br /><br />
@@ -69,16 +108,50 @@ export const sendUserApprovalNotification = async (registration: any) => {
   }
 };
 
-export const sendUserDeclineNotification = async (registration: any) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP credentials missing. User notification skipped.");
-    return;
+export const sendUserTransferReceivedNotification = async (registration: any, event: any) => {
+  const { transporter, from } = await getTransporter(registration.eventId);
+  
+  const uploadUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/checkout?ref=${registration.paystackReference}`;
+
+  const mailOptions = {
+    from,
+    to: registration.email,
+    subject: `Registration Received! Please complete your transfer 🏦`,
+    html: `
+      <h2>Registration Received</h2>
+      <p>Hello ${registration.name},</p>
+      <p>We've received your registration details. To secure your spot, please complete the bank transfer for <strong>₦${registration.totalAmount.toLocaleString()}</strong> to the following account:</p>
+      
+      <div style="margin: 16px 0; padding: 16px; background-color: #F3F4F6; border-left: 4px solid #F59E0B; color: #374151; border-radius: 8px;">
+        <strong>Bank Name:</strong> ${event.config.bankName}<br />
+        <strong>Account Name:</strong> ${event.config.accountName}<br />
+        <strong>Account Number:</strong> ${event.config.accountNumber}<br />
+      </div>
+
+      <p>Once you've made the transfer, please upload your payment receipt using the link below:</p>
+      
+      <a href="${uploadUrl}" style="display:inline-block;padding:12px 24px;background-color:#F59E0B;color:#000;text-decoration:none;font-weight:bold;border-radius:8px;margin-top:10px;">Upload Payment Receipt</a>
+      <br /><br />
+      <p>Your Reference Number is: <strong>${registration.paystackReference}</strong></p>
+      <hr />
+      <p style="font-size: 12px; color: #666;">Vestry Automatic Notifications</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("Failed to send user transfer email:", err);
   }
+};
+
+export const sendUserDeclineNotification = async (registration: any) => {
+  const { transporter, from } = await getTransporter(registration.eventId);
   
   const retryUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/checkout?ref=${registration.paystackReference}`;
 
   const mailOptions = {
-    from: `"Vestry Events" <${process.env.SMTP_USER}>`,
+    from,
     to: registration.email,
     subject: `Important: Problem with your Payment Receipt ⚠️`,
     html: `
@@ -118,15 +191,13 @@ export const sendUserDeclineNotification = async (registration: any) => {
 };
 
 export const sendUserAbandonedNotification = async (registration: any) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP credentials missing. User notification skipped.");
-    return;
-  }
+  const { transporter, from } = await getTransporter(registration.eventId);
   
-  const retryUrl = `${(process.env.NEXTAUTH_URL || "http://localhost:3000")}/register`;
+  // Since events are dynamic, we point to the hub by default or a specific event if known
+  const retryUrl = process.env.APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
 
   const mailOptions = {
-    from: `"Vestry Events" <${process.env.SMTP_USER}>`,
+    from,
     to: registration.email,
     subject: `Your Registration: Incomplete Transaction 🏮`,
     html: `

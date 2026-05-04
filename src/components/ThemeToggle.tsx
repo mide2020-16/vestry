@@ -34,13 +34,14 @@ export function ThemeToggle() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex justify-end">
+    <div className="fixed bottom-24 md:bottom-6 left-6 z-[100] flex justify-start">
       <motion.div
         layout
         initial={false}
-        className="flex items-center bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-2xl overflow-hidden"
+        className="flex items-center justify-center bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/10 p-1 rounded-full shadow-2xl overflow-hidden"
         style={{
           borderRadius: "9999px",
+          height: "46px",
         }}
         animate={{
           width: isExpanded ? "auto" : "46px",

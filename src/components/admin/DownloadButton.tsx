@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { RegistrationPDF } from "./RegistrationPDF";
-import { FileText, Loader2 } from "lucide-react";
+import { FileText } from "lucide-react";
 import { AnimatedSpinner, AnimatedFileText } from "../ui/Boop";
 
 export interface RegistrationForPDF {
@@ -55,16 +55,16 @@ export default function DownloadButton({ registrations }: DownloadButtonProps) {
       document={<RegistrationPDF registrations={registrations} />}
       fileName={`Vestry_Master_Registry_${new Date().toISOString().split("T")[0]}.pdf`}
       style={{ textDecoration: "none" }}
-      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 transition-all text-black px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20"
+      className={cn(
+        "relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all active:scale-95 disabled:opacity-50 px-6 py-3 text-xs bg-amber-500 text-black hover:bg-amber-400 shadow-lg shadow-amber-500/20 border-transparent cursor-pointer"
+      )}
     >
       {({ loading, error }) => (
         <>
           {loading ? (
-            <AnimatedSpinner size={14} />
+            <Loader2 className="animate-spin" size={16} />
           ) : (
-            <AnimatedFileText>
-              <FileText className="h-4 w-4" />
-            </AnimatedFileText>
+            <FileText className="h-4 w-4 shrink-0" />
           )}
           <span>
             {error

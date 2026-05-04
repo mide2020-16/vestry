@@ -2,15 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Boxes, Settings } from "lucide-react";
+import { LayoutDashboard, Package, Boxes, Settings, Calendar } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Interactive } from "../ui/Boop";
 
 export function MobileNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const eventId = searchParams.get("eventId");
+
   const NAV = [
-    { href: "/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/admin/products", label: "Products", icon: Package },
-    { href: "/admin/inventory", label: "Inventory", icon: Boxes },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+    { href: eventId ? `/admin?eventId=${eventId}` : "/admin", label: "Overview", icon: LayoutDashboard },
+    { href: "/admin/events", label: "Events", icon: Calendar },
+    { href: eventId ? `/admin/products?eventId=${eventId}` : "/admin/products", label: "Products", icon: Package },
+    { href: eventId ? `/admin/inventory?eventId=${eventId}` : "/admin/inventory", label: "Inventory", icon: Boxes },
+    { href: eventId ? `/admin/settings?eventId=${eventId}` : "/admin/settings", label: "Settings", icon: Settings },
   ];
 
   return (
@@ -21,12 +27,14 @@ export function MobileNav() {
           <Link 
             key={href} 
             href={href} 
-            className={`flex flex-col items-center gap-1 min-w-[64px] transition-colors ${
-              isActive ? "text-amber-600 dark:text-amber-500" : "text-muted-foreground hover:text-foreground"
+            className={`flex flex-col items-center gap-1.5 min-w-[60px] transition-all duration-300 cursor-pointer ${
+              isActive ? "text-amber-500 scale-110" : "text-muted-foreground hover:text-foreground opacity-70"
             }`}
           >
-            <Icon size={22} className={isActive ? "fill-amber-500/10" : ""} />
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-80"}`}>
+            <Interactive>
+              <Icon size={20} className={isActive ? "fill-amber-500/10" : ""} />
+            </Interactive>
+            <span className={`text-[9px] font-black uppercase tracking-tighter ${isActive ? "opacity-100" : "opacity-60"}`}>
               {label}
             </span>
           </Link>

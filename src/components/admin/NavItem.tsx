@@ -10,6 +10,7 @@ interface NavItemProps {
   icon: LucideIcon;
   isActive: boolean;
   collapsed: boolean;
+  "data-tour"?: string;
 }
 
 export function NavItem({
@@ -18,10 +19,12 @@ export function NavItem({
   icon: Icon,
   isActive,
   collapsed,
+  "data-tour": dataTour,
 }: NavItemProps) {
   return (
     <Link
       href={href}
+      data-tour={dataTour}
       title={collapsed ? label : undefined}
       className={`relative flex items-center gap-4 p-4 rounded-xl font-medium transition-all duration-500 ease-in-out group
         ${collapsed ? "justify-center w-11 h-11 mx-auto" : "px-4 py-3.5 w-full"}

@@ -2,32 +2,23 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Registration from "@/models/Registration";
-import Product from "@/models/Product";
-import Settings from "@/models/Settings";
 import { nanoid } from "nanoid";
 import { isRegistrationOpen } from "@/lib/registration";
-import { sendAdminTransferNotification } from "@/lib/email";
-import { 
-  calculatePaystackFee, 
+import { sendAdminTransferNotification, sendUserTransferReceivedNotification } from "@/lib/email";
+import {
+  calculatePaystackFee,
   isValidEmail, 
   isValidTicketType 
 } from "@/lib/checkout";
 import { calculateRegistrationTotal } from "@/lib/checkout.server";
-
-// ── types ──────────────────────────────────────────────────────────────────
+import { getEventBySlug } from "@/lib/utils/event";
+import ActivityLog, { LogAction, UserType } from "@/models/AuditLog";
 
 interface RegistrationBody {
   name?: unknown;
   email?: unknown;
   ticketType?: unknown;
   partnerName?: unknown;
-  meshSelection?: unknown;
-  meshQuantity?: unknown;
-  meshColor?: unknown;
-  meshSize?: unknown;
-  meshInscriptions?: unknown; // Successfully mapped to model
-  foodSelections?: unknown;
-  drinkSelection?: unknown;
   merch?: {
     productId: string;
     quantity: number;
@@ -35,100 +26,83 @@ interface RegistrationBody {
     size?: string;
     inscriptions?: string;
   }[];
+  foodSelections?: string[];
+  drinkSelection?: string[];
   paymentMethod?: unknown;
   paymentReceiptUrl?: unknown;
   existingRef?: string;
 }
 
-// (Functions moved to src/lib/checkout.ts)
-
-// ── route handler ──────────────────────────────────────────────────────────
-
 export async function POST(request: Request) {
-  if (!isRegistrationOpen()) {
-    return NextResponse.json(
-      { error: "Registration has closed" },
-      { status: 403 },
-    );
+  const { searchParams } = new URL(request.url);
+  const slug = searchParams.get("slug");
+  
+  if (!slug) {
+    return NextResponse.json({ error: "Missing event context" }, { status: 400 });
   }
 
   try {
     await dbConnect();
+    const event = await getEventBySlug(slug);
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    if (!(await isRegistrationOpen(event._id.toString()))) {
+      return NextResponse.json({ error: "Registration has closed" }, { status: 403 });
+    }
 
     const body = (await request.json()) as RegistrationBody;
-    const {
+    let {
       name,
       email,
       ticketType,
       partnerName,
-      meshSelection,
-      meshQuantity,
-      meshColor,
-      meshSize,
-      meshInscriptions,
+      merch,
       foodSelections,
       drinkSelection,
-      merch,
       paymentMethod,
       paymentReceiptUrl,
       existingRef,
     } = body;
 
-    const settings = await Settings.findOne().lean() as any;
-    const isPaystackEnabled = settings?.paystackEnabled ?? true;
-    const isTransferEnabled = settings?.bankTransferEnabled ?? true;
+    const config = event.config;
+    const isPaystackEnabled = config?.paystackEnabled ?? true;
+    const isTransferEnabled = config?.bankTransferEnabled ?? true;
 
-    // Enforce payment method toggles
     if (paymentMethod === "paystack" && !isPaystackEnabled) {
-      return NextResponse.json(
-        { success: false, error: "Online payment is currently disabled" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Online payment disabled" }, { status: 403 });
     }
     if (paymentMethod === "transfer" && !isTransferEnabled) {
-      return NextResponse.json(
-        { success: false, error: "Manual bank transfer is currently disabled" },
-        { status: 403 },
-      );
-    }
-    if (!isPaystackEnabled && !isTransferEnabled) {
-      return NextResponse.json(
-        { success: false, error: "Registrations are temporarily closed (no payment method available)" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Bank transfer disabled" }, { status: 403 });
     }
 
     const registrationEmail = typeof email === "string" ? email : "";
-    const registrationTicketType = typeof ticketType === "string" ? ticketType : "single";
+    const registrationTicketType = (typeof ticketType === "string" ? ticketType : "single") as any;
 
-    // Validation
-    if (!name || typeof name !== "string") {
-      return NextResponse.json(
-        { success: false, error: "Name is required" },
-        { status: 400 },
-      );
-    }
-    if (!isValidEmail(registrationEmail)) {
-      return NextResponse.json(
-        { success: false, error: "A valid email is required" },
-        { status: 400 },
-      );
-    }
-    if (!isValidTicketType(registrationTicketType)) {
-      return NextResponse.json(
-        { success: false, error: 'Ticket type must be "single", "couple" or "none"' },
-        { status: 400 },
-      );
-    }
-    
-    if (registrationTicketType === 'couple' && (!partnerName || typeof partnerName !== 'string' || !partnerName.trim())) {
-      return NextResponse.json(
-        { success: false, error: "Partner name is required for couple tickets" },
-        { status: 400 },
-      );
+    if (!name || typeof name !== "string") return NextResponse.json({ error: "Name required" }, { status: 400 });
+    if (!isValidEmail(registrationEmail)) return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+    if (!isValidTicketType(registrationTicketType)) return NextResponse.json({ error: "Invalid ticket type" }, { status: 400 });
+
+    // Prevent duplicate successful registrations, and reuse pending/declined ones
+    const existingRegistrationByEmail = await Registration.findOne({
+      email: { $regex: new RegExp(`^${registrationEmail}$`, "i") },
+      eventId: event._id,
+    });
+
+    if (existingRegistrationByEmail) {
+      if (existingRegistrationByEmail.status === "success" || existingRegistrationByEmail.paymentStatus === true) {
+        return NextResponse.json({ error: "This email has already been registered for this event." }, { status: 400 });
+      }
+      
+      // If it's pending/declined and they don't have the existingRef, overwrite the old one
+      if (!existingRef) {
+        existingRef = existingRegistrationByEmail.paystackReference;
+      }
     }
 
     const baseTotal = await calculateRegistrationTotal(
+      event._id.toString(),
       registrationTicketType,
       merch as any
     );
@@ -142,23 +116,18 @@ export async function POST(request: Request) {
       : `VESTRY-${nanoid(10).toUpperCase()}`;
 
     const regData = {
+      eventId: event._id,
       name,
       email,
-      ticketType,
+      ticketType: registrationTicketType,
       partnerName,
-      meshSelection,
-      meshQuantity: Number(meshQuantity) || 1,
-      meshColor,
-      meshSize,
-      meshInscriptions,
-      foodSelections,
-      drinkSelection,
       merch,
+      foodSelections: Array.isArray(foodSelections) ? foodSelections : [],
+      drinkSelection: Array.isArray(drinkSelection) ? drinkSelection : [],
       totalAmount,
       paystackReference,
       paymentStatus: false,
       status: "pending",
-      declineReason: undefined, 
       paymentMethod: paymentMethod === "transfer" ? "transfer" : "paystack",
       paymentReceiptUrl: typeof paymentReceiptUrl === "string" ? paymentReceiptUrl : undefined,
     };
@@ -166,75 +135,46 @@ export async function POST(request: Request) {
     let registration;
     if (existingRef && typeof existingRef === "string") {
       registration = await Registration.findOneAndUpdate(
-        { paystackReference: existingRef },
+        { paystackReference: existingRef, eventId: event._id },
         regData,
         { new: true }
       );
-      if (!registration) {
-        return NextResponse.json(
-          { success: false, error: "Existing registration not found" },
-          { status: 404 }
-        );
-      }
+      if (!registration) return NextResponse.json({ error: "Existing registration not found" }, { status: 404 });
     } else {
       registration = await Registration.create(regData);
     }
 
-if (registration.paymentMethod === "transfer") {
-      sendAdminTransferNotification(registration).catch(console.error);
-
-      if (registration.paymentReceiptUrl) {
-        // Works both locally (APP_URL=http://localhost:3000) and on Vercel
-        const appUrl =
-          process.env.APP_URL ||
-          process.env.NEXT_PUBLIC_APP_URL ||
-          "https://localhost:3000";
-
-        // Delay AI trigger by 3s to avoid rapid rate-limit hits when
-        // multiple registrations arrive at the same time
-        console.log(`[ai-trigger] Scheduling AI verification for ${registration._id} in 3 seconds...`);
-        setTimeout(() => {
-          console.log(`[ai-trigger] Firing AI verification for ${registration._id}`);
-          fetch(
-            `${appUrl}/api/registrations/${registration._id}/approve`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ trigger: "ai" }),
-            }
-          )
-            .then(async (res) => {
-              const data = await res.json().catch(() => ({}));
-              console.log(`[ai-trigger] AI verification response for ${registration._id}:`, {
-                status: res.status,
-                autoApproved: data.autoApproved ?? "N/A",
-                message: data.message ?? data.error ?? "No message",
-              });
-            })
-            .catch((err) => {
-              console.error(`[ai-trigger] AI verification failed for ${registration._id}:`, err.message);
-            });
-        }, 3000);
-      }
+    if (registration.paymentMethod === "transfer") {
+      await Promise.allSettled([
+        sendAdminTransferNotification(registration),
+        sendUserTransferReceivedNotification(registration, event)
+      ]);
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        _id: registration._id,
-        paystackReference: registration.paystackReference,
-        totalAmount: registration.totalAmount,
-        paystackKey: process.env.PAYSTACK_PUBLIC_KEY,
-      },
-      { status: 201 },
-    );
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create registration";
-    console.error("Registration error:", message);
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 500 },
-    );
+    // Create Activity Log for Consumer
+    await ActivityLog.create({
+      userType: UserType.CONSUMER,
+      userName: name as string,
+      userEmail: email as string,
+      action: LogAction.SUBMIT_REGISTRATION,
+      resource: "Registration",
+      resourceId: registration._id,
+      details: `Consumer ${name} submitted registration for ${event.name}`,
+      metadata: { 
+        amount: totalAmount, 
+        method: paymentMethod,
+        ticketType: registrationTicketType
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      _id: registration._id,
+      paystackReference: registration.paystackReference,
+      totalAmount: registration.totalAmount,
+      paystackKey: config.paystackPublicKey || process.env.PAYSTACK_PUBLIC_KEY,
+    }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

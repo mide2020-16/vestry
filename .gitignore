@@ -45,3 +45,6 @@ next-env.d.ts
 
 certificates
 /tmp
+
+text.txt
+SUPER_ADMIN_SETUP.txt

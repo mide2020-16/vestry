@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { calculatePaystackFee } from "@/lib/checkout";
-
-import { TicketType } from "@/app/register/useRegister";
+import { TicketType } from "@/app/event/[slug]/register/useRegister";
 import { CheckoutProduct, OrderData } from "@/types/checkout.types";
 
-async function fetchProduct(id: string): Promise<CheckoutProduct | null> {
+async function fetchProduct(id: string, slug: string): Promise<CheckoutProduct | null> {
   try {
-    const res = await fetch(`/api/products/${id}`);
+    const res = await fetch(`/api/products/${id}?slug=${slug}`);
     if (!res.ok) return null;
     const json = await res.json();
     return json.data ?? json;
@@ -16,6 +15,7 @@ async function fetchProduct(id: string): Promise<CheckoutProduct | null> {
 }
 
 export async function buildOrder(
+  slug: string,
   searchParams: URLSearchParams,
   session: { name?: string; email?: string } | null,
 ): Promise<OrderData> {
@@ -23,10 +23,10 @@ export async function buildOrder(
 
   if (ref) {
     try {
-      const regRes = await fetch(`/api/registrations/by-ref/${ref}`);
+      const regRes = await fetch(`/api/registrations/by-ref/${ref}?slug=${slug}`);
       if (regRes.ok) {
         const { data: reg } = await regRes.json();
-        const settingsRes = await fetch("/api/settings").then((r) => r.json()).catch(() => null);
+        const settingsRes = await fetch(`/api/settings?slug=${slug}`).then((r) => r.json()).catch(() => null);
 
         return {
           name: reg.name,
@@ -46,10 +46,10 @@ export async function buildOrder(
             inscriptions: m.inscriptions
           })),
           foods: reg.foodSelections || [],
-          drink: reg.drinkSelection || null,
-          ticketPrice: reg.totalAmount - (reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0)), // Best guess
+          drinks: reg.drinkSelection ? (Array.isArray(reg.drinkSelection) ? reg.drinkSelection : [reg.drinkSelection]) : [],
+          ticketPrice: reg.totalAmount - (reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0)),
           meshTotal: reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0),
-          baseTotal: reg.totalAmount, // This is already calculated in DB
+          baseTotal: reg.totalAmount,
           paystackFee: calculatePaystackFee(reg.totalAmount),
           grandTotal: reg.totalAmount + calculatePaystackFee(reg.totalAmount),
           existingRef: ref,
@@ -64,28 +64,26 @@ export async function buildOrder(
       }
     } catch (err) {
       console.warn("Failed to restore registration from reference:", err);
-      // Fall back to params if ref fetch fails
     }
   }
 
   const ticketType = (searchParams.get("ticketType") ?? "single") as TicketType;
   const partnerName = searchParams.get("partnerName") ?? undefined;
   const foodIds = searchParams.getAll("foodId");
-  const drinkId = searchParams.get("drinkId");
+  const drinkIds = searchParams.getAll("drinkId");
   const ticketPrice = Number(searchParams.get("ticketPrice") ?? 0);
 
-  // Multi-merch parsing
   const meshIds = searchParams.getAll("meshId");
   const meshQtys = searchParams.getAll("meshQty");
   const meshColors = searchParams.getAll("meshColor");
   const meshSizes = searchParams.getAll("meshSize");
   const meshInscriptions = searchParams.getAll("meshInscription");
 
-  const [merchProducts, foods, drink, settingsRes] = await Promise.all([
-    Promise.all(meshIds.map(fetchProduct)),
-    Promise.all(foodIds.map(fetchProduct)),
-    drinkId ? fetchProduct(drinkId) : Promise.resolve(null),
-    fetch("/api/settings").then((r) => r.json()).catch(() => null),
+  const [merchProducts, foods, drinks, settingsRes] = await Promise.all([
+    Promise.all(meshIds.map(id => fetchProduct(id, slug))),
+    Promise.all(foodIds.map(id => fetchProduct(id, slug))),
+    Promise.all(drinkIds.map(id => fetchProduct(id, slug))),
+    fetch(`/api/settings?slug=${slug}`).then((r) => r.json()).catch(() => null),
   ]);
 
   const merch: OrderData["merch"] = [];
@@ -114,7 +112,7 @@ export async function buildOrder(
     partnerName,
     merch,
     foods: validFoods,
-    drink,
+    drinks: drinks.filter((d): d is CheckoutProduct => d !== null),
     ticketPrice,
     meshTotal,
     baseTotal: ticketPrice + meshTotal,

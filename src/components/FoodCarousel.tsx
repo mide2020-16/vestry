@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ProductCategory } from "@/constants/ProductCategory";
-import { Product } from "@/app/register/useRegister";
+import { Product } from "@/app/event/[slug]/register/useRegister";
 import { CheckIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedCheck, AnimatedChevron } from "@/components/ui/Boop";
 

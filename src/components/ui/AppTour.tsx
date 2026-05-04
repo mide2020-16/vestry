@@ -228,8 +228,17 @@ export function AppTour() {
 
 export function TourHelpButton() {
   const { startTour, isActive } = useTour();
+  const [isVisible, setIsVisible] = useState(true);
 
-  if (isActive) return null;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 90000); // 1.5 minutes
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isActive || !isVisible) return null;
 
   return (
     <motion.button

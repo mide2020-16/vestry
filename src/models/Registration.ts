@@ -17,7 +17,7 @@ export interface IRegistration extends Document {
   meshSize?: string;
   meshInscriptions?: string;
   foodSelections: mongoose.Types.ObjectId[];
-  drinkSelection?: mongoose.Types.ObjectId;
+  drinkSelection: mongoose.Types.ObjectId[];
   merch: {
     productId: mongoose.Types.ObjectId;
     quantity: number;
@@ -40,6 +40,8 @@ export interface IRegistration extends Document {
     reason?: string;
     verifiedAt?: Date;
   };
+  eventId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,7 +63,7 @@ const RegistrationSchema: Schema = new Schema(
     meshSize: { type: String },
     meshInscriptions: { type: String },
     foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    drinkSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    drinkSelection: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     merch: [
       {
         productId: { type: Schema.Types.ObjectId, ref: "Product" },
@@ -95,9 +97,16 @@ const RegistrationSchema: Schema = new Schema(
       reason: { type: String },
       verifiedAt: { type: Date },
     },
+    eventId: { type: Schema.Types.ObjectId, ref: "Event", required: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", index: true },
   },
-  { timestamps: true, index: { createdAt: -1 } },
+  { timestamps: true }
 );
+
+RegistrationSchema.index({ eventId: 1, createdAt: -1 });
+RegistrationSchema.index({ eventId: 1, status: 1, createdAt: -1 });
+RegistrationSchema.index({ eventId: 1, paymentStatus: 1, createdAt: -1 });
+RegistrationSchema.index({ eventId: 1, ticketType: 1, createdAt: -1 });
 
 export default mongoose.models.Registration ||
   mongoose.model<IRegistration>("Registration", RegistrationSchema);

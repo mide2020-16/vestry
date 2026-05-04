@@ -5,16 +5,16 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
 
-  const isLoginPage = pathname === "/admin/login";
+  const isPublicAdminPage = pathname === "/admin/login" || pathname === "/admin/signup" || pathname === "/admin/genesis";
   const isAdminPage = pathname.startsWith("/admin");
 
-  // Redirect unauthenticated users to login
-  if (isAdminPage && !isLoginPage && !isLoggedIn) {
+  // Redirect unauthenticated users to login (except public pages)
+  if (isAdminPage && !isPublicAdminPage && !isLoggedIn) {
     return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 
   // Redirect logged-in users away from login page
-  if (isLoginPage && isLoggedIn) {
+  if (pathname === "/admin/login" && isLoggedIn) {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
 

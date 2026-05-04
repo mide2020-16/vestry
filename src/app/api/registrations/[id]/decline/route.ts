@@ -4,6 +4,8 @@ import Registration from "@/models/Registration";
 import { auth } from "@/auth";
 import { sendUserDeclineNotification } from "@/lib/email";
 import { UTApi } from "uploadthing/server";
+import ActivityLog, { LogAction, UserType } from "@/models/AuditLog";
+import User from "@/models/User";
 
 export async function PATCH(
   request: Request,
@@ -52,7 +54,23 @@ export async function PATCH(
     await reg.save();
 
     // 3. Notify user
-    sendUserDeclineNotification(reg).catch(console.error);
+    await sendUserDeclineNotification(reg).catch(console.error);
+
+    // 4. Create Activity Log
+    const dbUser = await User.findOne({ email: session.user?.email?.toLowerCase() }).lean() as any;
+    if (dbUser) {
+      await ActivityLog.create({
+        userId: dbUser._id,
+        userType: UserType.ADMIN,
+        userName: dbUser.name,
+        userEmail: dbUser.email,
+        action: LogAction.DECLINE_PAYMENT,
+        resource: "Registration",
+        resourceId: id,
+        details: `Declined payment for ${reg.name}. Reason: ${reason}`,
+        metadata: { reason }
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Registration declined successfully" });
   } catch (error) {

@@ -8,9 +8,10 @@ export interface IProduct extends Document {
   image_url: string;
   modelUrl?: string;
   price: number;
-  inscriptions: string[]; // Fixed: changed from [string] to string[] and made plural
+  inscriptions: string[];
   category: ProductCategory;
   available: boolean;
+  eventId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,9 +35,8 @@ const ProductSchema: Schema = new Schema(
       trim: true,
     },
     inscriptions: {
-      type: [String], // Cleaner syntax for an array of strings
+      type: [String],
       default: [],
-      trim: true,
     },
     price: {
       type: Number,
@@ -54,10 +54,14 @@ const ProductSchema: Schema = new Schema(
       default: true,
       index: true,
     },
+    eventId: {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+      required: true,
+      index: true,
+    },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true }
 );
 
 // ─── Model ────────────────────────────────────────────────────────────────────

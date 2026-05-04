@@ -17,6 +17,7 @@
     "@uploadthing/react": "^7.3.3",
     "@vercel/analytics": "^2.0.1",
     "axios": "^1.13.6",
+    "bcryptjs": "^3.0.3",
     "framer-motion": "^12.36.0",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.577.0",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.11",
     "@types/paystack__inline-js": "^1.0.2",
