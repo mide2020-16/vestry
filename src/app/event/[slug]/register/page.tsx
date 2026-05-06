@@ -1,3 +1,4 @@
+
 "use client";
 import { XCircle } from "lucide-react";
 import { useRegister } from "./useRegister";
@@ -12,6 +13,7 @@ import OutlineTitle from "@/components/register/OutlineTitle";
 import NavigationButtons from "@/components/register/NavigationButtons";
 import LoadingScreen from "@/components/register/LoadingScreen";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 const BackButton = dynamic(() => import("@/components/ui/BackButton").then(mod => mod.BackButton), { ssr: false });
 
@@ -48,12 +50,12 @@ export default function RegisterPage() {
           </p>
 
           <div className="pt-4">
-            <a 
+            <Link 
               href="/" 
               className="inline-flex items-center gap-2 px-8 py-4 bg-muted hover:bg-accent rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
             >
               Return Home
-            </a>
+            </Link>
           </div>
         </div>
       </main>
@@ -111,103 +113,18 @@ export default function RegisterPage() {
         )}
 
         {r.step === 3 && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-2">Hospitality</h2>
-            <p className="text-muted-foreground">Select your complimentary food and drinks</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Food Section */}
-            {r.hasFood && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <h3 className="font-bold flex items-center gap-2">
-                    <UtensilsCrossed size={18} className="text-amber-500" />
-                    Food Menu
-                  </h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-500/60 bg-amber-500/10 px-2 py-1 rounded-full">
-                    Pick up to {r.settings?.maxFood ?? 2}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
-                  {r.foods.map((food: any) => (
-                    <button
-                      key={food._id}
-                      onClick={() => r.handleFoodToggle(food._id)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group relative overflow-hidden ${
-                        r.selectedFoodIds.includes(food._id)
-                          ? "bg-amber-500 border-amber-500 text-black"
-                          : "bg-card border-border hover:border-amber-500/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 relative z-10">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                          r.selectedFoodIds.includes(food._id) ? "bg-black/10" : "bg-muted"
-                        }`}>
-                          <UtensilsCrossed size={20} />
-                        </div>
-                        <div>
-                          <p className="font-bold">{food.name}</p>
-                          <p className={`text-xs ${r.selectedFoodIds.includes(food._id) ? "text-black/60" : "text-muted-foreground"}`}>
-                            {food.description || "Freshly prepared"}
-                          </p>
-                        </div>
-                      </div>
-                      {r.selectedFoodIds.includes(food._id) && (
-                        <CheckCircle2 size={20} className="relative z-10" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Drink Section */}
-            {r.hasDrink && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <h3 className="font-bold flex items-center gap-2">
-                    <Beer size={18} className="text-amber-500" />
-                    Drinks List
-                  </h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-500/60 bg-amber-500/10 px-2 py-1 rounded-full">
-                    Pick up to {r.settings?.maxDrink ?? 1}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
-                  {r.drinks.map((drink: any) => (
-                    <button
-                      key={drink._id}
-                      onClick={() => r.handleDrinkToggle(drink._id)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group relative overflow-hidden ${
-                        r.selectedDrinkIds.includes(drink._id)
-                          ? "bg-amber-500 border-amber-500 text-black"
-                          : "bg-card border-border hover:border-amber-500/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 relative z-10">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                          r.selectedDrinkIds.includes(drink._id) ? "bg-black/10" : "bg-muted"
-                        }`}>
-                          <Beer size={20} />
-                        </div>
-                        <div>
-                          <p className="font-bold">{drink.name}</p>
-                          <p className={`text-xs ${r.selectedDrinkIds.includes(drink._id) ? "text-black/60" : "text-muted-foreground"}`}>
-                            {drink.description || "Chilled beverage"}
-                          </p>
-                        </div>
-                      </div>
-                      {r.selectedDrinkIds.includes(drink._id) && (
-                        <CheckCircle2 size={20} className="relative z-10" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
+            {/* Food and Drink Section */}
+             <Step3Food
+                foods={r.foods}
+                drinks={r.drinks}
+                selectedFoodIds={r.selectedFoodIds}
+                onFoodToggle={r.handleFoodToggle}
+                selectedDrinkIds={r.selectedDrinkIds}
+                onDrinkToggle={r.handleDrinkToggle}
+                maxFood={r.settings?.maxFood ?? 2}
+                maxDrink={r.settings?.maxDrink ?? 1}
+              />
         </div>
         )}
 

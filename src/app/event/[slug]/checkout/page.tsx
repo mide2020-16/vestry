@@ -10,13 +10,14 @@ import { buildOrder } from "@/components/checkout/buildorder";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { ConfirmModal } from "@/components/checkout/ConfirmModal";
 import { AnimatedSpinner } from "@/components/ui/Boop";
+import { SuspenseDots } from "@/components/register/LoadingScreen";
 
-function LoadingScreen({ message = "Loading..." }: { message?: string }) {
+function LoadingScreen({ message = "Loading" }: { message?: string }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <AnimatedSpinner size={14} className="animate-spin h-10 w-10 text-amber-500" />
-        <p className="text-muted-foreground text-sm font-medium">{message}</p>
+        <p className="text-muted-foreground text-sm font-medium">{message}<SuspenseDots /></p>
       </div>
     </div>
   );

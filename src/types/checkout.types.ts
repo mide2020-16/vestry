@@ -5,9 +5,8 @@ export interface CheckoutProduct {
   name: string;
   price: number;
   category: string;
-  image_url?: string; // Added this so your OrderSummary can show the product image
+  image_url?: string;
 }
-
 export interface OrderData {
   name: string;
   email: string;

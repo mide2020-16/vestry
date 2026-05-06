@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,8 +9,9 @@ import { Loader2, Eye, EyeOff, ShieldCheck, ArrowLeft, Key } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { SimpleInput } from "@/components/ui/Input";
+import LoadingScreen from "@/components/register/LoadingScreen";
 
-export default function AdminLoginPage() {
+export  function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
@@ -125,8 +126,8 @@ export default function AdminLoginPage() {
                     <label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                       Password
                     </label>
-                    <Link href="/admin/forgot-password" size="xs" className="text-[9px] font-bold text-amber-500/60 hover:text-amber-500 transition-colors uppercase tracking-widest">
-                      Forgot Key?
+                    <Link href="/admin/forgot-password" className="text-[9px] font-bold text-amber-500/60 hover:text-amber-500 transition-colors uppercase tracking-widest">
+                      Forgot Password?
                     </Link>
                   </div>
                   <div className="relative group/pass">
@@ -267,4 +268,13 @@ export default function AdminLoginPage() {
       </div>
     </div>
   );
+}
+
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <LoginForm />
+    </Suspense>
+  )
 }

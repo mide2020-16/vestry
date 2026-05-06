@@ -15,7 +15,7 @@ import {
   Globe,
   Monitor
 } from "lucide-react";
-import { Spinner } from "@/components/admin/settings/SettingsUI";
+import { SecretInput } from "@/components/admin/settings/SettingsUI";
 import Link from "next/link";
 
 export default function SuperLogsPage() {
@@ -37,7 +37,7 @@ export default function SuperLogsPage() {
       });
   }, [page, filter]);
 
-  if (isLoading) return <div className="py-20 text-center"><Spinner /></div>;
+  if (isLoading) return <div className="py-20 text-center"><SecretInput /></div>;
 
   return (
     <div className="space-y-10 pb-24">

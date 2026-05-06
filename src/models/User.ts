@@ -13,8 +13,6 @@ export interface IUser extends Document {
   role: UserRole;
   managedEvents: mongoose.Types.ObjectId[];
   image?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const UserSchema: Schema = new Schema(

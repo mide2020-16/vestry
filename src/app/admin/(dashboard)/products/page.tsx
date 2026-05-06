@@ -14,6 +14,7 @@ import type { Product, ProductForm } from "@/types/product.types";
 import { useSearchParams } from "next/navigation";
 import EventSwitcher from "@/components/admin/EventSwitcher";
 import { ConfirmationModal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 
 export default function AdminProductsPage() {
   const searchParams = useSearchParams();

@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dbConnect from "@/lib/dbConnect";
 import Event from "@/models/Event";
 
 export async function getRegistrationEndDate(eventId: string): Promise<Date | null> {
   await dbConnect();
-  const event = await Event.findById(eventId).lean() as any;
+  const event = await Event.findById(eventId).lean();
   if (!event?.endDate) return null;
   return new Date(event.endDate);
 }

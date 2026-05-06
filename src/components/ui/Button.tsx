@@ -21,7 +21,7 @@ export function Button({
   isLoading = false,
   leftIcon,
   rightIcon,
-  interactive = true,
+  interactive = false,
   disabled,
   ...props
 }: ButtonProps) {
@@ -42,7 +42,7 @@ export function Button({
     xl: "px-10 py-5 text-base",
   };
 
-  const baseStyles = "relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+  const baseStyles = "relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all disabled:opacity-50 disabled:pointer-events-none";
 
   const content = (
     <>

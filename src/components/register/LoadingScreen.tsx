@@ -1,3 +1,28 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+export function SuspenseDots() {
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => {
+        if (prev === "...") return "";
+        return prev + ".";
+      });
+    }, 500); // Speed of the dots (500ms)
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className="inline-block w-8 text-left">
+      {dots}
+    </span>
+  );
+}
+
 export default function LoadingScreen() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -21,7 +46,7 @@ export default function LoadingScreen() {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           />
         </svg>
-        <p className="text-muted-foreground text-sm font-medium">Loading event details...</p>
+        <p className="text-muted-foreground text-sm font-medium">Loading<SuspenseDots /></p>
       </div>
     </div>
   );

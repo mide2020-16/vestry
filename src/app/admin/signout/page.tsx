@@ -14,6 +14,10 @@ export default async function SignOutPage() {
     redirect("/admin/login");
   }
 
+  // function cn(arg0: string): string | undefined {
+  //   throw new Error("Function not implemented.");
+  // }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden transition-colors">
       {/* Architectural background lines */}
@@ -52,9 +56,7 @@ export default async function SignOutPage() {
             >
               <button
                 type="submit"
-                className={cn(
-                  "w-full relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all active:scale-95 disabled:opacity-50 py-4 px-6 text-xs bg-red-500 text-white hover:bg-red-400 shadow-lg shadow-red-500/20 border-transparent cursor-pointer"
-                )}
+                className="w-full relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all active:scale-95 disabled:opacity-50 py-4 px-6 text-xs bg-red-500 text-white hover:bg-red-400 shadow-lg shadow-red-500/20 border-transparent cursor-pointer"
               >
                 Yes, Sign Me Out
               </button>
@@ -62,9 +64,8 @@ export default async function SignOutPage() {
 
             <Link
               href="/admin"
-              className={cn(
+              className=
                 "w-full relative inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest rounded-2xl border transition-all active:scale-95 disabled:opacity-50 py-4 px-6 text-xs bg-card border-border hover:bg-muted text-foreground hover:border-amber-500/50 hover:text-amber-500 cursor-pointer"
-              )}
             >
               <ArrowLeft size={16} />
               Return to Dashboard

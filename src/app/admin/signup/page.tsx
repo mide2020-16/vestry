@@ -389,18 +389,3 @@ function Requirement({ label, met }: { label: string; met: boolean }) {
     </div>
   );
 }
-
-function Requirement({ label, met }: { label: string; met: boolean }) {
-  return (
-    <div className="flex items-center gap-1.5 transition-colors">
-      <div className={`shrink-0 w-3.5 h-3.5 rounded-full flex items-center justify-center border ${
-        met ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-muted/30 border-border/50 text-muted-foreground/30"
-      }`}>
-        {met ? <Check size={10} strokeWidth={3} /> : <X size={8} strokeWidth={3} />}
-      </div>
-      <span className={`text-[9px] font-bold uppercase tracking-tight ${met ? "text-foreground" : "text-muted-foreground/40"}`}>
-        {label}
-      </span>
-    </div>
-  );
-}

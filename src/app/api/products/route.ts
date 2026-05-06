@@ -50,7 +50,7 @@ export async function GET(request: Request) {
 
     // Admins see everything; public only sees available products
     const query: Record<string, unknown> = { eventId: finalEventId };
-    if (category) query.category = category;
+    if (category) query.category = category as any;
     if (!isAdmin) query.available = true;
 
     const products = await Product.find(query).sort({ createdAt: -1 }).lean();
@@ -129,10 +129,10 @@ export async function POST(request: Request) {
       name: name.trim(),
       image_url: image_url.trim(),
       price: Number(price) || 0,
-      category,
+      category: category as any,
       available: available !== false,
       modelUrl: typeof modelUrl === "string" ? modelUrl.trim() : undefined,
-      inscriptions: Array.isArray(inscriptions) ? inscriptions : [],
+      inscriptions,
       eventId,
     });
 

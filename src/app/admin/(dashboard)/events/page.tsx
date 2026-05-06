@@ -156,7 +156,6 @@ function EventCard({ event, onEdit, onDelete, onStatusChange }: {
 
             <div className="flex gap-2 pt-4 border-t border-border">
               <Button
-                asChild
                 variant="outline"
                 className="flex-1 py-2.5 rounded-xl text-[10px] bg-muted/50 border-transparent"
                 leftIcon={<Settings size={14} />}
@@ -164,7 +163,6 @@ function EventCard({ event, onEdit, onDelete, onStatusChange }: {
                 <Link href={`/admin/settings?eventId=${event._id}`}>Config</Link>
               </Button>
               <Button
-                asChild
                 variant="outline"
                 className="flex-1 py-2.5 rounded-xl text-[10px] bg-muted/50 border-transparent"
                 leftIcon={<Shield size={14} />}

@@ -71,7 +71,10 @@ export default function NotificationModal({ isOpen, onClose }: Props) {
                 >
                   <Check size={18} />
                 </button>
-                <button onClick={onClose} className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground">
+                <button 
+                title="close"
+                type="button"
+                onClick={onClose} className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground">
                   <X size={20} />
                 </button>
               </div>

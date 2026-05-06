@@ -28,6 +28,9 @@ export default function Step3Food({
   maxDrink,
 }: Props) {
 
+  const hasFood = foods && foods.length > 0;
+  const hasDrink = drinks && drinks.length > 0;
+
   return (
     <div className="flex flex-col gap-8 w-full max-w-md mx-auto items-center">
       {/* Section label */}
@@ -40,26 +43,30 @@ export default function Step3Food({
 
       {/* Food */}
       <div className="w-full">
-        <FoodCarousel
-          items={foods}
-          category={ProductCategory.FOOD}
-          selectedIds={selectedFoodIds}
-          onToggle={onFoodToggle}
-          maxSelections={maxFood}
-        />
+        {hasFood && (
+          <FoodCarousel
+            items={foods}
+            category={ProductCategory.FOOD}
+            selectedIds={selectedFoodIds}
+            onToggle={onFoodToggle}
+            maxSelections={maxFood}
+          />
+        )}
       </div>
 
-      <div className="border-t border-white/5 w-full" />
+      {hasFood && hasDrink && <div className="border-t border-white/5 w-full" />}
 
       {/* Drinks */}
       <div className="w-full">
-        <FoodCarousel
-          items={drinks}
-          category={ProductCategory.DRINK}
-          selectedIds={selectedDrinkIds}
-          onToggle={onDrinkToggle}
-          maxSelections={maxDrink}
-        />
+        {hasDrink && (
+          <FoodCarousel
+            items={drinks}
+            category={ProductCategory.DRINK}
+            selectedIds={selectedDrinkIds}
+            onToggle={onDrinkToggle}
+            maxSelections={maxDrink}
+          />
+        )}
       </div>
     </div>
   );

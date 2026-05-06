@@ -65,6 +65,8 @@ export default function ShareEventModal({ eventSlug }: { eventSlug: string }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
           <div className="bg-card border border-border rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative">
             <button 
+              type='button'
+              title='open'
               onClick={() => setIsOpen(false)}
               className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors"
             >

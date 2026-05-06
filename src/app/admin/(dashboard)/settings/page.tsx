@@ -2,17 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, X, Mail, ShieldCheck, Plus, Settings } from "lucide-react";
+import { Check, X, Mail, ShieldCheck, Plus, Settings, Loader2 } from "lucide-react";
 import {
   Field,
   LogoField,
   SecretInput,
   Toggle,
-  Spinner,
   inputCls,
 } from "@/components/admin/settings/SettingsUI";
-import { AnimatedDecline } from "@/components/ui/Boop";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import EventSwitcher from "@/components/admin/EventSwitcher";
 import { AlertModal } from "@/components/ui/Modal";
 
@@ -212,8 +210,8 @@ export default function AdminSettingsPage() {
       "#14b8a6": "Teal", "#a855f7": "Purple", "#f43f5e": "Rose", "#0ea5e9": "Sky",
       "#d97706": "Amber", "#d946ef": "Fuchsia", "#d1d5db": "Light Gray",
       "#4b5563": "Dark Gray", "#1f2937": "Slate", "#7c3aed": "Violet",
-      "#ffd700": "Gold", "#cd7f32": "Bronze", "#b87333": "Copper", "#000000": "Pure Black",
-      "#ffffff": "Pure White", "#eeeeee": "Off White", "#333333": "Charcoal",
+      "#ffd700": "Gold", "#cd7f32": "Bronze", "#b87333": "Copper", "#030303": "Pure Black",
+      "#fbfbfb": "Pure White", "#eeeeee": "Off White", "#333333": "Charcoal",
     };
     return colors[hex.toLowerCase()] || "";
   };
@@ -231,7 +229,7 @@ export default function AdminSettingsPage() {
     return names[name.toLowerCase()] || null;
   };
 
-  if (isLoading) return <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground"><Spinner className="w-8 h-8" /> Synchronizing settings...</div>;
+  if (isLoading) return <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground"><Loader2 className="w-8 h-8" /> Synchronizing settings...</div>;
 
   if (!hasEvents) {
     return (
@@ -265,7 +263,7 @@ export default function AdminSettingsPage() {
       {message && (
         <div className={`p-4 mb-6 rounded-lg font-medium text-sm flex items-center justify-between ${message.ok ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
           {message.text}
-          <button type="button" onClick={() => setMessage(null)} className="cursor-pointer transition-all hover:scale-110 active:scale-90"><X size={14} /></button>
+          <button title='message' type="button" onClick={() => setMessage(null)} className="cursor-pointer transition-all hover:scale-110 active:scale-90"><X size={14} /></button>
         </div>
       )}
 
@@ -403,7 +401,7 @@ export default function AdminSettingsPage() {
                       }}
                       className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-bold"
                     />
-                    <button type="button" onClick={() => removeColor(i)} className="p-1 hover:text-red-500"><X size={14} /></button>
+                    <button title='remove' type="button" onClick={() => removeColor(i)} className="p-1 hover:text-red-500"><X size={14} /></button>
                   </div>
                 ))}
                 <button 
@@ -456,6 +454,7 @@ export default function AdminSettingsPage() {
                   className={`${inputCls()} !py-3 !text-xs font-bold uppercase`}
                 />
                 <button 
+                  title='add'
                   type="button" 
                   onClick={() => {
                     const el = document.getElementById('new-size-input') as HTMLInputElement;
@@ -493,7 +492,7 @@ export default function AdminSettingsPage() {
 
         <div className="flex justify-end pt-10">
           <button type="submit" disabled={isSaving} className="px-12 py-4 bg-amber-500 text-black font-black uppercase rounded-2xl hover:bg-amber-400 transition-all flex items-center gap-2">
-            {isSaving ? <Spinner className="h-4 w-4" /> : <Check size={20} />}
+            {isSaving ? <Loader2 className="h-4 w-4" /> : <Check size={20} />}
             Save All Settings
           </button>
         </div>

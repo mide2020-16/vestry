@@ -38,8 +38,6 @@ export const inputCls = (accent: "amber" | "emerald" = "amber") =>
        : "focus:ring-emerald-500/10 focus:border-emerald-500"
    }`;
 
-/* ── Spinner ─────────────────────────────────────────────────────────────── */
-
 
 /* ── Logo upload / preview ───────────────────────────────────────────────── */
 

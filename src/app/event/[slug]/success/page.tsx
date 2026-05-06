@@ -1,17 +1,18 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Download, CheckCircle2, XCircle, Home, AlertTriangle, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { VestryReceiptPDF } from "@/components/receipt/VestryReceiptPDF";
-import { ReceiptCard } from "@/components/success/ReceiptCard";
-import { PushPermissionButton } from "@/components/success/PushPermissionButton";
-import QRCode from "qrcode";
 import type { Registration } from "@/types/receipt.types";
-import { AnimatedAlert, AnimatedCheck, AnimatedDecline, AnimatedSpinner } from "@/components/ui/Boop";
+import { AnimatedAlert, AnimatedCheck, AnimatedSpinner } from "@/components/ui/Boop";
+import { ReceiptCard } from "@/components/success/ReceiptCard";
+import { VestryReceiptPDF } from "@/components/receipt/VestryReceiptPDF";
+import LoadingScreen from "@/components/register/LoadingScreen";
+import QRCode from "qrcode";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -141,7 +142,7 @@ function SuccessContent() {
 
 export default function SuccessPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingScreen />}>
       <SuccessContent />
     </Suspense>
   );

@@ -48,6 +48,8 @@ export default function MobileMenu({ role, email }: Props) {
   return (
     <div className="md:hidden">
       <button 
+        type="button"
+        title="menu"
         onClick={() => setIsOpen(true)}
         className="p-2.5 bg-muted/30 hover:bg-muted rounded-2xl border border-border transition-all active:scale-90"
       >
@@ -77,7 +79,7 @@ export default function MobileMenu({ role, email }: Props) {
                   <h2 className="text-xl font-black uppercase tracking-tight">Navigation</h2>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">{role?.replace('_', ' ')}</p>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-muted rounded-xl transition-all">
+                <button type='button' title='close' onClick={() => setIsOpen(false)} className="p-2 hover:bg-muted rounded-xl transition-all">
                   <X size={20} />
                 </button>
               </div>

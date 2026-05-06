@@ -68,6 +68,8 @@ export function RegistrationDetailModal({
               </div>
             </div>
             <button
+              type="button"
+              title="close"
               onClick={onClose}
               className="p-3 hover:bg-muted rounded-2xl transition-all active:scale-95 text-muted-foreground hover:text-foreground"
             >

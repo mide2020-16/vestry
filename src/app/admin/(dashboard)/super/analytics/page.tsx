@@ -10,9 +10,9 @@ import {
   ChevronLeft,
   ArrowUpRight,
   ArrowDownRight,
-  Ticket
+  Ticket,
+  Loader2
 } from "lucide-react";
-import { Spinner } from "@/components/admin/settings/SettingsUI";
 import Link from "next/link";
 
 export default function SuperAnalyticsPage() {
@@ -28,7 +28,7 @@ export default function SuperAnalyticsPage() {
       });
   }, []);
 
-  if (isLoading) return <div className="py-20 text-center"><Spinner /></div>;
+  if (isLoading) return <div className="py-20 text-center"><Loader2 /></div>;
   if (!data) return <div className="py-20 text-center text-muted-foreground">No data available</div>;
 
   const { revenueOverTime, registrationsOverTime, eventBreakdown, ticketDistribution } = data;

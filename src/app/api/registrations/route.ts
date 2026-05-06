@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as RegistrationBody;
-    let {
+    const {
       name,
       email,
       ticketType,
@@ -90,14 +90,14 @@ export async function POST(request: Request) {
       eventId: event._id,
     });
 
+    let refrenceToUse = typeof existingRef === "string" ? existingRef : "";
     if (existingRegistrationByEmail) {
       if (existingRegistrationByEmail.status === "success" || existingRegistrationByEmail.paymentStatus === true) {
         return NextResponse.json({ error: "This email has already been registered for this event." }, { status: 400 });
       }
       
-      // If it's pending/declined and they don't have the existingRef, overwrite the old one
-      if (!existingRef) {
-        existingRef = existingRegistrationByEmail.paystackReference;
+      if (!refrenceToUse) {
+        refrenceToUse = existingRegistrationByEmail.paystackReference;
       }
     }
 
@@ -111,8 +111,8 @@ export async function POST(request: Request) {
       ? baseTotal + calculatePaystackFee(baseTotal) 
       : baseTotal;
 
-    const paystackReference = existingRef && typeof existingRef === "string" 
-      ? existingRef 
+    const paystackReference = refrenceToUse 
+      ? refrenceToUse 
       : `VESTRY-${nanoid(10).toUpperCase()}`;
 
     const regData = {
@@ -133,9 +133,9 @@ export async function POST(request: Request) {
     };
 
     let registration;
-    if (existingRef && typeof existingRef === "string") {
+    if (refrenceToUse) {
       registration = await Registration.findOneAndUpdate(
-        { paystackReference: existingRef, eventId: event._id },
+        { paystackReference: refrenceToUse, eventId: event._id },
         regData,
         { new: true }
       );

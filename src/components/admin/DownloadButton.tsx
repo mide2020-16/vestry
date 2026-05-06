@@ -4,9 +4,9 @@
 import { useState, useEffect } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { RegistrationPDF } from "./RegistrationPDF";
-import { FileText } from "lucide-react";
-import { AnimatedSpinner, AnimatedFileText } from "../ui/Boop";
-
+import { FileText, Loader2 } from "lucide-react";
+import { AnimatedSpinner } from "../ui/Boop";
+import { cn } from "@/lib/utils";
 export interface RegistrationForPDF {
   _id: string;
   name: string;

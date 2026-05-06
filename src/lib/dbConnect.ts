@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 declare global {
   var mongoose: MongooseCache | undefined;
 }

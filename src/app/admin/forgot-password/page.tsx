@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -66,7 +68,7 @@ export default function ForgotPasswordPage() {
               <Mail size={32} />
             </div>
             <h1 className="text-3xl font-black tracking-tight">Forgot <span className="text-amber-500">Access Key?</span></h1>
-            <p className="text-muted-foreground text-sm leading-relaxed">Enter your email and we'll send you a recovery link to reset your administrative credentials.</p>
+            <p className="text-muted-foreground text-sm leading-relaxed">Enter your email and we&lsquo;ll send you a recovery link to reset your administrative credentials.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
