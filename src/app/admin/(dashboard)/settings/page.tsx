@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, X, Mail, ShieldCheck, Plus, Settings, Loader2 } from "lucide-react";
+import { Check, X, Mail, ShieldCheck, Plus, Settings, Loader2, Trash2 } from "lucide-react";
 import {
   Field,
   LogoField,
@@ -13,23 +14,26 @@ import {
 import { useSearchParams } from "next/navigation";
 import EventSwitcher from "@/components/admin/EventSwitcher";
 import { AlertModal } from "@/components/ui/Modal";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
+
+interface TicketType {
+  name: string;
+  price: number;
+  description?: string;
+  capacity?: number;
+}
 
 interface SettingsForm {
   tenureName: string;
   description: string;
   bannerImageUrl: string;
-  singlePrice: number;
-  couplePrice: number;
-  meshSinglePrice: number;
-  meshCouplePrice: number;
+  ticketTypes: TicketType[];
   paystackPublicKey: string;
   paystackSecretKey: string;
   logoUrl: string;
   registrationEndDate: string;
-  meshColors: { label: string; value: string }[];
-  meshSizes: string[];
   bankName: string;
   accountName: string;
   accountNumber: string;
@@ -51,16 +55,11 @@ const DEFAULTS: SettingsForm = {
   tenureName: "",
   description: "",
   bannerImageUrl: "",
-  singlePrice: 0,
-  couplePrice: 0,
-  meshSinglePrice: 0,
-  meshCouplePrice: 0,
+  ticketTypes: [{ name: "Standard", price: 0, description: "" }],
   paystackPublicKey: "",
   paystackSecretKey: "",
   logoUrl: "",
   registrationEndDate: "",
-  meshColors: [],
-  meshSizes: [],
   bankName: "",
   accountName: "",
   accountNumber: "",
@@ -98,7 +97,6 @@ export default function AdminSettingsPage() {
     setActiveEventId(eventId);
     (async () => {
       try {
-        // First check for events
         const eventRes = await fetch("/api/events");
         const eventData = await eventRes.json();
         const foundEvents = eventData.success && eventData.data && eventData.data.length > 0;
@@ -120,7 +118,8 @@ export default function AdminSettingsPage() {
             registrationEndDate: data.data.registrationEndDate
               ? new Date(data.data.registrationEndDate).toISOString().slice(0, 16)
               : "",
-            smtp: { ...DEFAULTS.smtp, ...data.data.smtp }
+            smtp: { ...DEFAULTS.smtp, ...data.data.smtp },
+            ticketTypes: data.data.ticketTypes?.length ? data.data.ticketTypes : DEFAULTS.ticketTypes
           });
         }
       } catch (err) {
@@ -172,64 +171,28 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const addColor = () => {
-    setForm(p => ({ ...p, meshColors: [...p.meshColors, { label: "", value: "#000000" }] }));
+  const addTicketType = () => {
+    setForm(p => ({
+      ...p,
+      ticketTypes: [...p.ticketTypes, { name: "", price: 0, description: "" }]
+    }));
   };
 
-  const removeColor = (index: number) => {
-    setForm(p => ({ ...p, meshColors: p.meshColors.filter((_, i) => i !== index) }));
+  const removeTicketType = (index: number) => {
+    if (form.ticketTypes.length <= 1) return;
+    setForm(p => ({
+      ...p,
+      ticketTypes: p.ticketTypes.filter((_, i) => i !== index)
+    }));
   };
 
-  const updateColor = (index: number, field: "label" | "value", val: string) => {
-    const next = [...form.meshColors];
-    next[index] = { ...next[index], [field]: val };
-    setForm(p => ({ ...p, meshColors: next }));
+  const updateTicketType = (index: number, field: keyof TicketType, value: any) => {
+    const next = [...form.ticketTypes];
+    next[index] = { ...next[index], [field]: field === 'price' || field === 'capacity' ? Number(value) : value };
+    setForm(p => ({ ...p, ticketTypes: next }));
   };
 
-  const addSize = (size: string) => {
-    const cleanSize = size.trim().toUpperCase();
-    if (!cleanSize || form.meshSizes.includes(cleanSize)) return;
-    setForm(p => ({ ...p, meshSizes: [...p.meshSizes, cleanSize] }));
-  };
-
-  const removeSize = (size: string) => {
-    setForm(p => ({ ...p, meshSizes: p.meshSizes.filter(s => s !== size) }));
-  };
-
-  const COMMON_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"];
-
-  // Automated color naming helper
-  const getColorName = (hex: string) => {
-    const colors: Record<string, string> = {
-      "#000000": "Black", "#ffffff": "White", "#ff0000": "Red", "#00ff00": "Lime",
-      "#0000ff": "Blue", "#ffff00": "Yellow", "#00ffff": "Cyan", "#ff00ff": "Magenta",
-      "#c0c0c0": "Silver", "#808080": "Gray", "#800000": "Maroon", "#808000": "Olive",
-      "#008000": "Green", "#800080": "Purple", "#008080": "Teal", "#000080": "Navy",
-      "#f59e0b": "Amber", "#10b981": "Emerald", "#3b82f6": "Blue", "#ef4444": "Red",
-      "#8b5cf6": "Violet", "#ec4899": "Pink", "#f97316": "Orange", "#6366f1": "Indigo",
-      "#14b8a6": "Teal", "#a855f7": "Purple", "#f43f5e": "Rose", "#0ea5e9": "Sky",
-      "#d97706": "Amber", "#d946ef": "Fuchsia", "#d1d5db": "Light Gray",
-      "#4b5563": "Dark Gray", "#1f2937": "Slate", "#7c3aed": "Violet",
-      "#ffd700": "Gold", "#cd7f32": "Bronze", "#b87333": "Copper", "#030303": "Pure Black",
-      "#fbfbfb": "Pure White", "#eeeeee": "Off White", "#333333": "Charcoal",
-    };
-    return colors[hex.toLowerCase()] || "";
-  };
-
-  const getHexFromName = (name: string) => {
-    const names: Record<string, string> = {
-      "black": "#000000", "white": "#ffffff", "red": "#ff0000", "lime": "#00ff00",
-      "blue": "#0000ff", "yellow": "#ffff00", "cyan": "#00ffff", "magenta": "#ff00ff",
-      "silver": "#c0c0c0", "gray": "#808080", "maroon": "#800000", "olive": "#808000",
-      "green": "#008000", "purple": "#800080", "teal": "#008080", "navy": "#000080",
-      "amber": "#f59e0b", "emerald": "#10b981", "violet": "#8b5cf6", "pink": "#ec4899",
-      "orange": "#f97316", "indigo": "#6366f1", "rose": "#f43f5e", "sky": "#0ea5e9",
-      "fuchsia": "#d946ef", "gold": "#ffd700", "bronze": "#cd7f32", "silver-fox": "#c0c0c0",
-    };
-    return names[name.toLowerCase()] || null;
-  };
-
-  if (isLoading) return <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground"><Loader2 className="w-8 h-8" /> Synchronizing settings...</div>;
+  if (isLoading) return <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground"><Loader2 className="w-8 h-8" animate-spin /> Synchronizing settings...</div>;
 
   if (!hasEvents) {
     return (
@@ -297,25 +260,102 @@ export default function AdminSettingsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field label="Event Logo" hint="Appears on registration header">
-              <LogoField logoUrl={form.logoUrl} onChange={(url: any) => setForm(p => ({ ...p, logoUrl: url }))} />
+              <LogoField logoUrl={form.logoUrl} onChange={(url: string) => setForm(p => ({ ...p, logoUrl: url }))} />
             </Field>
             <Field label="Banner Image" hint="Hero image for your event card">
-              <LogoField logoUrl={form.bannerImageUrl} onChange={(url: any) => setForm(p => ({ ...p, bannerImageUrl: url }))} />
+              <LogoField logoUrl={form.bannerImageUrl} onChange={(url: string) => setForm(p => ({ ...p, bannerImageUrl: url }))} />
             </Field>
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="bg-card border border-border rounded-3xl p-8 space-y-6">
-          <h3 className="text-xl font-bold text-amber-500 border-b border-border pb-2">Pricing</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Field label="Single Ticket (₦)"><input type="number" name="singlePrice" value={form.singlePrice} onChange={handleChange} className={inputCls()} /></Field>
-            <Field label="Couple Ticket (₦)"><input type="number" name="couplePrice" value={form.couplePrice} onChange={handleChange} className={inputCls()} /></Field>
-            <Field label="Merch Single (₦)"><input type="number" name="meshSinglePrice" value={form.meshSinglePrice} onChange={handleChange} className={inputCls()} /></Field>
-            <Field label="Merch Couple (₦)"><input type="number" name="meshCouplePrice" value={form.meshCouplePrice} onChange={handleChange} className={inputCls()} /></Field>
+        {/* Dynamic Ticket Types */}
+        <section className="bg-card border border-border rounded-3xl p-8 space-y-6" data-tour="ticket-inventory">
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-2">
+              <Settings className="text-amber-500" size={24} />
+              <h3 className="text-xl font-bold">Ticket Inventory</h3>
+            </div>
+            <button 
+              type="button" 
+              onClick={addTicketType}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all"
+            >
+              <Plus size={14} /> Add Ticket Type
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+             <AnimatePresence initial={false}>
+              {form.ticketTypes.map((ticket, index) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="p-6 rounded-2xl border border-border bg-muted/20 relative group"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                    <div className="md:col-span-4">
+                      <Field label="Name">
+                        <input 
+                          type="text" 
+                          value={ticket.name} 
+                          onChange={(e) => updateTicketType(index, 'name', e.target.value)}
+                          placeholder="e.g. Early Bird" 
+                          className={inputCls()} 
+                        />
+                      </Field>
+                    </div>
+                    <div className="md:col-span-3">
+                      <Field label="Price (₦)">
+                        <input 
+                          type="number" 
+                          value={ticket.price} 
+                          onChange={(e) => updateTicketType(index, 'price', e.target.value)}
+                          className={inputCls()} 
+                        />
+                      </Field>
+                    </div>
+                    <div className="md:col-span-3">
+                      <Field label="Capacity" hint="Optional">
+                        <input 
+                          type="number" 
+                          value={ticket.capacity || ""} 
+                          onChange={(e) => updateTicketType(index, 'capacity', e.target.value)}
+                          placeholder="Unlimited"
+                          className={inputCls()} 
+                        />
+                      </Field>
+                    </div>
+                    <div className="md:col-span-2 pt-8 flex justify-end">
+                       <button 
+                        type="button" 
+                        onClick={() => removeTicketType(index)}
+                        disabled={form.ticketTypes.length <= 1}
+                        className="p-2 text-muted-foreground hover:text-red-500 disabled:opacity-0 transition-all"
+                       >
+                         <Trash2 size={18} />
+                       </button>
+                    </div>
+                    <div className="md:col-span-12">
+                      <Field label="Short Description">
+                        <input 
+                          type="text" 
+                          value={ticket.description} 
+                          onChange={(e) => updateTicketType(index, 'description', e.target.value)}
+                          placeholder="What is included in this ticket?" 
+                          className={inputCls()} 
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+             </AnimatePresence>
           </div>
         </section>
 
+        {/* SMTP Configuration */}
         <section className="bg-card border border-border rounded-3xl p-8 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -342,7 +382,6 @@ export default function AdminSettingsPage() {
               Verify Configuration
             </button>
           </div>
-          <p className="text-xs text-muted-foreground mb-6">Used for sending tickets and notifications to users.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="SMTP Host"><input type="text" name="smtp.host" value={form.smtp.host} onChange={handleChange} placeholder="smtp.gmail.com" className={inputCls("amber")} /></Field>
@@ -356,117 +395,14 @@ export default function AdminSettingsPage() {
 
         {/* Paystack */}
         <section className="bg-card border border-border rounded-3xl p-8 space-y-6">
-          <h3 className="text-xl font-bold text-emerald-500 border-b border-border pb-2">Paystack Keys</h3>
+          <h3 className="text-xl font-bold text-emerald-500 border-b border-border pb-2">Payment Gateways</h3>
           <div className="grid grid-cols-1 gap-6">
-            <Field label="Public Key"><input type="text" name="paystackPublicKey" value={form.paystackPublicKey} onChange={handleChange} className={inputCls("emerald")} /></Field>
-            <Field label="Secret Key"><SecretInput name="paystackSecretKey" value={form.paystackSecretKey} onChange={handleChange} /></Field>
+            <Field label="Paystack Public Key"><input type="text" name="paystackPublicKey" value={form.paystackPublicKey} onChange={handleChange} className={inputCls("emerald")} /></Field>
+            <Field label="Paystack Secret Key"><SecretInput name="paystackSecretKey" value={form.paystackSecretKey} onChange={handleChange} /></Field>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Toggle label="Enable Paystack" checked={form.paystackEnabled} onChange={v => setForm(p => ({ ...p, paystackEnabled: v }))} />
-            <Toggle label="Enable Bank Transfer" checked={form.bankTransferEnabled} onChange={v => setForm(p => ({ ...p, bankTransferEnabled: v }))} />
-          </div>
-        </section>
-
-        {/* Merch Customization */}
-        <section className="bg-card border border-border rounded-3xl p-8 space-y-8">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-amber-500">Merch Customization</h3>
-          </div>
-          
-          <div className="space-y-6">
-            <Field label="Color Palette" hint="Colors available for inscriptions (e.g., Gold, White)">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {form.meshColors.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-muted/20 p-2 rounded-xl border border-border">
-                    <input 
-                      type="color" 
-                      value={c.value} 
-                      onChange={e => {
-                        const hex = e.target.value;
-                        const guessedName = getColorName(hex);
-                        updateColor(i, 'value', hex);
-                        if (guessedName) updateColor(i, 'label', guessedName);
-                      }}
-                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent"
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Label (e.g. Gold)" 
-                      value={c.label} 
-                      onChange={e => {
-                        const name = e.target.value;
-                        updateColor(i, 'label', name);
-                        const hex = getHexFromName(name);
-                        if (hex) updateColor(i, 'value', hex);
-                      }}
-                      className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-bold"
-                    />
-                    <button title='remove' type="button" onClick={() => removeColor(i)} className="p-1 hover:text-red-500"><X size={14} /></button>
-                  </div>
-                ))}
-                <button 
-                  type="button" 
-                  onClick={addColor}
-                  className="flex items-center justify-center gap-2 p-3 border border-dashed border-border rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-amber-500"
-                >
-                  <Plus size={14} /> Add Color
-                </button>
-              </div>
-            </Field>
-
-            <Field label="Available Sizes" hint="Enter sizes in uppercase (e.g. S, M, L, XL)">
-              <div className="flex flex-wrap gap-2 mb-3">
-                {COMMON_SIZES.map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => addSize(s)}
-                    disabled={form.meshSizes.includes(s)}
-                    className="px-3 py-1.5 rounded-lg border border-border text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:bg-amber-500/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    + {s}
-                  </button>
-                ))}
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mb-4 p-4 bg-muted/10 rounded-2xl border border-dashed border-border min-h-[60px] items-center">
-                {form.meshSizes.length === 0 && <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">No sizes added</p>}
-                {form.meshSizes.map(size => (
-                  <span key={size} className="px-3 py-1.5 bg-amber-500 text-black rounded-lg text-xs font-black flex items-center gap-2 animate-in zoom-in-95">
-                    {size}
-                    <button type="button" onClick={() => removeSize(size)} className="hover:scale-110 transition-all"><X size={14} /></button>
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  id="new-size-input"
-                  placeholder="Type custom size (e.g. XXL)..." 
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addSize((e.target as HTMLInputElement).value);
-                      (e.target as HTMLInputElement).value = '';
-                    }
-                  }}
-                  className={`${inputCls()} !py-3 !text-xs font-bold uppercase`}
-                />
-                <button 
-                  title='add'
-                  type="button" 
-                  onClick={() => {
-                    const el = document.getElementById('new-size-input') as HTMLInputElement;
-                    addSize(el.value);
-                    el.value = '';
-                  }}
-                  className="px-6 bg-muted border border-border rounded-xl hover:bg-muted/80 transition-all text-amber-500"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-            </Field>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+            <Toggle label="Enable Online Payment (Paystack)" checked={form.paystackEnabled} onChange={v => setForm(p => ({ ...p, paystackEnabled: v }))} />
+            <Toggle label="Enable Offline Payment (Bank Transfer)" checked={form.bankTransferEnabled} onChange={v => setForm(p => ({ ...p, bankTransferEnabled: v }))} />
           </div>
         </section>
 
@@ -491,8 +427,8 @@ export default function AdminSettingsPage() {
         </section>
 
         <div className="flex justify-end pt-10">
-          <button type="submit" disabled={isSaving} className="px-12 py-4 bg-amber-500 text-black font-black uppercase rounded-2xl hover:bg-amber-400 transition-all flex items-center gap-2">
-            {isSaving ? <Loader2 className="h-4 w-4" /> : <Check size={20} />}
+          <button type="submit" disabled={isSaving} className="px-12 py-4 bg-amber-500 text-black font-black uppercase rounded-2xl hover:bg-amber-400 transition-all flex items-center gap-2 shadow-2xl shadow-amber-500/20 active:scale-95">
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check size={20} />}
             Save All Settings
           </button>
         </div>

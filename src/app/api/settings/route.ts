@@ -28,7 +28,29 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Event not found" }, { status: 404 });
     }
 
-    let config = (event as any).config;
+    let config = (event as any).config || {};
+    
+    // AUTO-MIGRATION: If ticketTypes is missing or empty, try to migrate from singlePrice/couplePrice
+    if (!config.ticketTypes || config.ticketTypes.length === 0) {
+      const ticketTypes = [];
+      if (config.singlePrice !== undefined && config.singlePrice > 0) {
+        ticketTypes.push({ name: "Single", price: config.singlePrice, description: "Standard single entry pass" });
+      }
+      if (config.couplePrice !== undefined && config.couplePrice > 0) {
+        ticketTypes.push({ name: "Couple", price: config.couplePrice, description: "Entry pass for two people" });
+      }
+      
+      // If still empty, add a default
+      if (ticketTypes.length === 0) {
+        ticketTypes.push({ name: "Standard", price: 0, description: "General admission" });
+      }
+      
+      config.ticketTypes = ticketTypes;
+      
+      // Persist the migration back to the event
+      await Event.findByIdAndUpdate(event._id, { $set: { "config.ticketTypes": ticketTypes } });
+    }
+
     const session = await auth();
     let isAdmin = false;
 
@@ -36,7 +58,7 @@ export async function GET(request: Request) {
       const User = (await import("@/models/User")).default;
       const dbUser = await User.findOne({ email: session.user.email.toLowerCase() }).lean() as any;
       if (dbUser) {
-        isAdmin = dbUser.role === "SUPER_ADMIN" || dbUser.role === "EVENT_ADMIN";
+        isAdmin = dbUser.role === "SUPER_ADMIN" || dbUser.role === "EVENT_CREATOR";
       }
     }
 
@@ -79,7 +101,7 @@ export async function PUT(request: Request) {
     const User = (await import("@/models/User")).default;
     const dbUser = await User.findOne({ email: session.user.email?.toLowerCase() }).lean() as any;
     
-    if (!dbUser || (dbUser.role !== "SUPER_ADMIN" && dbUser.role !== "EVENT_ADMIN")) {
+    if (!dbUser || (dbUser.role !== "SUPER_ADMIN" && dbUser.role !== "EVENT_CREATOR")) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
@@ -90,7 +112,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, error: "eventId is required" }, { status: 400 });
     }
 
-    if (dbUser.role === "EVENT_ADMIN") {
+    if (dbUser.role === "EVENT_CREATOR") {
       const managed = (dbUser?.managedEvents || []).map((id: any) => id.toString());
       if (!managed.includes(eventId)) {
         return NextResponse.json({ success: false, error: "Unauthorized for this event" }, { status: 403 });

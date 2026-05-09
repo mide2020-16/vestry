@@ -7,15 +7,15 @@ export interface IEvent extends Document {
   endDate?: Date;
   config: {
     tenureName: string;
-    singlePrice: number;
-    couplePrice: number;
-    meshSinglePrice: number;
-    meshCouplePrice: number;
+    ticketTypes: {
+      name: string;
+      price: number;
+      description?: string;
+      capacity?: number;
+    }[];
     paystackPublicKey: string;
     paystackSecretKey: string;
     logoUrl: string;
-    meshColors: { label: string; value: string }[];
-    meshSizes: string[];
     bankName: string;
     accountName: string;
     accountNumber: string;
@@ -50,20 +50,17 @@ const EventSchema: Schema = new Schema(
     endDate: { type: Date },
     config: {
       tenureName: { type: String, default: "Vestry Event" },
-      singlePrice: { type: Number, default: 0 },
-      couplePrice: { type: Number, default: 0 },
-      meshSinglePrice: { type: Number, default: 0 },
-      meshCouplePrice: { type: Number, default: 0 },
+      ticketTypes: [
+        {
+          name: { type: String, required: true },
+          price: { type: Number, default: 0 },
+          description: { type: String },
+          capacity: { type: Number },
+        },
+      ],
       paystackPublicKey: { type: String, default: "" },
       paystackSecretKey: { type: String, default: "" },
       logoUrl: { type: String, default: "" },
-      meshColors: [
-        {
-          label: { type: String },
-          value: { type: String },
-        },
-      ],
-      meshSizes: [{ type: String }],
       bankName: { type: String, default: "" },
       accountName: { type: String, default: "" },
       accountNumber: { type: String, default: "" },

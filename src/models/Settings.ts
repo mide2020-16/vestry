@@ -1,17 +1,19 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface ITicketType {
+  name: string;
+  price: number;
+  description?: string;
+  capacity?: number;
+}
+
 export interface ISettings extends Document {
   tenureName: string;
-  singlePrice: number;
-  couplePrice: number;
-  meshSinglePrice: number;
-  meshCouplePrice: number;
+  ticketTypes: ITicketType[];
   paystackPublicKey: string;
   paystackSecretKey: string;
   logoUrl: string;
   registrationEndDate?: Date;
-  meshColors: { label: string; value: string }[];
-  meshSizes: string[];
   bankName: string;
   accountName: string;
   accountNumber: string;
@@ -22,21 +24,18 @@ export interface ISettings extends Document {
 const SettingsSchema: Schema = new Schema(
   {
     tenureName: { type: String, default: "Vestry Event" },
-    singlePrice: { type: Number, default: 0 },
-    couplePrice: { type: Number, default: 0 },
-    meshSinglePrice: { type: Number, default: 0 },
-    meshCouplePrice: { type: Number, default: 0 },
+    ticketTypes: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, default: 0 },
+        description: { type: String },
+        capacity: { type: Number },
+      },
+    ],
     paystackPublicKey: { type: String, default: "" },
     paystackSecretKey: { type: String, default: "" },
     logoUrl: { type: String, default: "" },
     registrationEndDate: { type: Date },
-    meshColors: [
-      {
-        label: { type: String, required: true },
-        value: { type: String, required: true },
-      },
-    ],
-    meshSizes: [{ type: String }],
     bankName: { type: String, default: "" },
     accountName: { type: String, default: "" },
     accountNumber: { type: String, default: "" },

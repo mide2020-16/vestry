@@ -1,30 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
 import "./Product";
-export enum TicketType {
-  SINGLE = "single",
-  COUPLE = "couple",
-  NONE = "none",
-}
-
 export interface IRegistration extends Document {
   name: string;
   partnerName?: string;
   email: string;
-  ticketType: TicketType;
-  meshSelection?: mongoose.Types.ObjectId;
-  meshQuantity?: number;
-  meshColor?: string;
-  meshSize?: string;
-  meshInscriptions?: string;
+  ticketType: string;
   foodSelections: mongoose.Types.ObjectId[];
   drinkSelection: mongoose.Types.ObjectId[];
-  merch: {
-    productId: mongoose.Types.ObjectId;
-    quantity: number;
-    color?: string;
-    size?: string;
-    inscriptions?: string;
-  }[];
   paymentStatus: boolean;
   status: "pending" | "success" | "declined";
   declineReason?: string;
@@ -53,26 +35,10 @@ const RegistrationSchema: Schema = new Schema(
     email: { type: String, required: true, index: true },
     ticketType: {
       type: String,
-      enum: Object.values(TicketType),
       required: true,
-      default: TicketType.SINGLE,
     },
-    meshSelection: { type: Schema.Types.ObjectId, ref: "Product" },
-    meshQuantity: { type: Number, default: 1 },
-    meshColor: { type: String },
-    meshSize: { type: String },
-    meshInscriptions: { type: String },
     foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     drinkSelection: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    merch: [
-      {
-        productId: { type: Schema.Types.ObjectId, ref: "Product" },
-        quantity: { type: Number, default: 1 },
-        color: { type: String },
-        size: { type: String },
-        inscriptions: { type: String },
-      },
-    ],
     paymentStatus: { type: Boolean, default: false },
     status: {
       type: String,

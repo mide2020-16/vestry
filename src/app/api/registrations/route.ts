@@ -19,13 +19,6 @@ interface RegistrationBody {
   email?: unknown;
   ticketType?: unknown;
   partnerName?: unknown;
-  merch?: {
-    productId: string;
-    quantity: number;
-    color?: string;
-    size?: string;
-    inscriptions?: string;
-  }[];
   foodSelections?: string[];
   drinkSelection?: string[];
   paymentMethod?: unknown;
@@ -58,7 +51,6 @@ export async function POST(request: Request) {
       email,
       ticketType,
       partnerName,
-      merch,
       foodSelections,
       drinkSelection,
       paymentMethod,
@@ -78,11 +70,17 @@ export async function POST(request: Request) {
     }
 
     const registrationEmail = typeof email === "string" ? email : "";
-    const registrationTicketType = (typeof ticketType === "string" ? ticketType : "single") as any;
+    const registrationTicketType = typeof ticketType === "string" ? ticketType : "";
 
     if (!name || typeof name !== "string") return NextResponse.json({ error: "Name required" }, { status: 400 });
     if (!isValidEmail(registrationEmail)) return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     if (!isValidTicketType(registrationTicketType)) return NextResponse.json({ error: "Invalid ticket type" }, { status: 400 });
+
+    // Validate ticket type exists in event config
+    const validTicket = config?.ticketTypes?.find((t: { name: string }) => t.name === registrationTicketType);
+    if (!validTicket) {
+      return NextResponse.json({ error: `Ticket type '${registrationTicketType}' is not available for this event.` }, { status: 400 });
+    }
 
     // Prevent duplicate successful registrations, and reuse pending/declined ones
     const existingRegistrationByEmail = await Registration.findOne({
@@ -103,8 +101,7 @@ export async function POST(request: Request) {
 
     const baseTotal = await calculateRegistrationTotal(
       event._id.toString(),
-      registrationTicketType,
-      merch as any
+      registrationTicketType
     );
 
     const totalAmount = paymentMethod === "paystack" 
@@ -121,7 +118,6 @@ export async function POST(request: Request) {
       email,
       ticketType: registrationTicketType,
       partnerName,
-      merch,
       foodSelections: Array.isArray(foodSelections) ? foodSelections : [],
       drinkSelection: Array.isArray(drinkSelection) ? drinkSelection : [],
       totalAmount,

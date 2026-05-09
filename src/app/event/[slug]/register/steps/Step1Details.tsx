@@ -1,7 +1,9 @@
 "use client";
 
-import { TicketType } from "../useRegister";
+import { TicketType, TicketTypeInfo } from "../useRegister";
 import { FloatingInput } from "@/components/ui/Input";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -15,24 +17,19 @@ interface Props {
   partnerName: string;
   setPartnerName: (v: string) => void;
   ticketPrice: number;
-  singlePrice?: number;
-  couplePrice?: number;
+  ticketTypes: TicketTypeInfo[];
 }
 
 /* ── Ticket type card ───────────────────────────────────────────────────── */
 
 interface TicketCardProps {
-  type: TicketType;
-  price?: number;
-  savings: number | null;
+  ticket: TicketTypeInfo;
   isSelected: boolean;
   onSelect: () => void;
 }
 
 function TicketCard({
-  type,
-  price,
-  savings,
+  ticket,
   isSelected,
   onSelect,
 }: TicketCardProps) {
@@ -40,31 +37,41 @@ function TicketCard({
     <button
       type="button"
       onClick={onSelect}
-      className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-200 overflow-hidden
+      className={`group relative p-6 rounded-[2rem] border-2 text-left transition-all duration-500 overflow-hidden
         ${
           isSelected
-            ? "border-amber-400 bg-amber-400/10 shadow-[0_0_20px_rgba(251,191,36,0.12)]"
-            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8"
+            ? "border-amber-500 bg-amber-500/5 shadow-2xl shadow-amber-500/10"
+            : "border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.04] dark:hover:bg-white/5"
         }`}
     >
-      {isSelected && (
-        <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
-      )}
-      <p
-        className={`font-bold capitalize text-base ${isSelected ? "text-amber-600 dark:text-amber-400" : "text-foreground/80"}`}
-      >
-        {type === "none" ? "No Ticket" : type}
-      </p>
-      <p
-        className={`text-sm mt-0.5 ${isSelected ? "text-amber-500/60 dark:text-amber-400/60" : "text-muted-foreground/60"}`}
-      >
-        {type === "none" ? "Excluded" : `₦${price?.toLocaleString() ?? "—"}`}
-      </p>
-      {type === "couple" && savings && savings > 0 && (
-        <span className="mt-2 inline-block text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
-          Save ₦{savings.toLocaleString()}
-        </span>
-      )}
+      <div className="flex flex-col h-full justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <p className={`font-black uppercase tracking-widest text-[10px] ${isSelected ? "text-amber-500" : "text-muted-foreground"}`}>
+              {ticket.name}
+            </p>
+            {isSelected && (
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-black"
+              >
+                <Check size={12} strokeWidth={4} />
+              </motion.div>
+            )}
+          </div>
+          <h4 className="text-xl font-bold tracking-tight">₦{ticket.price.toLocaleString()}</h4>
+        </div>
+        
+        {ticket.description && (
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {ticket.description}
+          </p>
+        )}
+      </div>
+
+      {/* Decorative background accent */}
+      <div className={`absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-2xl transition-all duration-700 ${isSelected ? "bg-amber-500/20 scale-150" : "bg-transparent"}`} />
     </button>
   );
 }
@@ -81,85 +88,98 @@ export default function Step1Details({
   partnerName,
   setPartnerName,
   ticketPrice,
-  singlePrice,
-  couplePrice,
+  ticketTypes,
 }: Props) {
-  const savings =
-    ticketType === "couple" && singlePrice && couplePrice
-      ? singlePrice * 2 - couplePrice
-      : null;
-
   return (
-    <div className="flex flex-col gap-5">
-      {/* Section label */}
-      <div className="flex items-center gap-6">
-        <span className="text-amber-600 dark:text-amber-400/80 text-[15px] font-semibold uppercase tracking-[0.3em]">
-          Your Details
-        </span>
-        <div className="flex-1 h-px bg-border/50" />
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex flex-col gap-8"
+    >
+      {/* Attendee fields */}
+      <div className="grid grid-cols-1 gap-4">
+        <FloatingInput
+          label="Full Name"
+          name="name"
+          autoComplete="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+        <FloatingInput
+          label="Email Address"
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
       </div>
 
-      {/* Attendee fields */}
-      <FloatingInput
-        label="Full Name"
-        name="name"
-        autoComplete="name"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-      />
-      <FloatingInput
-        label="Email Address"
-        type="email"
-        name="email"
-        autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-      />
-
       {/* Ticket type */}
-      <div>
-        <p className="text-amber-600 dark:text-amber-400/80 text-[10px] font-semibold uppercase tracking-[0.2em] mb-3">
-          Ticket Type
-        </p>
-        <div className="grid grid-cols-2 gap-3" data-tour="ticket-type">
-          {(["single", "couple"] as const).map((type) => (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+            Select Your Ticket
+          </p>
+          <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+            Required
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" data-tour="ticket-type">
+          {ticketTypes.map((ticket) => (
             <TicketCard
-              key={type}
-              type={type}
-              price={type === "couple" ? couplePrice : singlePrice}
-              savings={savings}
-              isSelected={ticketType === type}
-              onSelect={() => setTicketType(ticketType === type ? "none" : type)}
+              key={ticket.name}
+              ticket={ticket}
+              isSelected={ticketType === ticket.name}
+              onSelect={() => setTicketType(ticket.name)}
             />
           ))}
+          
+          {ticketTypes.length === 0 && (
+             <div className="col-span-full py-10 text-center border-2 border-dashed border-border rounded-[2rem]">
+                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">No tickets available</p>
+             </div>
+          )}
         </div>
       </div>
 
-      {/* Partner name — couple only */}
-      {ticketType === "couple" && (
-        <FloatingInput
-          label="Partner's Full Name"
-          name="partner-name"
-          autoComplete="off"
-          value={partnerName}
-          onChange={(e) => setPartnerName(e.target.value)}
-        />
+      {/* Partner name — if "couple" is in name (heuristic for backwards compatibility or specific logic) */}
+      {ticketType.toLowerCase().includes("couple") && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+        >
+          <FloatingInput
+            label="Partner's Full Name"
+            name="partner-name"
+            autoComplete="off"
+            value={partnerName}
+            onChange={(e) => setPartnerName(e.target.value)}
+          />
+        </motion.div>
       )}
 
       {/* Subtotal */}
-      <div className="flex justify-between items-center bg-card rounded-xl px-4 py-3.5 border border-border">
-        <div>
-          <span className="text-muted-foreground text-xs uppercase tracking-wide">
-            Subtotal
-          </span>
-          <p className="text-muted-foreground/60 text-[10px] mt-0.5 capitalize">
-            {ticketType} ticket
-          </p>
+      <div className="relative group overflow-hidden bg-white dark:bg-[#1c1c1e] rounded-[2rem] p-8 border border-black/5 dark:border-white/5 shadow-xl shadow-black/[0.02]">
+        <div className="relative z-10 flex justify-between items-end">
+          <div className="space-y-1">
+            <span className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">
+              Investment
+            </span>
+            <p className="text-muted-foreground/60 text-xs font-medium">
+              {ticketType || "Select a ticket"}
+            </p>
+          </div>
+          <div className="text-right">
+             <span className="text-4xl font-black tracking-tighter">
+              ₦{ticketPrice.toLocaleString()}
+            </span>
+          </div>
         </div>
-        <span className="text-amber-600 dark:text-amber-400 font-bold text-lg">
-          ₦{ticketPrice.toLocaleString()}
-        </span>
+        
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 rounded-full group-hover:bg-amber-500/10 transition-colors" />
       </div>
-    </div>
+    </motion.div>
   );
 }

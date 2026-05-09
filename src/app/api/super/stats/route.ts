@@ -22,7 +22,7 @@ export async function GET() {
 
     // System-wide statistics
     const totalUsers = await User.countDocuments();
-    const totalAdmins = await User.countDocuments({ role: { $in: [UserRole.SUPER_ADMIN, UserRole.EVENT_ADMIN] } });
+    const totalAdmins = await User.countDocuments({ role: { $in: [UserRole.SUPER_ADMIN, UserRole.EVENT_CREATOR] } });
     const totalEvents = await Event.countDocuments();
     const totalRegistrations = await Registration.countDocuments();
     

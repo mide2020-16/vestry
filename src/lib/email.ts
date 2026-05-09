@@ -228,3 +228,41 @@ export const sendUserAbandonedNotification = async (registration: any) => {
     console.error("Failed to send abandoned notification email:", err);
   }
 };
+
+export const sendWelcomeVerificationEmail = async (user: any) => {
+  const { transporter, from } = await getTransporter();
+  
+  const mailOptions = {
+    from,
+    to: user.email,
+    subject: `Welcome to Vestry Hub! 🕊️`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #1d1d1f; font-weight: 900; letter-spacing: -0.05em;">Welcome to <span style="color: #F59E0B;">Vestry.</span></h2>
+        <p>Hello ${user.name},</p>
+        <p>Thank you for joining the Vestry platform. Your account has been created successfully.</p>
+        
+        <div style="margin: 24px 0; padding: 20px; background-color: #fafafa; border-radius: 12px; border: 1px solid #eee;">
+          <h3 style="margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: #666;">Account Details</h3>
+          <p style="margin: 4px 0;"><strong>Name:</strong> ${user.name}</p>
+          <p style="margin: 4px 0;"><strong>Email:</strong> ${user.email}</p>
+          <p style="margin: 4px 0;"><strong>Role:</strong> ${user.role}</p>
+        </div>
+
+        <p>You can now browse and register for exclusive events on our platform.</p>
+        
+        <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/events" style="display:inline-block;padding:14px 28px;background-color:#F59E0B;color:#000;text-decoration:none;font-weight:bold;border-radius:30px;margin-top:10px;text-transform:uppercase;font-size:12px;letter-spacing:0.1em;">Start Discovering</a>
+        
+        <br /><br />
+        <hr style="border: 0; border-top: 1px solid #eee;" />
+        <p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">Vestry — Precision Whimsy Engine</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("Failed to send welcome email:", err);
+  }
+};

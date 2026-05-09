@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
@@ -19,20 +18,24 @@ export interface Product {
   available: boolean;
 }
 
+export interface TicketTypeInfo {
+  name: string;
+  price: number;
+  description?: string;
+  capacity?: number;
+}
+
 export interface Settings {
-  singlePrice: number;
-  couplePrice: number;
+  ticketTypes: TicketTypeInfo[];
   tenureName: string;
   logoUrl: string;
-  meshColors: { label: string; value: string }[];
-  meshSizes: string[];
   maxFood: number;
   maxDrink: number;
   status: "OPEN" | "CLOSED";
   slug: string;
 }
 
-export type TicketType = "single" | "couple" | "none";
+export type TicketType = string;
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -63,45 +66,6 @@ async function fetchInitialData(slug: string): Promise<{
   }
 }
 
-function buildCheckoutParams(data: {
-  ticketType: TicketType;
-  ticketPrice: number;
-  name: string;
-  email: string;
-  partnerName: string;
-  selectedMerch: {
-    productId: string;
-    quantity: number;
-    color?: string;
-    size?: string;
-    inscriptions?: string;
-  }[];
-  selectedDrinkIds: string[];
-  selectedFoodIds: string[];
-}): URLSearchParams {
-  const params = new URLSearchParams({
-    ticketType: data.ticketType,
-    ticketPrice: data.ticketPrice.toString(),
-    name: data.name,
-    email: data.email,
-  });
-
-  if (data.partnerName) params.append("partnerName", data.partnerName);
-
-  data.selectedMerch.forEach((item) => {
-    params.append("meshId", item.productId);
-    params.append("meshQty", item.quantity.toString());
-    params.append("meshColor", item.color || "");
-    params.append("meshSize", item.size || "");
-    params.append("meshInscription", item.inscriptions || "");
-  });
-
-  data.selectedDrinkIds.forEach((id) => params.append("drinkId", id));
-  data.selectedFoodIds.forEach((id) => params.append("foodId", id));
-
-  return params;
-}
-
 /* ── Hook ───────────────────────────────────────────────────────────────── */
 
 export function useRegister() {
@@ -118,69 +82,50 @@ export function useRegister() {
 
   const [name, setName] = useState(session?.name ?? "");
   const [email, setEmail] = useState(session?.email ?? "");
-  const [ticketType, setTicketType] = useState<TicketType>("single");
+  const [ticketType, setTicketType] = useState<TicketType>("");
   const [partnerName, setPartnerName] = useState("");
 
-  const [selectedMerch, setSelectedMerch] = useState<any[]>([]);
-  const [meshColors, setMeshColors] = useState<any[]>([]);
-  const [meshSizes, setMeshSizes] = useState<string[]>([]);
   const [selectedFoodIds, setSelectedFoodIds] = useState<string[]>([]);
   const [selectedDrinkIds, setSelectedDrinkIds] = useState<string[]>([]);
 
+  // Fetch data on slug change
   useEffect(() => {
     if (!slug) return;
     fetchInitialData(slug).then((data) => {
       setProducts(data.products);
       setSettings(data.settings);
-      setMeshColors(data.settings?.meshColors || []);
-      setMeshSizes(data.settings?.meshSizes || []);
       setLoadingData(false);
     });
   }, [slug]);
 
+  // Set default ticket type when settings load
   useEffect(() => {
-    if (meshColors.length > 0 && selectedMerch.length > 0) {
-      setSelectedMerch((prev) =>
-        prev.map((item) => (item.color ? item : { ...item, color: meshColors[0].value }))
-      );
+    if (settings?.ticketTypes?.length && !ticketType) {
+      setTicketType(settings.ticketTypes[0].name);
     }
-  }, [meshColors]);
+  }, [settings, ticketType]);
 
-  const meshes = useMemo(() => products.filter((p) => p.category === ProductCategory.mesh), [products]);
   const foods = useMemo(() => products.filter((p) => p.category === ProductCategory.FOOD), [products]);
   const drinks = useMemo(() => products.filter((p) => p.category === ProductCategory.DRINK), [products]);
 
-  const hasMerch = meshes.length > 0;
   const hasFood = foods.length > 0;
   const hasDrink = drinks.length > 0;
   const hasFoodOrDrink = hasFood || hasDrink;
 
-  const isCouple = ticketType === "couple";
-  const isNone = ticketType === "none";
-  const ticketPrice = settings ? (isNone ? 0 : isCouple ? settings.couplePrice : settings.singlePrice) : 0;
+  const ticketPrice = useMemo(() => {
+    if (!settings || !ticketType) return 0;
+    const type = settings.ticketTypes.find(t => t.name === ticketType);
+    return type?.price ?? 0;
+  }, [settings, ticketType]);
 
-  const meshPrice = useMemo(() => {
-    return selectedMerch.reduce((acc, item) => {
-      const product = meshes.find((m) => m._id === item.productId);
-      return acc + (product?.price ?? 0) * item.quantity;
-    }, 0);
-  }, [selectedMerch, meshes]);
-
-  const grandTotal = ticketPrice + meshPrice;
+  const grandTotal = ticketPrice;
 
   const canProceed = useMemo(() => {
     switch (step) {
-      case 1: return !!name.trim() && !!email.trim() && (ticketType !== "couple" || !!partnerName.trim());
-      case 2:
-        if (!hasMerch || selectedMerch.length === 0) return true;
-        return selectedMerch.every((item) => {
-          const product = meshes.find((m) => m._id === item.productId);
-          const needsInscription = (product?.inscriptions?.length ?? 0) > 0;
-          return !!item.size && (!needsInscription || !!item.inscriptions);
-        });
+      case 1: return !!name.trim() && !!email.trim() && !!ticketType;
       default: return true;
     }
-  }, [step, name, email, ticketType, partnerName, selectedMerch, meshes, hasMerch]);
+  }, [step, name, email, ticketType]);
 
   const handleFoodToggle = (id: string) => {
     setSelectedFoodIds((prev) => {
@@ -200,18 +145,6 @@ export function useRegister() {
     });
   };
 
-  const handleMerchToggle = (id: string) => {
-    setSelectedMerch((prev) => {
-      const exists = prev.find((m) => m.productId === id);
-      if (exists) return prev.filter((m) => m.productId !== id);
-      return [...prev, { productId: id, quantity: 1, color: meshColors[0]?.value }];
-    });
-  };
-
-  const updateMerch = (productId: string, updates: any) => {
-    setSelectedMerch((prev) => prev.map((item) => (item.productId === productId ? { ...item, ...updates } : item)));
-  };
-
   const handleNext = () => {
     if (step === 1) {
       saveSession({ name, email });
@@ -226,24 +159,10 @@ export function useRegister() {
           userName: name,
           userEmail: email,
           metadata: { slug, ticketType },
-          sessionId: localStorage.getItem("vestry_session_id") || undefined
         })
       }).catch(console.error);
       
-      // If no merch, skip to Step 3 (Food/Drink) or Step 4 (Review)
-      if (!hasMerch) {
-        if (hasFoodOrDrink) {
-          if (isNone) setStep(4); // "None" ticket skips food/drink too as per current logic? Wait, user didn't specify.
-          else setStep(3);
-        } else {
-          setStep(4);
-        }
-        return;
-      }
-    }
-
-    if (step === 2) {
-      if (hasFoodOrDrink && !isNone) {
+      if (hasFoodOrDrink) {
         setStep(3);
       } else {
         setStep(4);
@@ -261,10 +180,8 @@ export function useRegister() {
 
   const handleBack = () => {
     if (step === 4) {
-      if (hasFoodOrDrink && !isNone) {
+      if (hasFoodOrDrink) {
         setStep(3);
-      } else if (hasMerch) {
-        setStep(2);
       } else {
         setStep(1);
       }
@@ -272,25 +189,72 @@ export function useRegister() {
     }
 
     if (step === 3) {
-      if (hasMerch) {
-        setStep(2);
-      } else {
-        setStep(1);
-      }
+      setStep(1);
       return;
     }
 
     setStep((s) => Math.max(1, s - 1));
   };
 
-  const handleSubmit = () => {
-    const params = buildCheckoutParams({
-      ticketType, ticketPrice, name, email, partnerName, selectedMerch, selectedDrinkIds, selectedFoodIds,
-    });
-    router.push(`/event/${slug}/checkout?${params.toString()}`);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/registrations?slug=${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          ticketType,
+          partnerName,
+          foodSelections: selectedFoodIds,
+          drinkSelection: selectedDrinkIds,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.paystackReference) {
+        // Redirect with ONLY the reference for security/privacy
+        router.push(`/event/${slug}/checkout?ref=${data.paystackReference}`);
+      } else {
+        alert(data.error || "Failed to initiate registration.");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {
-    step, loadingData, settings, canProceed, name, setName, email, setEmail, ticketType, setTicketType, partnerName, setPartnerName, meshes, selectedMerch, setSelectedMerch, handleMerchToggle, updateMerch, meshColors, meshSizes, foods, drinks, selectedFoodIds, selectedDrinkIds, handleFoodToggle, handleDrinkToggle, ticketPrice, meshPrice, grandTotal, handleNext, handleBack, handleSubmit, hasMerch, hasFood, hasDrink,
+    step, 
+    loadingData, 
+    settings, 
+    canProceed, 
+    name, 
+    setName, 
+    email, 
+    setEmail, 
+    ticketType, 
+    setTicketType, 
+    partnerName, 
+    setPartnerName, 
+    foods, 
+    drinks, 
+    selectedFoodIds, 
+    selectedDrinkIds, 
+    handleFoodToggle, 
+    handleDrinkToggle, 
+    ticketPrice, 
+    grandTotal, 
+    handleNext, 
+    handleBack, 
+    handleSubmit, 
+    hasFood, 
+    hasDrink,
+    isSubmitting
   };
 }

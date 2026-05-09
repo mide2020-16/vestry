@@ -20,8 +20,8 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "ticket-type",
     target: '[data-tour="ticket-type"]',
-    title: "Choose Your Experience",
-    content: "Select 'Single' for yourself or 'Couple' to register for two people at once.",
+    title: "Dynamic Ticketing",
+    content: "Select from a variety of ticket types curated by the event organizer. Each card shows the benefits and pricing for that tier.",
     position: "bottom",
     page: "register",
   },
@@ -29,7 +29,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "payment-methods",
     target: '[data-tour="payment-selection"]',
     title: "Secure Payment",
-    content: "Choose between Paystack for instant online payment or Bank Transfer for manual processing.",
+    content: "Choose between Paystack for instant online payment or Bank Transfer for manual processing. All data is securely handled.",
     position: "top",
     page: "checkout",
   },
@@ -74,5 +74,13 @@ export const TOUR_STEPS: TourStep[] = [
     content: "Configure pricing, SMTP, and payment gateways specifically for the active event.",
     position: "right",
     page: "admin-dashboard",
+  },
+  {
+    id: "ticket-inventory",
+    target: '[data-tour="ticket-inventory"]',
+    title: "Ticket Inventory Manager",
+    content: "This is the heart of your event's revenue. Add, edit, or remove ticket types dynamically. Changes reflect instantly on the registration page.",
+    position: "top",
+    page: "admin-settings",
   },
 ];

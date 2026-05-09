@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       name,
       email,
       password: hashedPassword,
-      role: role || UserRole.USER,
+      role: role || UserRole.END_USER,
       managedEvents: managedEvents || []
     });
 

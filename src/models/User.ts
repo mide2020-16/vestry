@@ -2,8 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export enum UserRole {
   SUPER_ADMIN = "SUPER_ADMIN",
-  EVENT_ADMIN = "EVENT_ADMIN",
-  USER = "USER",
+  EVENT_CREATOR = "EVENT_CREATOR",
+  END_USER = "END_USER",
 }
 
 export interface IUser extends Document {
@@ -13,6 +13,7 @@ export interface IUser extends Document {
   role: UserRole;
   managedEvents: mongoose.Types.ObjectId[];
   image?: string;
+  isVerified: boolean;
 }
 
 const UserSchema: Schema = new Schema(
@@ -29,8 +30,9 @@ const UserSchema: Schema = new Schema(
     role: {
       type: String,
       enum: Object.values(UserRole),
-      default: UserRole.USER,
+      default: UserRole.END_USER,
     },
+    isVerified: { type: Boolean, default: false },
     managedEvents: [
       {
         type: Schema.Types.ObjectId,

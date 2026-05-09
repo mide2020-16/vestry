@@ -1,129 +1,54 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { calculatePaystackFee } from "@/lib/checkout";
-import { TicketType } from "@/app/event/[slug]/register/useRegister";
-import { CheckoutProduct, OrderData } from "@/types/checkout.types";
-
-async function fetchProduct(id: string, slug: string): Promise<CheckoutProduct | null> {
-  try {
-    const res = await fetch(`/api/products/${id}?slug=${slug}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data ?? json;
-  } catch {
-    return null;
-  }
-}
+import { OrderData } from "@/types/checkout.types";
 
 export async function buildOrder(
   slug: string,
   searchParams: URLSearchParams,
-  session: { name?: string; email?: string } | null,
 ): Promise<OrderData> {
   const ref = searchParams.get("ref");
 
-  if (ref) {
-    try {
-      const regRes = await fetch(`/api/registrations/by-ref/${ref}?slug=${slug}`);
-      if (regRes.ok) {
-        const { data: reg } = await regRes.json();
-        const settingsRes = await fetch(`/api/settings?slug=${slug}`).then((r) => r.json()).catch(() => null);
-
-        return {
-          name: reg.name,
-          email: reg.email,
-          ticketType: reg.ticketType,
-          partnerName: reg.partnerName,
-          merch: reg.merch.map((m: any) => ({
-            product: { 
-              _id: m.productId?._id || m.productId, 
-              name: m.productId?.name || "Merch", 
-              price: m.productId?.price || 0,
-              category: "mesh"
-            },
-            quantity: m.quantity,
-            color: m.color,
-            size: m.size,
-            inscriptions: m.inscriptions
-          })),
-          foods: reg.foodSelections || [],
-          drinks: reg.drinkSelection ? (Array.isArray(reg.drinkSelection) ? reg.drinkSelection : [reg.drinkSelection]) : [],
-          ticketPrice: reg.totalAmount - (reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0)),
-          meshTotal: reg.merch.reduce((sum: number, m: any) => sum + (m.productId?.price || 0) * m.quantity, 0),
-          baseTotal: reg.totalAmount,
-          paystackFee: calculatePaystackFee(reg.totalAmount),
-          grandTotal: reg.totalAmount + calculatePaystackFee(reg.totalAmount),
-          existingRef: ref,
-          bankDetails: settingsRes?.data ? {
-            bankName: settingsRes.data.bankName,
-            accountName: settingsRes.data.accountName,
-            accountNumber: settingsRes.data.accountNumber,
-          } : undefined,
-          paystackEnabled: settingsRes?.data?.paystackEnabled ?? true,
-          bankTransferEnabled: settingsRes?.data?.bankTransferEnabled ?? true,
-        };
-      }
-    } catch (err) {
-      console.warn("Failed to restore registration from reference:", err);
-    }
+  if (!ref) {
+    throw new Error("No registration reference provided.");
   }
 
-  const ticketType = (searchParams.get("ticketType") ?? "single") as TicketType;
-  const partnerName = searchParams.get("partnerName") ?? undefined;
-  const foodIds = searchParams.getAll("foodId");
-  const drinkIds = searchParams.getAll("drinkId");
-  const ticketPrice = Number(searchParams.get("ticketPrice") ?? 0);
+  try {
+    const [regRes, settingsRes] = await Promise.all([
+      fetch(`/api/registrations/by-ref/${ref}?slug=${slug}`),
+      fetch(`/api/settings?slug=${slug}`).then((r) => r.json()).catch(() => null),
+    ]);
 
-  const meshIds = searchParams.getAll("meshId");
-  const meshQtys = searchParams.getAll("meshQty");
-  const meshColors = searchParams.getAll("meshColor");
-  const meshSizes = searchParams.getAll("meshSize");
-  const meshInscriptions = searchParams.getAll("meshInscription");
-
-  const [merchProducts, foods, drinks, settingsRes] = await Promise.all([
-    Promise.all(meshIds.map(id => fetchProduct(id, slug))),
-    Promise.all(foodIds.map(id => fetchProduct(id, slug))),
-    Promise.all(drinkIds.map(id => fetchProduct(id, slug))),
-    fetch(`/api/settings?slug=${slug}`).then((r) => r.json()).catch(() => null),
-  ]);
-
-  const merch: OrderData["merch"] = [];
-  let meshTotal = 0;
-
-  merchProducts.forEach((product, i) => {
-    if (product) {
-      const quantity = Number(meshQtys[i]) || 1;
-      merch.push({
-        product,
-        quantity,
-        color: meshColors[i] || undefined,
-        size: meshSizes[i] || undefined,
-        inscriptions: meshInscriptions[i] || undefined,
-      });
-      meshTotal += product.price * quantity;
+    if (!regRes.ok) {
+      throw new Error("Registration not found or expired.");
     }
-  });
 
-  const validFoods = foods.filter((f): f is CheckoutProduct => f !== null);
+    const { data: reg } = await regRes.json();
+    
+    // Calculate totals correctly from the registration data
+    const baseTotal = reg.totalAmount;
+    const paystackFee = calculatePaystackFee(baseTotal);
 
-  return {
-    name: session?.name ?? searchParams.get("name") ?? "Guest",
-    email: session?.email ?? searchParams.get("email") ?? "",
-    ticketType,
-    partnerName,
-    merch,
-    foods: validFoods,
-    drinks: drinks.filter((d): d is CheckoutProduct => d !== null),
-    ticketPrice,
-    meshTotal,
-    baseTotal: ticketPrice + meshTotal,
-    paystackFee: calculatePaystackFee(ticketPrice + meshTotal),
-    grandTotal: ticketPrice + meshTotal + calculatePaystackFee(ticketPrice + meshTotal),
-    bankDetails: settingsRes?.data ? {
-      bankName: settingsRes.data.bankName,
-      accountName: settingsRes.data.accountName,
-      accountNumber: settingsRes.data.accountNumber,
-    } : undefined,
-    paystackEnabled: settingsRes?.data?.paystackEnabled ?? true,
-    bankTransferEnabled: settingsRes?.data?.bankTransferEnabled ?? true,
-  };
+    return {
+      name: reg.name,
+      email: reg.email,
+      ticketType: reg.ticketType,
+      partnerName: reg.partnerName,
+      foods: reg.foodSelections || [],
+      drinks: reg.drinkSelection || [],
+      ticketPrice: baseTotal,
+      grandTotal: baseTotal + paystackFee,
+      paystackFee: paystackFee,
+      existingRef: ref,
+      bankDetails: settingsRes?.data ? {
+        bankName: settingsRes.data.bankName,
+        accountName: settingsRes.data.accountName,
+        accountNumber: settingsRes.data.accountNumber,
+      } : undefined,
+      paystackEnabled: settingsRes?.data?.paystackEnabled ?? true,
+      bankTransferEnabled: settingsRes?.data?.bankTransferEnabled ?? true,
+    };
+  } catch (err: any) {
+    console.error("Failed to build order:", err);
+    throw err;
+  }
 }

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint"
   },
-  "dependencies": {
+  "dependencies": { 
     "@google/generative-ai": "^0.24.1",
     "@paystack/inline-js": "^2.22.8",
     "@react-pdf/renderer": "^4.3.2",

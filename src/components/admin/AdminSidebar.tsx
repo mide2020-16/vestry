@@ -18,8 +18,10 @@ import {
   BarChart3,
   Clock
 } from "lucide-react";
-import { NavItem } from "../../components/admin/NavItem";
+import { useTour } from "../providers/TourProvider";
+import { HelpCircle } from "lucide-react";
 import { Interactive, AnimatedChevron } from "@/components/ui/Boop";
+import { NavItem } from "./NavItem";
 
 interface Props {
   email?: string | null;
@@ -28,6 +30,7 @@ interface Props {
 
 export default function AdminSidebar({ email, role }: Props) {
   const pathname = usePathname();
+  const { startTour } = useTour();
   const [collapsed, setCollapsed] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -150,6 +153,23 @@ export default function AdminSidebar({ email, role }: Props) {
               </p>
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={startTour}
+            className={`flex items-center gap-4 rounded-2xl bg-amber-500/5 text-amber-500 cursor-pointer mb-2
+              hover:bg-amber-500/10 hover:text-amber-600 transition-all duration-500 font-bold border border-amber-500/10 hover:border-amber-500/30
+              ${collapsed ? "justify-center w-11 h-11" : "px-4 py-3.5 w-full"}`}
+          >
+            <Interactive>
+              <HelpCircle size={20} className="shrink-0" />
+            </Interactive>
+            {!collapsed && (
+              <span className="overflow-hidden w-auto opacity-100 transition-all duration-500 whitespace-nowrap uppercase text-[11px] tracking-widest">
+                Start Tour
+              </span>
+            )}
+          </button>
 
           <Link
             href="/admin/signout"

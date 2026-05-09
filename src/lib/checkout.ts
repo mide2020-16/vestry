@@ -31,6 +31,6 @@ export function isValidEmail(email: string): boolean {
 /**
  * Validates ticket type.
  */
-export function isValidTicketType(type: string | null | undefined): type is "single" | "couple" | "none" {
-  return type === "single" || type === "couple" || type === "none";
+export function isValidTicketType(type: unknown): boolean {
+  return typeof type === "string" && type.trim().length > 0;
 }

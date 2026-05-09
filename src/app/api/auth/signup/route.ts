@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import User, { UserRole } from "@/models/User";
 import bcrypt from "bcryptjs";
+import { sendWelcomeVerificationEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +24,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const emailLower = email.toLowerCase();
+    const existingUser = await User.findOne({ email: emailLower });
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists with this email" },
@@ -35,10 +37,20 @@ export async function POST(request: Request) {
 
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: emailLower,
       password: hashedPassword,
-      role: UserRole.USER, // Default role
+      role: UserRole.END_USER, // Updated role
+      isVerified: false,
     });
+
+    // Trigger Automated Email Confirmation (Fire and forget or wait)
+    // We'll wait to ensure it works, but technically could be backgrounded
+    try {
+      await sendWelcomeVerificationEmail(user);
+    } catch (emailErr) {
+      console.error("[SIGNUP_EMAIL_ERROR]", emailErr);
+      // Don't fail the signup if email fails, but log it
+    }
 
     return NextResponse.json(
       { 

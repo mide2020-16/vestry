@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: UserRole.USER,
+      role: UserRole.END_USER,
     });
 
     return NextResponse.json({ success: true, user: { id: user._id, email: user.email, name: user.name } }, { status: 201 });

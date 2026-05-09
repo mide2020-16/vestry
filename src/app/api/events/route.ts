@@ -26,7 +26,7 @@ export async function GET() {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    if (dbUser.role !== UserRole.SUPER_ADMIN && dbUser.role !== UserRole.EVENT_ADMIN && dbUser.role !== UserRole.USER) {
+    if (dbUser.role !== UserRole.SUPER_ADMIN && dbUser.role !== UserRole.EVENT_CREATOR && dbUser.role !== UserRole.END_USER) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
     
@@ -86,8 +86,8 @@ export async function POST(request: Request) {
       if (!dbUser.managedEvents) dbUser.managedEvents = [];
       dbUser.managedEvents.push(event._id);
       
-      if (dbUser.role === UserRole.USER) {
-        dbUser.role = UserRole.EVENT_ADMIN;
+      if (dbUser.role === UserRole.END_USER) {
+        dbUser.role = UserRole.EVENT_CREATOR;
       }
       await dbUser.save();
 

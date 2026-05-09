@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import type { Metadata, Viewport } from "next";
-// import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { InstallPrompt } from "@/components/InstallPrompt";
-// import { Toggle } from "@/components/toggleButton";
-import dbConnect from "@/lib/dbConnect";
-import Event from "@/models/Event";
 import { auth } from "@/auth";
-import FlipEventCard from "@/components/FlipEventCard";
+import { ArrowRight, Sparkles, UserCircle, Compass } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Vestry Hub | Event Discovery",
-  description: "Discover and register for upcoming Vestry events.",
+  title: "Vestry | Premium Event Discovery & Ticketing",
+  description: "Experience the next generation of event discovery and registration.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -31,92 +26,76 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-async function getEvents() {
-  await dbConnect();
-  const rawEvents = await Event.find({ status: "OPEN" })
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .lean();
-  
-  // Serialize for Client Components
-  return JSON.parse(JSON.stringify(rawEvents)).map((event: any) => ({
-    ...event,
-    _id: event._id.toString(),
-    createdAt: event.createdAt ? new Date(event.createdAt).toISOString() : null,
-    updatedAt: event.updatedAt ? new Date(event.updatedAt).toISOString() : null,
-    endDate: event.endDate ? new Date(event.endDate).toISOString() : null,
-  }));
-}
-
 export default async function HubPage() {
-  const events = await getEvents();
   const session = await auth();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors">
-      {/* Layered ambient glows */}
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] text-foreground transition-colors duration-700 flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Ambient background design */}
       <div className="absolute inset-0 pointer-events-none -z-10">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/5 dark:bg-amber-500/8 rounded-full blur-[140px]" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] translate-y-1/4 -translate-x-1/4" />
         <div
-          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
           style={{
-            backgroundImage: `linear-gradient(rgba(251,191,36,0.5) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(251,191,36,0.5) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(251,191,36,0.3) 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
           }}
         />
       </div>
 
-      <div className="w-full max-w-6xl mx-auto space-y-12 relative z-10 py-12">
-        {/* Header section */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            Vestry Event Platform
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black text-foreground leading-tight tracking-tighter max-w-4xl mx-auto">
-            The Ultimate <span className="text-amber-500">Event OS</span> <br className="hidden md:block"/> for Planners & Attendees
+      <div className="w-full max-w-6xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+        {/* Animated badge */}
+        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 backdrop-blur-md mb-8 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <Sparkles size={14} className="text-amber-500" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">The Future of Events is Here</span>
+        </div>
+
+        {/* Hero Content */}
+        <div className="space-y-8 mb-16 max-w-4xl">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-[#1d1d1f] dark:text-white animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
+            Vestry. <br />
+            <span className="text-amber-500">Discover</span> Your <br />
+            Next Adventure.
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Launch stunning registration portals, manage tickets, and sell merchandise effortlessly.
+          <p className="text-lg md:text-xl text-muted-foreground/80 font-medium max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            A premium ticketing platform built for elite experiences. Discover exclusive events, manage your bookings, and attend with style.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <Link 
-              href="/admin" 
-              className="w-full sm:w-auto px-8 py-4 bg-amber-500 hover:bg-amber-400 text-amber-950 font-black uppercase tracking-widest rounded-2xl text-sm transition-all shadow-xl shadow-amber-500/20 hover:scale-105"
-            >
-              🚀 Launch Your Event
-            </Link>
-            <a 
-              href="#events" 
-              className="w-full sm:w-auto px-8 py-4 bg-card hover:bg-accent border border-border text-foreground font-black uppercase tracking-widest rounded-2xl text-sm transition-all hover:scale-105"
-            >
-              🎟️ Find an Event
-            </a>
-          </div>
         </div>
 
-        {/* Discovery Grid */}
-        <div id="events" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-12 mt-12 border-t border-border/50">
-          {events.map((event: any, index: number) => (
-            <FlipEventCard key={event._id.toString()} event={event} index={index} />
-          ))}
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+          <Link 
+            href="/events" 
+            className="group w-full sm:w-auto px-10 py-6 bg-amber-500 text-black font-black uppercase tracking-[0.2em] text-xs rounded-full hover:scale-105 transition-all shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4"
+          >
+            <Compass size={18} />
+            Browse Events
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
           
-          {events.length === 0 && (
-            <div className="col-span-full py-20 text-center border-2 border-dashed border-border rounded-3xl">
-              <p className="text-muted-foreground">No active events found. Check back later!</p>
-            </div>
-          )}
+          <Link 
+            href={session ? "/admin" : "/login"} 
+            className="w-full sm:w-auto px-10 py-6 bg-white dark:bg-[#1c1c1e] text-black dark:text-white font-black uppercase tracking-[0.2em] text-xs rounded-full hover:scale-105 transition-all border border-black/5 dark:border-white/5 shadow-xl flex items-center justify-center gap-4"
+          >
+            <UserCircle size={18} />
+            {session ? "Dashboard" : "Sign Up / Login"}
+          </Link>
         </div>
 
-
+        {/* Dynamic decorative elements */}
+        <div className="mt-32 w-full max-w-lg aspect-square relative opacity-20 pointer-events-none select-none animate-pulse">
+           <div className="absolute inset-0 border-[40px] border-amber-500/10 rounded-full scale-110" />
+           <div className="absolute inset-0 border-[20px] border-amber-500/5 rounded-full scale-125" />
+        </div>
       </div>
 
-      {/* <Toggle label="Send Message">
-        <PushNotificationManager />
-      </Toggle> */}
       <InstallPrompt />
+      
+      {/* Absolute footer */}
+      <footer className="absolute bottom-8 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 opacity-50">
+        Vestry © 2026 — Precision Whimsy Engine
+      </footer>
     </div>
   );
 }

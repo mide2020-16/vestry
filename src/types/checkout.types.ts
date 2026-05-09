@@ -7,31 +7,21 @@ export interface CheckoutProduct {
   category: string;
   image_url?: string;
 }
+
 export interface OrderData {
   name: string;
   email: string;
   ticketType: TicketType;
   partnerName?: string;
 
-  // Merch Customization
-  merch: {
-    product: CheckoutProduct;
-    quantity: number;
-    color?: string;
-    size?: string;
-    inscriptions?: string;
-  }[];
-
   // F&B Selections
-  foods: CheckoutProduct[];
-  drinks: CheckoutProduct[];
+  foods: string[];
+  drinks: string[];
 
   // Financials
   ticketPrice: number;
-  meshTotal: number;
-  baseTotal: number;
-  paystackFee: number;
   grandTotal: number;
+  paystackFee: number;
 
   existingRef?: string;
   bankDetails?: {

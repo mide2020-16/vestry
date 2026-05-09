@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import Product from "@/models/Product";
 import Event from "@/models/Event";
 import dbConnect from "@/lib/dbConnect";
 
@@ -10,29 +8,18 @@ import dbConnect from "@/lib/dbConnect";
  */
 export async function calculateRegistrationTotal(
   eventId: string,
-  ticketType: "single" | "couple" | "none",
-  merch: { productId: string; quantity: number }[] = []
+  ticketTypeName: string
 ): Promise<number> {
   await dbConnect();
 
-  const event = (await Event.findById(eventId).lean()) as any;
-  const config = event?.config || {
-    couplePrice: 2500,
-    singlePrice: 1500,
-  };
-
-  const basePrice = ticketType === "none"
-    ? 0
-    : (ticketType === "couple" ? config.couplePrice : config.singlePrice);
-
-  let merchTotal = 0;
-  if (Array.isArray(merch)) {
-    for (const item of merch) {
-      if (!item.productId) continue;
-      const product = await Product.findById(item.productId).lean() as any;
-      merchTotal += (product?.price ?? 0) * (Number(item.quantity) || 1);
-    }
+  const event = await Event.findById(eventId).lean();
+  if (!event || !event.config?.ticketTypes) {
+    return 0;
   }
 
-  return basePrice + merchTotal;
+  const ticketType = event.config.ticketTypes.find(
+    (t: { name: string; price: number }) => t.name.toLowerCase() === ticketTypeName.toLowerCase()
+  );
+
+  return ticketType ? ticketType.price : 0;
 }
