@@ -6,6 +6,12 @@ export enum UserRole {
   END_USER = "END_USER",
 }
 
+export function normalizeRole(role: string): UserRole {
+  if (role === "USER" || role === "GUEST") return UserRole.END_USER;
+  if (role === "EVENT_ADMIN" || role === "CREATOR") return UserRole.EVENT_CREATOR;
+  return role as UserRole;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;

@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
-import User, { UserRole } from "@/models/User";
+import User, { UserRole, normalizeRole } from "@/models/User";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -53,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user._id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: normalizeRole(user.role),
           image: user.image,
         };
       },
@@ -84,7 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
         }
         
-        (user as any).role = existingUser.role;
+        (user as any).role = normalizeRole(existingUser.role);
         (user as any).id = existingUser._id.toString();
       }
       return true;

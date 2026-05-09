@@ -20,11 +20,14 @@ export async function GET() {
     
     // Always fetch fresh user from DB using email to avoid stale/missing JWT claims
     const User = (await import("@/models/User")).default;
-    const dbUser = await User.findOne({ email: session.user.email?.toLowerCase() }).lean() as any;
-
-    if (!dbUser) {
+    const { normalizeRole } = await import("@/models/User");
+    const dbUserRaw = await User.findOne({ email: session.user.email?.toLowerCase() }).lean() as any;
+    
+    if (!dbUserRaw) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
+    const dbUser = { ...dbUserRaw, role: normalizeRole(dbUserRaw.role) };
 
     if (dbUser.role !== UserRole.SUPER_ADMIN && dbUser.role !== UserRole.EVENT_CREATOR && dbUser.role !== UserRole.END_USER) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
