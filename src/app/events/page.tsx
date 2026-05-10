@@ -25,7 +25,7 @@ export default function BrowseEventsPage() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await fetch("/api/events");
+        const res = await fetch("/api/events?public=true");
         const data = await res.json();
         if (data.success) {
           setEvents(data.data);

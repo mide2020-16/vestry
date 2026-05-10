@@ -76,8 +76,8 @@ export function ReceiptBody({
         />
       )}
 
-      {registration.drinkSelection && (
-        <Row label="Drink" value={registration.drinkSelection.join(", ")} />
+      {registration.drinkSelection && registration.drinkSelection.length > 0 && (
+        <Row label="Drink" value={registration.drinkSelection.map((d: any) => d.name).join(", ")} />
       )}
 
       <Row label="Date registered" value={eventDate} />

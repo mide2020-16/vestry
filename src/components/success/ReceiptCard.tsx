@@ -186,15 +186,15 @@ export function ReceiptCard({
             ))}
           </ReceiptRow>
         )}
-        {registration.drinkSelection && (
+        {registration.drinkSelection && registration.drinkSelection.length > 0 && (
           <ReceiptRow label="Drink">
-            <p className="text-white text-sm">
-              {registration.drinkSelection?.map((f: any) => (
-                <p key={f.name} className="text-white text-sm">
+            <div className="flex flex-col gap-1 items-end">
+              {registration.drinkSelection.map((f: any, i: number) => (
+                <p key={i} className="text-white text-sm">
                   {f.name}
                 </p>
               ))}
-            </p>
+            </div>
           </ReceiptRow>
         )}
         <ReceiptRow label="Date">

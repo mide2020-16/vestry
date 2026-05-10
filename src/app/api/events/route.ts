@@ -9,33 +9,35 @@ import ActivityLog, { LogAction, UserType } from "@/models/AuditLog";
 import User from "@/models/User";
 
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const isPublic = searchParams.get("public") === "true";
   const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     await dbConnect();
     
-    // Always fetch fresh user from DB using email to avoid stale/missing JWT claims
+    // If it's a public request or no session, return all events
+    if (isPublic || !session?.user?.email) {
+      const events = await Event.find({}).sort({ createdAt: -1 }).lean();
+      return NextResponse.json({ success: true, data: events });
+    }
+
+    // Otherwise, handle admin/managed events logic
     const User = (await import("@/models/User")).default;
     const { normalizeRole } = await import("@/models/User");
     const dbUserRaw = await User.findOne({ email: session.user.email?.toLowerCase() }).lean() as any;
     
     if (!dbUserRaw) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      // If session exists but user not in DB, treat as public for now or return 401
+      const events = await Event.find({}).sort({ createdAt: -1 }).lean();
+      return NextResponse.json({ success: true, data: events });
     }
 
     const dbUser = { ...dbUserRaw, role: normalizeRole(dbUserRaw.role) };
 
-    if (dbUser.role !== UserRole.SUPER_ADMIN && dbUser.role !== UserRole.EVENT_CREATOR && dbUser.role !== UserRole.END_USER) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
-    
     let query = {};
     if (dbUser.role !== UserRole.SUPER_ADMIN) {
-      // Fetch user from DB to get latest managedEvents (applies to EVENT_ADMIN and standard USER)
       query = { _id: { $in: dbUser?.managedEvents || [] } };
     }
 
