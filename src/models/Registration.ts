@@ -6,7 +6,7 @@ export interface IRegistration extends Document {
   email: string;
   ticketType: string;
   foodSelections: mongoose.Types.ObjectId[];
-  drinkSelection: mongoose.Types.ObjectId | null;
+  drinkSelection: mongoose.Types.ObjectId[];
   meshSelection?: mongoose.Types.ObjectId;
   meshSize?: string;
   meshColor?: string;
@@ -50,7 +50,7 @@ const RegistrationSchema: Schema = new Schema(
       required: true,
     },
     foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    drinkSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    drinkSelection: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     meshSelection: { type: Schema.Types.ObjectId, ref: "Product" },
     meshSize: { type: String },
     meshColor: { type: String },

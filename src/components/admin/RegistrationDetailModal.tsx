@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { X, Calendar, Mail, User, Ticket, CreditCard, ShoppingBag, Utensils, GlassWater, Hash, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Calendar, Mail, User, CreditCard, ShoppingBag, Utensils, GlassWater, Hash, CheckCircle2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { formatDate } from "@/lib/utils";
@@ -203,7 +203,7 @@ export function RegistrationDetailModal({
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Hospitality</h4>
                       <div className="grid grid-cols-1 gap-2">
                         <SelectionBox icon={Utensils} label="Food" value={registration.foodSelections?.length ? `${registration.foodSelections.length} Items Selected` : "None"} />
-                        <SelectionBox icon={GlassWater} label="Drink" value={registration.drinkSelection ? "Selected" : "None"} />
+                        <SelectionBox icon={GlassWater} label="Drink" value={registration.drinkSelection?.length ? `${registration.drinkSelection.length} Selected` : "None"} />
                       </div>
                    </div>
                 </div>

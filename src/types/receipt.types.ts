@@ -20,7 +20,7 @@ export interface Registration {
     inscriptions?: string;
   }[];
   foodSelections?: { name: string }[];
-  drinkSelection?: { name: string } | null;
+  drinkSelection?: { name: string }[];
   paymentMethod?: "paystack" | "transfer";
   paymentStatus?: string | boolean;
   createdAt: string;

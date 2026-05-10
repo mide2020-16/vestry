@@ -25,7 +25,6 @@ export default async function AdminDashboardPage({
 
   const searchParamsData = await searchParams;
   const eventId = searchParamsData.eventId;
-  const user = session.user as any;
 
   await dbConnect();
 
@@ -178,7 +177,7 @@ export default async function AdminDashboardPage({
       inscriptions: m.inscriptions,
     })),
     foodSelections: (r.foodSelections ?? []).map((id: any) => id.toString()),
-    drinkSelection: r.drinkSelection ? r.drinkSelection.toString() : null,
+    drinkSelection: (r.drinkSelection ?? []).map((id: any) => id.toString()),
     paymentStatus: r.paymentStatus,
     paymentMethod: r.paymentMethod ?? null,
     paymentReceiptUrl: r.paymentReceiptUrl ?? null,
