@@ -93,7 +93,7 @@ export default function NotFound() {
         {/* Footer Suggestion */}
         <p className="mt-12 text-sm text-muted-foreground">
           Think this is a mistake?{" "}
-          <Link href="/contact" className="text-amber-600 dark:text-amber-400/50 underline">
+          <Link href="/" className="text-amber-600 dark:text-amber-400/50 underline">
             Report it
           </Link>
         </p>

@@ -6,14 +6,26 @@ export interface IRegistration extends Document {
   email: string;
   ticketType: string;
   foodSelections: mongoose.Types.ObjectId[];
-  drinkSelection: mongoose.Types.ObjectId[];
+  drinkSelection: mongoose.Types.ObjectId | null;
+  meshSelection?: mongoose.Types.ObjectId;
+  meshSize?: string;
+  meshColor?: string;
+  meshInscriptions?: string;
+  merch?: Array<{
+    productId: mongoose.Types.ObjectId;
+    quantity: number;
+    color?: string;
+    size?: string;
+    inscriptions?: string;
+  }>;
   paymentStatus: boolean;
   status: "pending" | "success" | "declined";
   declineReason?: string;
   paymentMethod: "paystack" | "transfer";
   paymentReceiptUrl?: string;
   paystackReference?: string;
-  totalAmount: number;aiVerificationResult?: {
+  totalAmount: number;
+  aiVerificationResult?: {
     verified: boolean;
     confidence: "high" | "medium" | "low";
     extractedAmount?: number;
@@ -38,7 +50,18 @@ const RegistrationSchema: Schema = new Schema(
       required: true,
     },
     foodSelections: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    drinkSelection: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    drinkSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    meshSelection: { type: Schema.Types.ObjectId, ref: "Product" },
+    meshSize: { type: String },
+    meshColor: { type: String },
+    meshInscriptions: { type: String },
+    merch: [{
+      productId: { type: Schema.Types.ObjectId, ref: "Product" },
+      quantity: { type: Number, default: 1 },
+      color: { type: String },
+      size: { type: String },
+      inscriptions: { type: String }
+    }],
     paymentStatus: { type: Boolean, default: false },
     status: {
       type: String,

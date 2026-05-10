@@ -11,6 +11,7 @@ import EventSwitcher from "@/components/admin/EventSwitcher";
 import ShareEventModal from "@/components/admin/ShareEventModal";
 import Event from "@/models/Event";
 import { TrendingUp, Users, Ticket, CreditCard } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -37,8 +38,8 @@ export default async function AdminDashboardPage({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
         <h2 className="text-2xl font-black">Account Configuration Issue</h2>
-        <p className="text-muted-foreground">Your email was authenticated but we couldn't find your administrative record. Please contact the system owner.</p>
-        <a href="/admin/signout" className="px-6 py-3 bg-red-500 text-white rounded-xl font-bold">Sign Out</a>
+        <p className="text-muted-foreground">Your email was authenticated but we couldn&lsquot;t find your administrative record. Please contact the system owner.</p>
+        <Link href="/admin/signout" className="px-6 py-3 bg-red-500 text-white rounded-xl font-bold">Sign Out</Link>
       </div>
     );
   }
@@ -58,11 +59,11 @@ export default async function AdminDashboardPage({
           </div>
           <h2 className="text-4xl font-black text-foreground">Welcome to Vestry</h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            You don&quot;t have any events yet. Create your first event to start accepting registrations, selling merchandise, and managing attendees.
+            You don&lsquot;t have any events yet. Create your first event to start accepting registrations, selling merchandise, and managing attendees.
           </p>
-          <a href="/admin/events" className="mt-4 px-8 py-4 bg-amber-500 text-amber-950 hover:bg-amber-400 font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-amber-500/20 hover:scale-105">
+          <Link href="/admin/events" className="mt-4 px-8 py-4 bg-amber-500 text-amber-950 hover:bg-amber-400 font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-amber-500/20 hover:scale-105">
             Create Your First Event
-          </a>
+          </Link>
         </div>
       );
     }
@@ -75,8 +76,6 @@ export default async function AdminDashboardPage({
     currentEvent = await Event.findById(query.eventId).lean() as any;
   }
 
-  // --- 10M SCALE AGGREGATION ---
-  // We use MongoDB aggregation instead of Array.reduce to compute stats instantly.
   const statsPipeline = [
     { $match: { ...query, eventId: query.eventId ? new (await import("mongoose")).default.Types.ObjectId(query.eventId) : { $exists: true } } },
     {

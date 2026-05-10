@@ -75,7 +75,7 @@ export default async function HubPage() {
           </Link>
           
           <Link 
-            href={session ? "/admin" : "/login"} 
+            href={session ? "/admin" : "/admin/login"} 
             className="w-full sm:w-auto px-10 py-6 bg-white dark:bg-[#1c1c1e] text-black dark:text-white font-black uppercase tracking-[0.2em] text-xs rounded-full hover:scale-105 transition-all border border-black/5 dark:border-white/5 shadow-xl flex items-center justify-center gap-4"
           >
             <UserCircle size={18} />
