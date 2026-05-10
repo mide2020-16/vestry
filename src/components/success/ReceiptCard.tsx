@@ -189,7 +189,11 @@ export function ReceiptCard({
         {registration.drinkSelection && (
           <ReceiptRow label="Drink">
             <p className="text-white text-sm">
-              {registration.drinkSelection.name}
+              {registration.drinkSelection?.map((f: any) => (
+                <p key={f.name} className="text-white text-sm">
+                  {f.name}
+                </p>
+              ))}
             </p>
           </ReceiptRow>
         )}
