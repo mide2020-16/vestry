@@ -35,33 +35,6 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname]);
 
-  const startTour = useCallback(() => {
-    setIsActive(true);
-    setCurrentStepIndex(0);
-  }, []);
-
-  const stopTour = useCallback(() => {
-    setIsActive(false);
-    localStorage.setItem("has-seen-vestry-tour", "true");
-    setHasSeenTour(true);
-  }, []);
-
-  const nextStep = useCallback(() => {
-    if (currentStepIndex < TOUR_STEPS.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
-    } else {
-      stopTour();
-    }
-  }, [currentStepIndex, stopTour]);
-
-  const prevStep = useCallback(() => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
-    }
-  }, [currentStepIndex]);
-
-  const currentStep = TOUR_STEPS[currentStepIndex] || null;
-
   // Filter steps relevant to the current page to avoid showing wrong steps
   const isCorrectPage = useCallback((step: TourStep) => {
     if (!step.page) return true;
@@ -73,6 +46,44 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     if (step.page === "admin-settings" && pathname === "/admin/settings") return true;
     return false;
   }, [pathname]);
+
+  const startTour = useCallback(() => {
+    // Find the first step relevant to the current page
+    const firstRelevantIndex = TOUR_STEPS.findIndex(step => isCorrectPage(step));
+    
+    setIsActive(true);
+    setCurrentStepIndex(firstRelevantIndex !== -1 ? firstRelevantIndex : 0);
+  }, [isCorrectPage]);
+
+  const stopTour = useCallback(() => {
+    setIsActive(false);
+    localStorage.setItem("has-seen-vestry-tour", "true");
+    setHasSeenTour(true);
+  }, []);
+
+  const nextStep = useCallback(() => {
+    // Find the next step index that is relevant to the current page
+    const nextRelevantIndex = TOUR_STEPS.findIndex((step, index) => index > currentStepIndex && isCorrectPage(step));
+    
+    if (nextRelevantIndex !== -1) {
+      setCurrentStepIndex(nextRelevantIndex);
+    } else {
+      stopTour();
+    }
+  }, [currentStepIndex, isCorrectPage, stopTour]);
+
+  const prevStep = useCallback(() => {
+    // Find the previous step index that is relevant to the current page
+    const prevIndices = TOUR_STEPS
+      .map((step, index) => ({ step, index }))
+      .filter(({ index, step }) => index < currentStepIndex && isCorrectPage(step));
+    
+    if (prevIndices.length > 0) {
+      setCurrentStepIndex(prevIndices[prevIndices.length - 1].index);
+    }
+  }, [currentStepIndex, isCorrectPage]);
+
+  const currentStep = TOUR_STEPS[currentStepIndex] || null;
 
   // If active step is not on this page, maybe we should auto-advance or just hide?
   // For now, let's just ensure the current step is valid for the current page

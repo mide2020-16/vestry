@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Info, X, Calendar, Clock, ArrowRight } from "lucide-react";
+import { Info, X, Calendar, Clock } from "lucide-react";
 
 interface Props {
   event: any;
@@ -67,7 +67,7 @@ export default function FlipEventCard({ event, index }: Props) {
               </div>
             )}
             
-            <Link href={`/event/${event.slug}/register`} className="p-6 space-y-4 relative z-10 flex-grow flex flex-col justify-between">
+            <div className="p-6 space-y-4 relative z-10 flex-grow flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-black transition-colors duration-300">
@@ -83,15 +83,23 @@ export default function FlipEventCard({ event, index }: Props) {
                 </h3>
               </div>
 
-              <div className="pt-4 flex items-center justify-between border-t border-border/50">
-                <span className="text-[10px] font-black uppercase tracking-widest text-amber-500/60">
-                  Register Now
+              {/* View Details Overlay (triggers flip) */}
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsFlipped(true);
+                }}
+                className="pt-4 flex items-center justify-between border-t border-border/50 w-full group/btn"
+              >
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-500/60 group-hover/btn:text-amber-500 transition-colors">
+                  View Details
                 </span>
-                <div className="w-8 h-8 rounded-full bg-border flex items-center justify-center group-hover:bg-amber-500 group-hover:text-black transition-all">
-                  <ArrowRight size={16} />
+                <div className="w-8 h-8 rounded-full bg-border flex items-center justify-center group-hover/btn:bg-amber-500 group-hover/btn:text-black transition-all">
+                  <Info size={16} />
                 </div>
-              </div>
-            </Link>
+              </button>
+            </div>
           </div>
         </div>
 

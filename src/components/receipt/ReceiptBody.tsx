@@ -77,7 +77,7 @@ export function ReceiptBody({
       )}
 
       {registration.drinkSelection && (
-        <Row label="Drink" value={registration.drinkSelection.name} />
+        <Row label="Drink" value={registration.drinkSelection.join(", ")} />
       )}
 
       <Row label="Date registered" value={eventDate} />
